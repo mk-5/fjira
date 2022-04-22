@@ -1,0 +1,7 @@
+.idea/
+!.gitkeep
+build/
+fjira
+!fjira/
+vendor
+gopath
