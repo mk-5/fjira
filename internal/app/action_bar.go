@@ -115,14 +115,12 @@ func (b *ActionBar) GetItem(index int) *ActionBarItem {
 }
 
 func (b *ActionBar) RemoveItem(id int) {
-	index := -1
 	for i, item := range b.items {
 		if item.Id == id {
-			index = i
+			b.RemoveItemAtIndex(i)
 			return
 		}
 	}
-	b.RemoveItemAtIndex(index)
 }
 
 func (b *ActionBar) RemoveItemAtIndex(index int) {

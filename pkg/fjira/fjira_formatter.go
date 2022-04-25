@@ -2,7 +2,6 @@ package fjira
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
 	"strconv"
@@ -26,11 +25,6 @@ const (
 	MaxSummaryColWidth = 45
 	MaxStatusColWidth  = 12
 )
-
-var highlightTarget = color.New(color.FgYellow).Add(color.Underline).Add(color.Bold)
-var highlightTarget2 = color.New(color.FgBlue).Add(color.Bold)
-var highlightAction = color.New(color.FgCyan).Add(color.Bold)
-var highlightSubject = color.New(color.FgYellow).Add(color.Bold).Add(color.Underline)
 
 func (f *defaultFormatter) formatJiraIssue(issue *jira.JiraIssue) string {
 	return fmt.Sprintf("%s %s [%s] - %s",

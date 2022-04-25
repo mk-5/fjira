@@ -10,9 +10,11 @@ import (
 )
 
 type fjiraSearchIssuesView struct {
-	bottomBar *app.ActionBar
-	fuzzyFind *app.FuzzyFind
-	project   *jira.JiraProject
+	bottomBar       *app.ActionBar
+	fuzzyFind       *app.FuzzyFind
+	project         *jira.JiraProject
+	currentQuery    string
+	searchForStatus *jira.JiraIssueTransition
 }
 
 const (
@@ -73,16 +75,15 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 	formatter, _ := GetFormatter()
 	a := app.GetApp()
 	latestRecords := view.searchProject("")
-	lastQuery := ""
 	// TODO - maybe we should have some additional condition here ..
 	// TODO - there is a problem when there is no match from JQL but it's from fuzzy matcher
 	issuesSupplier := func(query string) []string {
-		if len(latestRecords) >= JiraRecordsMax || len(query) < len(lastQuery) {
+		if len(latestRecords) >= JiraRecordsMax || len(query) < len(view.currentQuery) {
 			a.LoadingWithText(true, MessageSearchIssuesLoading)
 			latestRecords = view.searchProject(query)
 			a.Loading(false)
 		}
-		lastQuery = query
+		view.currentQuery = query
 		return formatter.formatJiraIssues(latestRecords)
 	}
 	view.fuzzyFind = app.NewFuzzyFindWithSupplier(MessageSelectIssue, issuesSupplier)
@@ -102,7 +103,7 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 }
 
 func (view *fjiraSearchIssuesView) search(query string) []jira.JiraIssue {
-	api, err := GetApi()
+	api, _ := GetApi()
 	issues, _, err := api.Search(query)
 	if err != nil {
 		log.Fatalln(err)
@@ -117,11 +118,24 @@ func (view *fjiraSearchIssuesView) searchProject(query string) []jira.JiraIssue 
 	if q != "" {
 		summaryWhere = fmt.Sprintf(JqlSummaryQuery, q)
 	}
-	api, err := GetApi()
+	api, _ := GetApi()
 	jql := fmt.Sprintf(JqlSearchQuery, view.project.Id, summaryWhere)
 	issues, err := api.SearchJql(jql)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	return issues
+}
+
+func (view *fjiraSearchIssuesView) buildJql(query string) string {
+	jql := "project=%s"
+	orderBy := "ORDER BY status"
+	query = strings.TrimSpace(query)
+	if query != "" {
+		jql = jql + fmt.Sprintf(" AND summary~\"%s*\"", query)
+	}
+	if view.searchForStatus != nil {
+		jql = jql + fmt.Sprintf(" AND status=\"%s\"", view.searchForStatus)
+	}
+	return fmt.Sprintf("%s %s", jql, orderBy)
 }

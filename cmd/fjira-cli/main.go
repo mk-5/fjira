@@ -39,7 +39,7 @@ func main() {
 
 func parseCliArgs() fjira.CliArgs {
 	flag.Usage = func() {
-		fmt.Println(usage)
+		fmt.Print(usage)
 	}
 	issueRegExp := regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
 	if len(os.Args) > 1 && issueRegExp.MatchString(os.Args[1]) {

@@ -12,8 +12,3 @@ type fjiraSettings struct {
 	jiraRestUrl    string
 	jiraBasicToken string
 }
-
-type fjiraWorkspace struct {
-	name     string
-	settings *fjiraSettings
-}

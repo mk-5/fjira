@@ -161,8 +161,8 @@ func (f *FuzzyFind) Resize(screenX, screenY int) {
 
 func (f *FuzzyFind) drawMatches(screen tcell.Screen) {
 	var row = f.screenY - ResultsMarginBottom - FuzzyFindMarginBottom
-	var currentStyleDefault tcell.Style = tcell.StyleDefault
-	var currentStyleBold tcell.Style = boldMatchStyle
+	var currentStyleDefault tcell.Style
+	var currentStyleBold tcell.Style
 	indexDelta := ClampInt(f.selected-row+1, 0, f.matches.Len()-1)
 	for index := indexDelta; index < f.matches.Len() && row > 0; index++ {
 		match := f.matches[index]

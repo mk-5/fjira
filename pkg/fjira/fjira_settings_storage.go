@@ -2,7 +2,7 @@ package fjira
 
 type userHomeSettingsStorage struct{}
 
-type settingsStorage interface {
+type settingsStorage interface { //nolint
 	write(settings *fjiraSettings) error
 	read() (*fjiraSettings, error)
 }

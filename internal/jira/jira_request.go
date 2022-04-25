@@ -28,7 +28,7 @@ func (api *httpJiraApi) jiraRequest(method string, restPath string, queryParams 
 		return nil, err
 	}
 	if response.StatusCode >= 400 {
-		return nil, errors.New(fmt.Sprintf("Jira error, status: &s - request: %s", response.Status, req))
+		return nil, errors.New(fmt.Sprintf("Jira error, status: %s - request: %s", response.Status, req.RequestURI))
 	}
 	defer response.Body.Close()
 	body, _ := io.ReadAll(response.Body)
