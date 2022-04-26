@@ -14,6 +14,7 @@ type JiraApi interface {
 	FindUser(project string) ([]JiraUser, error)
 	FindProjects() ([]JiraProject, error)
 	FindTransitions(issueId string) ([]JiraIssueTransition, error)
+	FindProjectStatuses(projectId string) ([]JiraIssueStatus, error)
 	DoTransition(issueId string, transition *JiraIssueTransition) error
 	DoAssignee(issueId string, accountId *string) error
 	GetIssueDetailed(issueId string) (*JiraIssue, error)
@@ -77,6 +78,12 @@ type JiraIssueTransition struct {
 		StatusId  string `json:"id"`
 		Name      string `json:"name"`
 	} `json:"to"`
+}
+
+type JiraIssueStatus struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type JiraApiCredentials struct {

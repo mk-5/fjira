@@ -15,7 +15,8 @@ type FjiraFormatter interface {
 	formatJiraIssues(issues []jira.JiraIssue) []string
 	formatJiraUser(user *jira.JiraUser) string
 	formatJiraUsers(user []jira.JiraUser) []string
-	formatJiraStatuses(statuses []jira.JiraIssueTransition) []string
+	formatJiraTransitions(transitions []jira.JiraIssueTransition) []string
+	formatJiraStatuses(statuses []jira.JiraIssueStatus) []string
 }
 
 type defaultFormatter struct{}
@@ -88,7 +89,15 @@ func (f *defaultFormatter) formatJiraProjects(projects []jira.JiraProject) []str
 	return formatted
 }
 
-func (f *defaultFormatter) formatJiraStatuses(statuses []jira.JiraIssueTransition) []string {
+func (f *defaultFormatter) formatJiraTransitions(statuses []jira.JiraIssueTransition) []string {
+	formatted := make([]string, 0, len(statuses))
+	for _, status := range statuses {
+		formatted = append(formatted, fmt.Sprintf("%s", status.Name))
+	}
+	return formatted
+}
+
+func (f *defaultFormatter) formatJiraStatuses(statuses []jira.JiraIssueStatus) []string {
 	formatted := make([]string, 0, len(statuses))
 	for _, status := range statuses {
 		formatted = append(formatted, fmt.Sprintf("%s", status.Name))

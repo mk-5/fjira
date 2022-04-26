@@ -74,7 +74,7 @@ func (view *fjiraStatusChangeView) startStatusSearching() {
 	app.GetApp().Loading(true)
 	formatter, _ := GetFormatter()
 	statuses := view.transitions(view.issue.Id)
-	statusesStrings := formatter.formatJiraStatuses(statuses)
+	statusesStrings := formatter.formatJiraTransitions(statuses)
 	view.fuzzyFind = app.NewFuzzyFind(MessageStatusFuzzyFind, statusesStrings)
 	app.GetApp().Loading(false)
 	select {

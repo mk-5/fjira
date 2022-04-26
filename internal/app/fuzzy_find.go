@@ -12,9 +12,10 @@ import (
 )
 
 type FuzzyFind struct {
+	MarginTop        int
 	Complete         chan FuzzyFindResult
 	records          []string
-	recordsSupplier  func(query string) []string
+	recordsProvider  func(query string) []string
 	query            string
 	fuzzyStatus      string
 	title            string
@@ -41,12 +42,14 @@ const (
 	DynamicSupplierDebounce = 150 * time.Millisecond
 )
 
-var boldMatchStyle = tcell.StyleDefault.Foreground(tcell.ColorLightGreen).Background(tcell.ColorDefault).Underline(true).Bold(true)
-var boldRedStyle = tcell.StyleDefault.Foreground(tcell.ColorDarkRed).Background(tcell.ColorDefault).Bold(true)
-var highlightDefault = tcell.StyleDefault.Foreground(tcell.ColorDefault).Background(tcell.ColorLightSlateGray)
-var highlightBold = tcell.StyleDefault.Foreground(tcell.ColorLightCyan).Background(tcell.ColorLightSlateGray).Bold(true)
-var boldStyle = tcell.StyleDefault.Bold(true)
-var titleStyle = tcell.StyleDefault.Italic(true).Foreground(tcell.ColorOlive)
+var (
+	boldMatchStyle   = tcell.StyleDefault.Foreground(tcell.ColorLightGreen).Background(tcell.ColorDefault).Underline(true).Bold(true)
+	boldRedStyle     = tcell.StyleDefault.Foreground(tcell.ColorDarkRed).Background(tcell.ColorDefault).Bold(true)
+	highlightDefault = tcell.StyleDefault.Foreground(tcell.ColorDefault).Background(tcell.ColorLightSlateGray)
+	highlightBold    = tcell.StyleDefault.Foreground(tcell.ColorLightCyan).Background(tcell.ColorLightSlateGray).Bold(true)
+	boldStyle        = tcell.StyleDefault.Bold(true)
+	titleStyle       = tcell.StyleDefault.Italic(true).Foreground(tcell.ColorOlive)
+)
 
 func NewFuzzyFind(title string, records []string) *FuzzyFind {
 	matchesAll := make(fuzzy.Matches, 0, MaxResults)
@@ -66,12 +69,13 @@ func NewFuzzyFind(title string, records []string) *FuzzyFind {
 		selected:        0,
 		dirty:           true,
 		matchesAll:      matchesAll,
-		recordsSupplier: nil,
+		recordsProvider: nil,
 		title:           title,
+		MarginTop:       0,
 	}
 }
 
-func NewFuzzyFindWithSupplier(title string, recordsSupplier func(query string) []string) *FuzzyFind {
+func NewFuzzyFindWithProvider(title string, recordsProvider func(query string) []string) *FuzzyFind {
 	return &FuzzyFind{
 		Complete:         make(chan FuzzyFindResult),
 		records:          nil,
@@ -81,9 +85,10 @@ func NewFuzzyFindWithSupplier(title string, recordsSupplier func(query string) [
 		selected:         0,
 		dirty:            true,
 		matchesAll:       make(fuzzy.Matches, 0, MaxResults),
-		recordsSupplier:  recordsSupplier,
+		recordsProvider:  recordsProvider,
 		supplierDebounce: debounce.New(DynamicSupplierDebounce),
 		title:            title,
+		MarginTop:        0,
 	}
 }
 
@@ -93,21 +98,21 @@ func (f *FuzzyFind) Draw(screen tcell.Screen) {
 		f.screenX = x
 		f.screenY = y
 	}
-	f.drawMatches(screen)
+	f.drawRecords(screen)
 
 	if f.title != "" {
 		DrawText(screen, 2, f.screenY-ResultsMarginBottom-FuzzyFindMarginBottom+1, titleStyle, f.title)
 	}
+	DrawText(screen, f.screenX-len(f.fuzzyStatus)-2, f.screenY-ResultsMarginBottom-FuzzyFindMarginBottom+1, titleStyle, f.fuzzyStatus)
 	DrawText(screen, 0, f.screenY-1-FuzzyFindMarginBottom, boldStyle, WriteIndicator)
 	DrawText(screen, 2, f.screenY-1-FuzzyFindMarginBottom, tcell.StyleDefault, f.query)
-	DrawText(screen, f.screenX-5, f.screenY-FuzzyFindMarginBottom-1, tcell.StyleDefault, f.fuzzyStatus)
 }
 
 func (f *FuzzyFind) Update() {
 	if !f.dirty {
 		return
 	}
-	if f.query != f.buffer.String() && f.recordsSupplier != nil {
+	if f.query != f.buffer.String() && f.recordsProvider != nil {
 		f.query = f.buffer.String()
 		f.supplierDebounce(f.updateRecordsFromSupplier)
 		f.dirty = false
@@ -159,12 +164,12 @@ func (f *FuzzyFind) Resize(screenX, screenY int) {
 	f.screenY = screenY
 }
 
-func (f *FuzzyFind) drawMatches(screen tcell.Screen) {
+func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
 	var row = f.screenY - ResultsMarginBottom - FuzzyFindMarginBottom
 	var currentStyleDefault tcell.Style
 	var currentStyleBold tcell.Style
 	indexDelta := ClampInt(f.selected-row+1, 0, f.matches.Len()-1)
-	for index := indexDelta; index < f.matches.Len() && row > 0; index++ {
+	for index := indexDelta; index < f.matches.Len() && row > f.MarginTop; index++ {
 		match := f.matches[index]
 		currentStyleDefault = tcell.StyleDefault
 		currentStyleBold = boldMatchStyle
@@ -185,7 +190,7 @@ func (f *FuzzyFind) drawMatches(screen tcell.Screen) {
 }
 
 func (f *FuzzyFind) updateRecordsFromSupplier() {
-	f.records = f.recordsSupplier(f.query)
+	f.records = f.recordsProvider(f.query)
 	f.matchesAll = nil
 	for i, record := range f.records {
 		f.matchesAll = append(f.matchesAll, fuzzy.Match{

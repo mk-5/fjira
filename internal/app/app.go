@@ -17,8 +17,8 @@ type App struct {
 	screen       tcell.Screen
 	spinnerIndex int32
 	keyEvent     chan *tcell.EventKey
-	drawables    []*Drawable
-	systems      []*System
+	drawables    []Drawable
+	systems      []System
 	// clear/add/remove is less accurate execution than clear.
 	// so it makes sense to store keep-alive stuff like this, instead of having
 	// separate arrays to iterate through
@@ -40,11 +40,12 @@ const (
 )
 
 var (
-	appInstance *App
-	once        sync.Once
-	//appBackground = tcell.ColorDefault // TODO - should be black?
-	//appBackground = tcell.NewRGBColor(28, 36, 42)
-	appBackground = tcell.NewRGBColor(22, 22, 22)
+	//AppBackground = tcell.ColorDefault // TODO - should be black?
+	//AppBackground = tcell.NewRGBColor(28, 36, 42)
+	AppBackground = tcell.NewRGBColor(22, 22, 22)
+	DefaultStyle  = tcell.StyleDefault.Background(AppBackground).Foreground(tcell.ColorDefault)
+	appInstance   *App
+	once          sync.Once
 )
 
 func CreateNewApp() *App {
@@ -68,8 +69,7 @@ func initApp() {
 	if err := screen.Init(); err != nil {
 		log.Fatalf("%+v", err)
 	}
-	defStyle := tcell.StyleDefault.Background(appBackground).Foreground(tcell.ColorDefault)
-	screen.SetStyle(defStyle)
+	screen.SetStyle(DefaultStyle)
 	screen.EnableMouse()
 	s := NewSimpleSpinner()
 	x, y := screen.Size()
@@ -80,8 +80,8 @@ func initApp() {
 		spinnerIndex:    0,
 		keyEvent:        make(chan *tcell.EventKey),
 		runOnAppRoutine: make([]func(), 0, 64),
-		drawables:       make([]*Drawable, 0, 256),
-		systems:         make([]*System, 0, 128),
+		drawables:       make([]Drawable, 0, 256),
+		systems:         make([]System, 0, 128),
 		keepAlive:       make(map[interface{}]bool),
 		dirty:           make(chan bool),
 		spinner:         s,
@@ -103,14 +103,14 @@ func (a *App) Start() {
 		//}
 		a.screen.Show()
 		for _, system := range a.systems {
-			(*system).Update()
+			system.Update()
 		}
 		a.screen.Clear()
 		if a.loading {
 			a.spinner.Draw(a.screen)
 		}
 		for _, drawable := range a.drawables {
-			(*drawable).Draw(a.screen)
+			drawable.Draw(a.screen)
 		}
 		if len(a.runOnAppRoutine) == 0 {
 			time.Sleep(AppFPSMilliseconds)
@@ -165,12 +165,12 @@ func (a *App) KeepAlive(component interface{}) {
 }
 
 func (a *App) UnKeepAlive(component interface{}) {
-	a.keepAlive[component] = false
+	delete(a.keepAlive, component)
 }
 
 func (a *App) AddDrawable(drawable Drawable) {
 	a.changeMutex.Lock()
-	a.drawables = append(a.drawables, &drawable)
+	a.drawables = append(a.drawables, drawable)
 	a.changeMutex.Unlock()
 	if resizable, ok := drawable.(Resizable); ok {
 		resizable.Resize(a.ScreenX, a.ScreenY)
@@ -184,7 +184,7 @@ func (a *App) RemoveDrawable(drawable Drawable) {
 	a.changeMutex.Lock()
 	index := -1
 	for i, _ := range a.drawables {
-		if a.drawables[i] == &drawable {
+		if a.drawables[i] == drawable {
 			index = i
 			break
 		}
@@ -197,7 +197,7 @@ func (a *App) RemoveDrawable(drawable Drawable) {
 
 func (a *App) AddSystem(system System) {
 	a.changeMutex.Lock()
-	a.systems = append(a.systems, &system)
+	a.systems = append(a.systems, system)
 	a.changeMutex.Unlock()
 }
 
@@ -208,7 +208,7 @@ func (a *App) RemoveSystem(system System) {
 	a.changeMutex.Lock()
 	index := -1
 	for i, _ := range a.systems {
-		if a.systems[i] == &system {
+		if a.systems[i] == system {
 			index = i
 			break
 		}
@@ -245,8 +245,12 @@ func (a *App) clear() {
 	if len(a.keepAlive) > 0 {
 		for s, _ := range a.keepAlive {
 			// TODO - without locking?
-			a.AddSystem(s.(System))
-			a.AddDrawable(s.(Drawable))
+			if _, ok := s.(System); ok {
+				a.AddSystem(s.(System))
+			}
+			if _, ok := s.(Drawable); ok {
+				a.AddDrawable(s.(Drawable))
+			}
 		}
 	}
 }
@@ -264,7 +268,7 @@ func (a *App) processTerminalEvents() {
 			a.ScreenX = x
 			a.ScreenY = y
 			for _, s := range a.drawables {
-				if ft, ok := (*s).(Resizable); ok {
+				if ft, ok := (s).(Resizable); ok {
 					ft.Resize(x, y)
 				}
 			}
@@ -279,7 +283,7 @@ func (a *App) processTerminalEvents() {
 			}
 			// TODO - should keep only one array with components?
 			for _, s := range a.systems {
-				if ft, ok := (*s).(KeyListener); ok {
+				if ft, ok := (s).(KeyListener); ok {
 					go ft.HandleKeyEvent(ev)
 				}
 			}

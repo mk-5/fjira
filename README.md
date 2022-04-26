@@ -1,4 +1,4 @@
-# Fjira - the command line tool for Jira
+# Fjira - the fuzziest Jira command line tool in the world.
 
 ![Fira](fjira.png)
 

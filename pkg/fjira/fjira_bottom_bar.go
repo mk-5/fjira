@@ -53,16 +53,7 @@ func CreateNewProjectBottomBar(project *jira.JiraProject) *app.ActionBar {
 		app.ActionBarLabel(fmt.Sprintf("[%s]%s", project.Key, project.Name)),
 		tcell.StyleDefault, BottomBarActionBarItemBold,
 	)
-	return actionBar
-}
-
-func CreateNewBottomBar(text1 string, text2 string) *app.ActionBar {
-	actionBar := app.NewActionBar(app.Bottom, app.Left)
-	actionBar.AddItemWithStyles(
-		text1,
-		app.ActionBarLabel(text2),
-		tcell.StyleDefault, BottomBarActionBarItemBold,
-	)
+	actionBar.AddItem(NewByStatusBarItem())
 	return actionBar
 }
 
@@ -82,6 +73,17 @@ func NewStatusChangeBarItem() *app.ActionBarItem {
 		Id:          int(ActionStatusChange),
 		Text1:       "s",
 		Text2:       " - change status",
+		Text1Style:  BottomBarActionBarKeyBold,
+		Text2Style:  tcell.StyleDefault,
+		TriggerRune: 's',
+	}
+}
+
+func NewByStatusBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(ActionStatusChange),
+		Text1:       "s",
+		Text2:       " - by status",
 		Text1Style:  BottomBarActionBarKeyBold,
 		Text2Style:  tcell.StyleDefault,
 		TriggerRune: 's',
@@ -127,16 +129,5 @@ func NewYesBarItem() *app.ActionBarItem {
 		Text1Style:  BottomBarActionBarKeyBold,
 		Text2Style:  tcell.StyleDefault,
 		TriggerRune: 'y',
-	}
-}
-
-func NewNoBarItem() *app.ActionBarItem {
-	return &app.ActionBarItem{
-		Id:          int(ActionNo),
-		Text1:       "n",
-		Text2:       " - no",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
-		TriggerRune: 'n',
 	}
 }
