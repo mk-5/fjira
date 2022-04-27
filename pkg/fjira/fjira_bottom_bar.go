@@ -46,7 +46,7 @@ func CreateNewIssueBottomBar(issue *jira.JiraIssue) *app.ActionBar {
 	return actionBar
 }
 
-func CreateNewProjectBottomBar(project *jira.JiraProject) *app.ActionBar {
+func CreateNewSearchIssuesBottomBar(project *jira.JiraProject) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	actionBar.AddItemWithStyles(
 		MessageProjectLabel,
@@ -54,6 +54,7 @@ func CreateNewProjectBottomBar(project *jira.JiraProject) *app.ActionBar {
 		tcell.StyleDefault, BottomBarActionBarItemBold,
 	)
 	actionBar.AddItem(NewByStatusBarItem())
+	actionBar.AddItem(NewByAssigneeBarItem())
 	return actionBar
 }
 
@@ -87,6 +88,17 @@ func NewByStatusBarItem() *app.ActionBarItem {
 		Text1Style:  BottomBarActionBarKeyBold,
 		Text2Style:  tcell.StyleDefault,
 		TriggerRune: 's',
+	}
+}
+
+func NewByAssigneeBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(ActionAssigneeChange),
+		Text1:       "a",
+		Text2:       " - by assignee",
+		Text1Style:  BottomBarActionBarKeyBold,
+		Text2Style:  tcell.StyleDefault,
+		TriggerRune: 'a',
 	}
 }
 

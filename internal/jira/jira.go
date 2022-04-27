@@ -11,12 +11,12 @@ type JiraApi interface {
 	Search(query string) ([]JiraIssue, int32, error)
 	SearchJql(query string) ([]JiraIssue, error)
 	SearchJqlPageable(query string, page int32, pageSize int32) ([]JiraIssue, int32, int32, error)
-	FindUser(project string) ([]JiraUser, error)
+	FindUsers(project string) ([]JiraUser, error)
 	FindProjects() ([]JiraProject, error)
 	FindTransitions(issueId string) ([]JiraIssueTransition, error)
 	FindProjectStatuses(projectId string) ([]JiraIssueStatus, error)
 	DoTransition(issueId string, transition *JiraIssueTransition) error
-	DoAssignee(issueId string, accountId *string) error
+	DoAssignee(issueId string, accountId string) error
 	GetIssueDetailed(issueId string) (*JiraIssue, error)
 	Close()
 }
@@ -60,7 +60,7 @@ type JiraIssueFields struct {
 }
 
 type JiraUser struct {
-	AccountId    *string           `json:"accountId"`
+	AccountId    string            `json:"accountId"`
 	Active       bool              `json:"active"`
 	AvatarUrls   map[string]string `json:"avatarUrls"`
 	DisplayName  string            `json:"displayName"`

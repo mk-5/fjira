@@ -16,6 +16,7 @@ type fjiraSearchIssuesView struct {
 	project         *jira.JiraProject
 	currentQuery    string
 	searchForStatus *jira.JiraIssueStatus
+	searchForUser   *jira.JiraUser
 }
 
 const (
@@ -23,6 +24,7 @@ const (
 	MessageSelectIssue         = "Select issue or ESC to cancel"
 	JiraRecordsMax             = 100
 	StatusAll                  = "All"
+	MessageSelectUser          = "Select user or ESC to cancel"
 	// TODO - improve query .. would be nice to search via summary/status/assignee
 	JqlSummaryQuery = "AND summary~\"%s*\""
 	JqlSearchQuery  = "project=%s %s ORDER BY status"
@@ -33,7 +35,7 @@ var (
 )
 
 func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
-	bottomBar := CreateNewProjectBottomBar(project)
+	bottomBar := CreateNewSearchIssuesBottomBar(project)
 	return &fjiraSearchIssuesView{
 		bottomBar: bottomBar,
 		project:   project,
@@ -108,15 +110,24 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 	}
 }
 
-func (view *fjiraSearchIssuesView) queryHasIssueFormat() bool {
-	return issueRegExp.MatchString(view.currentQuery)
+func (view *fjiraSearchIssuesView) handleSearchActions() {
+	select {
+	case selectedAction := <-view.bottomBar.Action:
+		switch selectedAction {
+		case ActionStatusChange:
+			view.runSelectStatus()
+			return
+		case ActionAssigneeChange:
+			view.runSelectUser()
+		}
+	}
 }
 
 func (view *fjiraSearchIssuesView) runSelectStatus() {
 	app.GetApp().ClearNow()
 	app.GetApp().Loading(true)
 	formatter, _ := GetFormatter()
-	statuses := view.statuses(view.project.Id)
+	statuses := view.fetchStatuses(view.project.Id)
 	statuses = append(statuses, jira.JiraIssueStatus{Name: "All"})
 	statusesStrings := formatter.formatJiraStatuses(statuses)
 	view.fuzzyFind = app.NewFuzzyFind(MessageStatusFuzzyFind, statusesStrings)
@@ -126,6 +137,25 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 		app.GetApp().ClearNow()
 		if status.Index >= 0 {
 			view.searchForStatus = &statuses[status.Index]
+		}
+		view.runIssuesFuzzyFind()
+	}
+}
+
+func (view *fjiraSearchIssuesView) runSelectUser() {
+	app.GetApp().ClearNow()
+	app.GetApp().Loading(true)
+	formatter, _ := GetFormatter()
+	users := view.fetchUsers(view.project.Id)
+	users = append(users, jira.JiraUser{DisplayName: "All"})
+	usersStrings := formatter.formatJiraUsers(users)
+	view.fuzzyFind = app.NewFuzzyFind(MessageSelectUser, usersStrings)
+	app.GetApp().Loading(false)
+	select {
+	case user := <-view.fuzzyFind.Complete:
+		app.GetApp().ClearNow()
+		if user.Index >= 0 {
+			view.searchForUser = &users[user.Index]
 		}
 		view.runIssuesFuzzyFind()
 	}
@@ -162,8 +192,14 @@ func (view *fjiraSearchIssuesView) buildJql(query string) string {
 	if view.searchForStatus != nil && view.searchForStatus.Name == StatusAll {
 		view.searchForStatus = nil
 	}
+	if view.searchForUser != nil && view.searchForUser.DisplayName == StatusAll {
+		view.searchForUser = nil
+	}
 	if view.searchForStatus != nil {
 		jql = jql + fmt.Sprintf(" AND status=%s", view.searchForStatus.Id)
+	}
+	if view.searchForUser != nil {
+		jql = jql + fmt.Sprintf(" AND assignee=%s", view.searchForUser.AccountId)
 	}
 	if query != "" && issueRegExp.MatchString(query) {
 		jql = jql + fmt.Sprintf(" OR issuekey=\"%s\"", query)
@@ -171,19 +207,20 @@ func (view *fjiraSearchIssuesView) buildJql(query string) string {
 	return fmt.Sprintf("%s %s", jql, orderBy)
 }
 
-func (view *fjiraSearchIssuesView) statuses(projectId string) []jira.JiraIssueStatus {
+func (view *fjiraSearchIssuesView) fetchStatuses(projectId string) []jira.JiraIssueStatus {
 	api, _ := GetApi()
+	app.GetApp().Loading(true)
 	statuses, _ := api.FindProjectStatuses(projectId)
+	app.GetApp().Loading(false)
 	return statuses
 }
 
-func (view *fjiraSearchIssuesView) handleSearchActions() {
-	select {
-	case selectedAction := <-view.bottomBar.Action:
-		switch selectedAction {
-		case ActionStatusChange:
-			view.runSelectStatus()
-			return
-		}
-	}
+func (view *fjiraSearchIssuesView) fetchUsers(projectId string) []jira.JiraUser {
+	api, _ := GetApi()
+	users, _ := api.FindUsers(projectId)
+	return users
+}
+
+func (view *fjiraSearchIssuesView) queryHasIssueFormat() bool {
+	return issueRegExp.MatchString(view.currentQuery)
 }

@@ -11,10 +11,10 @@ const (
 )
 
 type assigneeRequestBody struct {
-	AccountId *string `json:"accountId"`
+	AccountId string `json:"accountId"`
 }
 
-func (api httpJiraApi) DoAssignee(issueId string, accountId *string) error {
+func (api httpJiraApi) DoAssignee(issueId string, accountId string) error {
 	url := fmt.Sprintf(DoAssigneePath, issueId)
 	body := &assigneeRequestBody{AccountId: accountId}
 	jsonBody, _ := json.Marshal(body)

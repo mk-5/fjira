@@ -17,7 +17,7 @@ type findUserQueryParams struct {
 	MaxResults int    `url:"maxResults"`
 }
 
-func (api httpJiraApi) FindUser(project string) ([]JiraUser, error) {
+func (api httpJiraApi) FindUsers(project string) ([]JiraUser, error) {
 	queryParams := &findUserQueryParams{
 		Project:    project,
 		MaxResults: 10000,

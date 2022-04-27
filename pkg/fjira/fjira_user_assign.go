@@ -92,7 +92,7 @@ func (view *fjiraAssignChangeView) startUsersSearching() {
 
 func (view *fjiraAssignChangeView) findUser(project string) []jira.JiraUser {
 	api, _ := GetApi()
-	users, err := api.FindUser(project)
+	users, err := api.FindUsers(project)
 	if err != nil {
 		log.Fatalln(err)
 	}
