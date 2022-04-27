@@ -17,7 +17,7 @@ type fjiraStatusChangeView struct {
 }
 
 const (
-	MessageChangingStatusTo    = "Are you sure about changing %s status to %s? [yn]: "
+	MessageChangingStatusTo    = "Are you sure about changing %s status?"
 	MessageStatusFuzzyFind     = "Select status or ESC to cancel"
 	MessageChangingStatus      = "Changing status"
 	MessageChangeStatusSuccess = "Status for issue %s has been successfully changed to %s."
@@ -90,7 +90,7 @@ func (view *fjiraStatusChangeView) startStatusSearching() {
 }
 
 func (view *fjiraStatusChangeView) changeStatusTo(status *jira.JiraIssueTransition) {
-	message := fmt.Sprintf(MessageChangingStatusTo, view.issue.Key, status.Name)
+	message := fmt.Sprintf(MessageChangingStatusTo, view.issue.Key)
 	app.GetApp().ClearNow()
 	view.bottomBar.AddItem(NewNewStatusBarItem(status.Name))
 	view.bottomBar.AddItem(NewYesBarItem())

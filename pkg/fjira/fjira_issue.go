@@ -46,8 +46,11 @@ func (view *fjiraIssueView) Draw(screen tcell.Screen) {
 		view.fuzzyFind.Draw(screen)
 	}
 	if view.fuzzyFind == nil {
-		app.DrawText(screen, 0, 2, tcell.StyleDefault, view.issue.Fields.Summary)
-		app.DrawTextLimited(screen, 0, 5, view.descriptionLimitX, view.descriptionLimitY, tcell.StyleDefault, view.issue.Fields.Description)
+		app.DrawText(screen, 1, 3, tcell.StyleDefault, view.issue.Fields.Summary)
+		for col := 1; col <= len(view.issue.Fields.Summary); col++ {
+			screen.SetContent(col, 4, tcell.RuneHLine, nil, tcell.StyleDefault)
+		}
+		app.DrawTextLimited(screen, 1, 6, view.descriptionLimitX, view.descriptionLimitY, tcell.StyleDefault, view.issue.Fields.Description)
 	}
 }
 

@@ -7,6 +7,8 @@ import (
 type Confirmation struct {
 	Complete chan bool
 	message  string
+	screenX  int
+	screenY  int
 }
 
 const (
@@ -37,8 +39,13 @@ func newConfirmation(message string) *Confirmation {
 }
 
 func (c *Confirmation) Draw(screen tcell.Screen) {
-	DrawText(screen, 0, 0, QuestionMarkStyle, QuestionMark)
-	DrawText(screen, 2, 0, tcell.StyleDefault, c.message)
+	DrawText(screen, 0, c.screenY-4, QuestionMarkStyle, QuestionMark)
+	DrawText(screen, 2, c.screenY-4, tcell.StyleDefault, c.message)
+}
+
+func (c *Confirmation) Resize(screenX, screenY int) {
+	c.screenX = screenX
+	c.screenY = screenY
 }
 
 func (c *Confirmation) Update() {
