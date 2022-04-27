@@ -126,10 +126,7 @@ func (view fjiraAssignChangeView) doAssignmentChange(issue *jira.JiraIssue, user
 	err := api.DoAssignee(issue.Key, user.AccountId)
 	app.GetApp().Loading(false)
 	if err != nil {
-		log.Fatalln(fmt.Sprintf(MessageCannotAssignUser, user.DisplayName, issue.Key, err))
+		app.Error(fmt.Sprintf(MessageCannotAssignUser, user.DisplayName, issue.Key, err))
 	}
-	//fmt.Println(app.EmptyLine)
-	//fmt.Println(color.GreenString(MessageAssignSuccess, user.DisplayName, issue.Key))
-	//b := make([]byte, 1)
-	//os.Stdin.Read(b)
+	app.Success(fmt.Sprintf(MessageAssignSuccess, user.DisplayName, issue.Key))
 }

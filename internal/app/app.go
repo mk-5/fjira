@@ -18,6 +18,7 @@ type App struct {
 	spinnerIndex int32
 	keyEvent     chan *tcell.EventKey
 	drawables    []Drawable
+	flash        []Drawable
 	systems      []System
 	// clear/add/remove is less accurate execution than clear.
 	// so it makes sense to store keep-alive stuff like this, instead of having
@@ -112,6 +113,9 @@ func (a *App) Start() {
 		for _, drawable := range a.drawables {
 			drawable.Draw(a.screen)
 		}
+		for _, flash := range a.flash {
+			flash.Draw(a.screen)
+		}
 		if len(a.runOnAppRoutine) == 0 {
 			time.Sleep(AppFPSMilliseconds)
 			continue
@@ -161,11 +165,15 @@ func (a *App) SetView(view View) {
 }
 
 func (a *App) KeepAlive(component interface{}) {
+	a.changeMutex.Lock()
 	a.keepAlive[component] = true
+	a.changeMutex.Unlock()
 }
 
 func (a *App) UnKeepAlive(component interface{}) {
+	a.changeMutex.Lock()
 	delete(a.keepAlive, component)
+	a.changeMutex.Unlock()
 }
 
 func (a *App) AddDrawable(drawable Drawable) {
@@ -193,6 +201,21 @@ func (a *App) RemoveDrawable(drawable Drawable) {
 		a.drawables = append(a.drawables[:index], a.drawables[index+1:]...)
 	}
 	a.changeMutex.Unlock()
+}
+
+func (a *App) AddFlash(flash Drawable, duration time.Duration) {
+	a.changeMutex.Lock()
+	a.flash = append(a.flash, flash)
+	index := len(a.flash) - 1
+	a.changeMutex.Unlock()
+	if resizable, ok := flash.(Resizable); ok {
+		resizable.Resize(a.ScreenX, a.ScreenY)
+	}
+	ticker := time.NewTimer(duration)
+	go func() {
+		<-ticker.C
+		a.flash = append(a.flash[:index], a.flash[index+1:]...)
+	}()
 }
 
 func (a *App) AddSystem(system System) {

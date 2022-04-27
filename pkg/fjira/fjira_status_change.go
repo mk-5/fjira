@@ -5,7 +5,6 @@ import (
 	"github.com/gdamore/tcell"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
-	"log"
 )
 
 type fjiraStatusChangeView struct {
@@ -119,11 +118,8 @@ func (view *fjiraStatusChangeView) changeStatusForTicket(issue *jira.JiraIssue, 
 	err := api.DoTransition(issue.Key, status)
 	app.GetApp().Loading(false)
 	if err != nil {
-		log.Fatalln(err.Error())
+		app.Error(err.Error())
+		return
 	}
-	// TODO - success flush message
-	//fmt.Println(fjira.EmptyLine)
-	//fmt.Println(color.GreenString(MessageChangeStatusSuccess, issue.Key, status.Text2))
-	//b := make([]byte, 1)
-	//os.Stdin.Read(b)
+	app.Success(fmt.Sprintf(MessageChangeStatusSuccess, issue.Key, status.Name))
 }
