@@ -40,6 +40,7 @@ const (
 	WriteIndicator          = "> "
 	MaxResults              = 4096
 	DynamicSupplierDebounce = 150 * time.Millisecond
+	SearchResultsPivot      = 6
 )
 
 var (
@@ -168,7 +169,7 @@ func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
 	var row = f.screenY - ResultsMarginBottom - FuzzyFindMarginBottom
 	var currentStyleDefault tcell.Style
 	var currentStyleBold tcell.Style
-	indexDelta := ClampInt(f.selected-row+1, 0, f.matches.Len()-1)
+	indexDelta := ClampInt(f.selected-row+SearchResultsPivot, 0, f.matches.Len()-1)
 	for index := indexDelta; index < f.matches.Len() && row > f.MarginTop; index++ {
 		match := f.matches[index]
 		currentStyleDefault = tcell.StyleDefault
