@@ -61,6 +61,8 @@ func (t *TextBox) Draw(screen tcell.Screen) {
 	}
 
 	if t.text != "" {
+		DrawText(screen, t.x+1, t.y+1, t.textStyle, " ")
 		DrawText(screen, t.x+2, t.y+1, t.textStyle, t.text)
+		DrawText(screen, t.x2-1, t.y+1, t.textStyle, " ")
 	}
 }

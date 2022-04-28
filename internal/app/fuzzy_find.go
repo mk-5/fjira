@@ -179,11 +179,11 @@ func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
 			currentStyleDefault = highlightDefault
 			currentStyleBold = highlightBold
 		}
-		for i := 0; i < len(match.Str); i++ {
+		for i, s := range match.Str {
 			if contains(i, match.MatchedIndexes) {
-				DrawText(screen, i+2, row, currentStyleBold, string(match.Str[i]))
+				DrawText(screen, i+2, row, currentStyleBold, string(s))
 			} else {
-				DrawText(screen, i+2, row, currentStyleDefault, string(match.Str[i]))
+				DrawText(screen, i+2, row, currentStyleDefault, string(s))
 			}
 		}
 		row--

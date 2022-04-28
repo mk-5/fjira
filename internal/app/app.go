@@ -63,6 +63,7 @@ func initApp() {
 		os.Setenv("TERM", "")
 	}
 	encoding.Register()
+	tcell.SetEncodingFallback(tcell.EncodingFallbackUTF8)
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		log.Fatalln(err)

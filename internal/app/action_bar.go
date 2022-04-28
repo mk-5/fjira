@@ -59,8 +59,8 @@ func NewActionBarItem(id int, text string, triggerRune rune, triggerKey tcell.Ke
 		TriggerKey:  triggerKey,
 	}
 	item.text = text
-	item.bgStyle = tcell.StyleDefault
-	item.borderStyle = tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(AppBackground)
+	item.bgStyle = DefaultStyle
+	item.borderStyle = DefaultStyle.Foreground(tcell.ColorWhite).Background(AppBackground)
 	return item
 }
 
@@ -78,8 +78,8 @@ func (b *ActionBar) AddTextItem(id string, text string) {
 
 // TODO - refactor
 func (b *ActionBar) AddItem(item *ActionBarItem) {
-	item.bgStyle = tcell.StyleDefault
-	item.borderStyle = tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(AppBackground)
+	item.bgStyle = DefaultStyle
+	item.borderStyle = DefaultStyle.Foreground(tcell.ColorWhite).Background(AppBackground)
 	// It's making problems if we want to have different styles.
 	// TODO - We could think about introducing textMap argument where you can put styles and text together (or second array)
 	item.text = fmt.Sprintf("%s%s", item.Text1, item.Text2)
