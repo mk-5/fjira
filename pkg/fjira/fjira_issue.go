@@ -15,6 +15,9 @@ type fjiraIssueView struct {
 	issue             *jira.JiraIssue
 	descriptionLimitX int
 	descriptionLimitY int
+	scrollY           int
+	descriptionLines  int
+	maxScrollY        int
 }
 
 func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
@@ -29,6 +32,7 @@ func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
 		bottomBar: bottomBar,
 		topBar:    issueActionBar,
 		issue:     issue,
+		scrollY:   0,
 	}
 }
 
@@ -40,17 +44,17 @@ func (view *fjiraIssueView) Destroy() {
 }
 
 func (view *fjiraIssueView) Draw(screen tcell.Screen) {
+	if view.fuzzyFind == nil {
+		app.DrawText(screen, 1, 3-view.scrollY, tcell.StyleDefault, view.issue.Fields.Summary)
+		for col := 1; col <= len(view.issue.Fields.Summary); col++ {
+			screen.SetContent(col, 4-view.scrollY, tcell.RuneHLine, nil, tcell.StyleDefault)
+		}
+		app.DrawTextLimited(screen, 1, 6-view.scrollY, view.descriptionLimitX, view.descriptionLimitY, tcell.StyleDefault, view.issue.Fields.Description)
+	}
 	view.bottomBar.Draw(screen)
 	view.topBar.Draw(screen)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Draw(screen)
-	}
-	if view.fuzzyFind == nil {
-		app.DrawText(screen, 1, 3, tcell.StyleDefault, view.issue.Fields.Summary)
-		for col := 1; col <= len(view.issue.Fields.Summary); col++ {
-			screen.SetContent(col, 4, tcell.RuneHLine, nil, tcell.StyleDefault)
-		}
-		app.DrawTextLimited(screen, 1, 6, view.descriptionLimitX, view.descriptionLimitY, tcell.StyleDefault, view.issue.Fields.Description)
 	}
 }
 
@@ -65,6 +69,12 @@ func (view *fjiraIssueView) Update() {
 func (view *fjiraIssueView) Resize(screenX, screenY int) {
 	view.descriptionLimitX = int(math.Floor(float64(screenX) * 0.9))
 	view.descriptionLimitY = screenY - 6
+	view.descriptionLines = int(math.Ceil(float64(len(view.issue.Fields.Description) / view.descriptionLimitX)))
+	view.maxScrollY = app.ClampInt(-((view.descriptionLimitY - 6 - 6) - view.descriptionLines), 0, 1000)
+	if view.maxScrollY >= view.descriptionLimitY {
+		view.maxScrollY += 1
+	}
+
 	view.bottomBar.Resize(screenX, screenY)
 	view.topBar.Resize(screenX, screenY)
 	if view.fuzzyFind != nil {
@@ -77,6 +87,12 @@ func (view *fjiraIssueView) HandleKeyEvent(ev *tcell.EventKey) {
 	view.topBar.HandleKeyEvent(ev)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.HandleKeyEvent(ev)
+	}
+	if ev.Key() == tcell.KeyUp {
+		view.scrollY = app.ClampInt(view.scrollY-1, 0, view.maxScrollY)
+	}
+	if ev.Key() == tcell.KeyDown {
+		view.scrollY = app.ClampInt(view.scrollY+1, 0, view.maxScrollY)
 	}
 }
 
