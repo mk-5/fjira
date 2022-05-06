@@ -1,42 +1,12 @@
 package app
 
 import (
-	"fmt"
 	"github.com/gdamore/tcell"
 )
 
 const (
 	EmptyLine = ""
 )
-
-func StartCli() {
-	//fmt.Fprint(os.Stderr, "\x1b[?1049h")
-	//fmt.Fprint(os.Stderr, "\x1b[?25l"+"\x1b[?1049h"+"\x1b[?25h")
-
-	//ClearCli()
-}
-
-func ClearCli() {
-	//fmt.Printf("\x1bc")   // bottom
-	//fmt.Printf("\x1b[2J") // top
-	//fmt.Printf("\\033c")
-	//var cmd *exec.Cmd
-	//switch runtime.GOOS {
-	//case "windows":
-	//	cmd = exec.Command("cls")
-	//	break
-	//default:
-	//	cmd = exec.Command("clear")
-	//	break
-	//}
-	//cmd.Stdout = os.Stdout
-	//cmd.Run()
-}
-
-func ClearLine() {
-	fmt.Printf("\n\033[1A\033[K")
-	fmt.Printf("\r")
-}
 
 func DrawText(screen tcell.Screen, x, y int, style tcell.Style, text string) {
 	row := y

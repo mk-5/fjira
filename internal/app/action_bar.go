@@ -2,8 +2,9 @@ package app
 
 import (
 	"fmt"
-	"github.com/gdamore/tcell"
 	"strings"
+
+	"github.com/gdamore/tcell"
 )
 
 type ActionBarAction int

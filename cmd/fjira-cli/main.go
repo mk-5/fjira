@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/mk5/fjira/internal/app"
-	"github.com/mk5/fjira/pkg/fjira"
 	"log"
 	"os"
 	"regexp"
+
+	"github.com/mk5/fjira/pkg/fjira"
 )
 
 const (
@@ -32,7 +32,6 @@ func main() {
 		}
 		log.Fatalln(fjira.InstallFailedErr.Error())
 	}
-	app.StartCli()
 	args := parseCliArgs()
 	f.Run(&args)
 }

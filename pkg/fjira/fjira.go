@@ -93,7 +93,6 @@ func (f *Fjira) Run(args *CliArgs) {
 
 func (f *Fjira) Close() {
 	f.api.Close()
-	app.ClearCli()
 }
 
 func (f *Fjira) bootstrap(args *CliArgs) {

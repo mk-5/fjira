@@ -1,14 +1,15 @@
 package app
 
 import (
-	"github.com/gdamore/tcell"
-	"github.com/gdamore/tcell/encoding"
 	"log"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/encoding"
 )
 
 type App struct {
@@ -41,8 +42,6 @@ const (
 )
 
 var (
-	//AppBackground = tcell.ColorDefault // TODO - should be black?
-	//AppBackground = tcell.NewRGBColor(28, 36, 42)
 	AppBackground = tcell.NewRGBColor(22, 22, 22)
 	DefaultStyle  = tcell.StyleDefault.Background(AppBackground).Foreground(tcell.ColorDefault)
 	appInstance   *App
@@ -250,7 +249,7 @@ func (a *App) SetDirty() {
 func (a *App) ClearNow() {
 	a.clear()
 	a.screen.Clear()
-	//a.screen.Sync()
+	a.screen.HideCursor()
 }
 
 func (a *App) RunOnAppRoutine(f func()) {

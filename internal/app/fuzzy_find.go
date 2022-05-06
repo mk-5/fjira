@@ -107,6 +107,7 @@ func (f *FuzzyFind) Draw(screen tcell.Screen) {
 	DrawText(screen, f.screenX-len(f.fuzzyStatus)-2, f.screenY-ResultsMarginBottom-FuzzyFindMarginBottom+1, titleStyle, f.fuzzyStatus)
 	DrawText(screen, 0, f.screenY-1-FuzzyFindMarginBottom, boldStyle, WriteIndicator)
 	DrawText(screen, 2, f.screenY-1-FuzzyFindMarginBottom, tcell.StyleDefault, f.query)
+	screen.ShowCursor(2+len(f.query), f.screenY-1-FuzzyFindMarginBottom)
 }
 
 func (f *FuzzyFind) Update() {

@@ -2,8 +2,9 @@ package app
 
 import (
 	"fmt"
-	"github.com/gdamore/tcell"
 	"time"
+
+	"github.com/gdamore/tcell"
 )
 
 var (

@@ -71,45 +71,45 @@ func NewCancelBarItem() *app.ActionBarItem {
 
 func NewStatusChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:          int(ActionStatusChange),
-		Text1:       "s",
-		Text2:       " - change status",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
-		TriggerRune: 's',
+		Id:         int(ActionStatusChange),
+		Text1:      "F1",
+		Text2:      " - change status",
+		Text1Style: BottomBarActionBarKeyBold,
+		Text2Style: tcell.StyleDefault,
+		TriggerKey: tcell.KeyF1,
 	}
 }
 
 func NewByStatusBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:          int(ActionStatusChange),
-		Text1:       "s",
-		Text2:       " - by status",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
-		TriggerRune: 's',
+		Id:         int(ActionStatusChange),
+		Text1:      "F1",
+		Text2:      " - by status",
+		Text1Style: BottomBarActionBarKeyBold,
+		Text2Style: tcell.StyleDefault,
+		TriggerKey: tcell.KeyF1,
 	}
 }
 
 func NewByAssigneeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:          int(ActionAssigneeChange),
-		Text1:       "a",
-		Text2:       " - by assignee",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
-		TriggerRune: 'a',
+		Id:         int(ActionAssigneeChange),
+		Text1:      "F2",
+		Text2:      " - by assignee",
+		Text1Style: BottomBarActionBarKeyBold,
+		Text2Style: tcell.StyleDefault,
+		TriggerKey: tcell.KeyF2,
 	}
 }
 
 func NewAssigneeChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:          int(ActionAssigneeChange),
-		Text1:       "a",
-		Text2:       " - assign user",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
-		TriggerRune: 'a',
+		Id:         int(ActionAssigneeChange),
+		Text1:      "F2",
+		Text2:      " - assign user",
+		Text1Style: BottomBarActionBarKeyBold,
+		Text2Style: tcell.StyleDefault,
+		TriggerKey: tcell.KeyF2,
 	}
 }
 
