@@ -23,7 +23,7 @@ Optional options:
 )
 
 func main() {
-	f := fjira.CreateNewFjira()
+	f := fjira.CreateNewFjira(nil)
 	defer f.Close()
 	errors := f.Install()
 	if errors != nil {

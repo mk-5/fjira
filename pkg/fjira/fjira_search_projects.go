@@ -12,11 +12,6 @@ type fjiraSearchProjectsView struct {
 	fuzzyFind *app.FuzzyFind
 }
 
-const (
-	MessageSearchProjectsLoading = "Fetching projects"
-	MessageSelectProject         = "Select project or ESC to exit"
-)
-
 func NewProjectsSearchView() *fjiraSearchProjectsView {
 	bottomBar := CreateNewEmptyProjectBottomBar()
 	return &fjiraSearchProjectsView{

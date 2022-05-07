@@ -8,11 +8,6 @@ import (
 )
 
 const (
-	MessageProjectLabel = "Project: "
-	MessageIssueLabel   = "Issue: "
-)
-
-const (
 	ActionAssigneeChange app.ActionBarAction = iota
 	ActionStatusChange
 	ActionEscape
@@ -23,6 +18,8 @@ const (
 var (
 	BottomBarActionBarItemBold = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkKhaki)
 	BottomBarActionBarKeyBold  = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkCyan).Underline(true)
+	TopBarItemBold             = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkKhaki)
+	IssueBarActionBarItemBold  = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkKhaki)
 )
 
 // TODO - concrete "bottomBar" struct with helper methods like "setCurrentProject(..)"
@@ -58,6 +55,51 @@ func CreateNewSearchIssuesBottomBar(project *jira.JiraProject) *app.ActionBar {
 	return actionBar
 }
 
+// TODO - refactor - create general place with navigation definition
+func CreateNewSearchIssuesTopBar() *app.ActionBar {
+	actionBar := app.NewActionBar(app.Top, app.Right)
+	actionBar.AddItemWithStyles(
+		"Status: ",
+		"All",
+		tcell.StyleDefault, TopBarItemBold,
+	)
+	actionBar.AddItemWithStyles(
+		"Assignee: ",
+		"All",
+		tcell.StyleDefault, TopBarItemBold,
+	)
+	return actionBar
+}
+
+func CreateNewIssueTopBar(issue *jira.JiraIssue) *app.ActionBar {
+	actionBar := app.NewActionBar(app.Top, app.Right)
+	actionBar.AddItemWithStyles(
+		MessageLabelReporter,
+		issue.Fields.Reporter.DisplayName,
+		tcell.StyleDefault,
+		IssueBarActionBarItemBold,
+	)
+	actionBar.AddItemWithStyles(
+		MessageLabelAssignee,
+		issue.Fields.Assignee.DisplayName,
+		tcell.StyleDefault,
+		IssueBarActionBarItemBold,
+	)
+	actionBar.AddItemWithStyles(
+		MessageTypeStatus,
+		issue.Fields.Type.Name,
+		tcell.StyleDefault,
+		IssueBarActionBarItemBold,
+	)
+	actionBar.AddItemWithStyles(
+		MessageLabelStatus,
+		issue.Fields.Status.Name,
+		tcell.StyleDefault,
+		IssueBarActionBarItemBold,
+	)
+	return actionBar
+}
+
 func NewCancelBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionEscape),
@@ -71,12 +113,13 @@ func NewCancelBarItem() *app.ActionBarItem {
 
 func NewStatusChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:         int(ActionStatusChange),
-		Text1:      "F1",
-		Text2:      " - change status",
-		Text1Style: BottomBarActionBarKeyBold,
-		Text2Style: tcell.StyleDefault,
-		TriggerKey: tcell.KeyF1,
+		Id:          int(ActionStatusChange),
+		Text1:       "s",
+		Text2:       " - change status",
+		Text1Style:  BottomBarActionBarKeyBold,
+		Text2Style:  tcell.StyleDefault,
+		TriggerKey:  tcell.KeyF1,
+		TriggerRune: 's',
 	}
 }
 
@@ -104,12 +147,13 @@ func NewByAssigneeBarItem() *app.ActionBarItem {
 
 func NewAssigneeChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:         int(ActionAssigneeChange),
-		Text1:      "F2",
-		Text2:      " - assign user",
-		Text1Style: BottomBarActionBarKeyBold,
-		Text2Style: tcell.StyleDefault,
-		TriggerKey: tcell.KeyF2,
+		Id:          int(ActionAssigneeChange),
+		Text1:       "a",
+		Text2:       " - assign user",
+		Text1Style:  BottomBarActionBarKeyBold,
+		Text2Style:  tcell.StyleDefault,
+		TriggerKey:  tcell.KeyF2,
+		TriggerRune: 'a',
 	}
 }
 

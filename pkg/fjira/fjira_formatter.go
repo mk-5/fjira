@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// TODO - change to static?
 type FjiraFormatter interface {
 	formatJiraProject(project *jira.JiraProject) string
 	formatJiraProjects(projects []jira.JiraProject) []string
@@ -38,7 +39,7 @@ func (f *defaultFormatter) formatJiraIssue(issue *jira.JiraIssue) string {
 func (*defaultFormatter) formatJiraIssueTable(issue *jira.JiraIssue, summaryColWidth int, statusColWidth int) string {
 	assignee := issue.Fields.Assignee.DisplayName
 	if assignee == "" {
-		assignee = Unassigned
+		assignee = MessageUnassigned
 	}
 	summaryColWidth = app.MinInt(summaryColWidth, MaxSummaryColWidth)
 	summaryCut := app.MinInt(summaryColWidth, len(issue.Fields.Summary))
@@ -119,7 +120,7 @@ func (f *defaultFormatter) findIssueColumnSize(items *[]jira.JiraIssue, colSuppl
 func (f *defaultFormatter) formatAssignee(issue *jira.JiraIssue) string {
 	assignee := issue.Fields.Assignee.DisplayName
 	if assignee == "" {
-		assignee = Unassigned
+		assignee = MessageUnassigned
 	}
 	return assignee
 }

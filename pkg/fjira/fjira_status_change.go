@@ -15,13 +15,6 @@ type fjiraStatusChangeView struct {
 	issue     *jira.JiraIssue
 }
 
-const (
-	MessageChangingStatusTo    = "Are you sure about changing %s status?"
-	MessageStatusFuzzyFind     = "Select status or ESC to cancel"
-	MessageChangingStatus      = "Changing status"
-	MessageChangeStatusSuccess = "Status for issue %s has been successfully changed to %s."
-)
-
 func NewStatusChangeView(issue *jira.JiraIssue) *fjiraStatusChangeView {
 	return &fjiraStatusChangeView{
 		issue:     issue,
@@ -35,7 +28,7 @@ func (view *fjiraStatusChangeView) Init() {
 }
 
 func (view *fjiraStatusChangeView) Destroy() {
-
+	// do nothing
 }
 
 func (view *fjiraStatusChangeView) Draw(screen tcell.Screen) {

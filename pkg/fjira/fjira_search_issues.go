@@ -12,22 +12,19 @@ import (
 
 type fjiraSearchIssuesView struct {
 	bottomBar       *app.ActionBar
+	topBar          *app.ActionBar
 	fuzzyFind       *app.FuzzyFind
 	project         *jira.JiraProject
 	currentQuery    string
 	searchForStatus *jira.JiraIssueStatus
 	searchForUser   *jira.JiraUser
+	screenX         int
+	screenY         int
 }
 
 const (
-	MessageSearchIssuesLoading = "Fetching"
-	MessageSelectIssue         = "Select issue or ESC to cancel"
-	JiraRecordsMax             = 100
-	StatusAll                  = "All"
-	MessageSelectUser          = "Select user or ESC to cancel"
-	// TODO - improve query .. would be nice to search via summary/status/assignee
-	JqlSummaryQuery = "AND summary~\"%s*\""
-	JqlSearchQuery  = "project=%s %s ORDER BY status"
+	JiraRecordsMax = 100
+	StatusAll      = "All"
 )
 
 var (
@@ -36,8 +33,10 @@ var (
 
 func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
 	bottomBar := CreateNewSearchIssuesBottomBar(project)
+	topBar := CreateNewSearchIssuesTopBar()
 	return &fjiraSearchIssuesView{
 		bottomBar: bottomBar,
+		topBar:    topBar,
 		project:   project,
 	}
 }
@@ -57,20 +56,35 @@ func (view *fjiraSearchIssuesView) Draw(screen tcell.Screen) {
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Draw(screen)
 	}
+	view.topBar.Draw(screen)
 }
 
 func (view *fjiraSearchIssuesView) Update() {
 	view.bottomBar.Update()
+	view.topBar.Update()
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Update()
+	}
+	if view.searchForStatus != nil && view.topBar.GetItem(0).Text2 != view.searchForStatus.Name {
+		view.topBar.GetItem(0).Text2 = view.searchForStatus.Name
+		view.topBar.Resize(view.screenX, view.screenY)
+		//app.GetApp().SetDirty()
+	}
+	if view.searchForUser != nil && view.topBar.GetItem(1).Text2 != view.searchForUser.DisplayName {
+		view.topBar.GetItem(1).Text2 = view.searchForUser.DisplayName
+		view.topBar.Resize(view.screenX, view.screenY)
+		//app.GetApp().SetDirty()
 	}
 }
 
 func (view *fjiraSearchIssuesView) Resize(screenX, screenY int) {
 	view.bottomBar.Resize(screenX, screenY)
+	view.topBar.Resize(screenX, screenY)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Resize(screenX, screenY)
 	}
+	view.screenX = screenX
+	view.screenY = screenY
 }
 
 func (view *fjiraSearchIssuesView) HandleKeyEvent(ev *tcell.EventKey) {

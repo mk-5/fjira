@@ -179,7 +179,6 @@ func (b *ActionBar) Resize(screenX, screenY int) {
 	}
 	for _, item := range b.items {
 		item.y = b.Y
-		//item.y2 = b.Y - ActionBarItemPadding + 1
 		item.y2 = b.Y - 1 - ActionBarItemPadding
 		item.x = b.lastItemX
 		item.x2 = item.x + (len(item.text)+ActionBarItemPadding*2+1)*b.hAlign

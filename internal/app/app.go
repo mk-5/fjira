@@ -164,6 +164,10 @@ func (a *App) SetView(view View) {
 	view.Init()
 }
 
+func (a *App) CurrentView() interface{} {
+	return a.view
+}
+
 func (a *App) KeepAlive(component interface{}) {
 	a.changeMutex.Lock()
 	a.keepAlive[component] = true

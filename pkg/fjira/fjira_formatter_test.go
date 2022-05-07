@@ -8,7 +8,6 @@ import (
 
 func Test_shouldFormatProjects(t *testing.T) {
 	assert := assert.New(t)
-
 	// given
 	formatter := defaultFormatter{}
 	issues := []jira.JiraIssue{

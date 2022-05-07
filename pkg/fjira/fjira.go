@@ -42,11 +42,14 @@ var (
 	fjiraOnce     sync.Once
 )
 
-func CreateNewFjira() *Fjira {
+func CreateNewFjira(api jira.JiraApi) *Fjira {
 	fjiraOnce.Do(func() {
-		api, err := jira.NewJiraApi(os.Getenv(JiraRestUrlEnv), os.Getenv(JiraUsernameEnv), os.Getenv(JiraTokenEnv))
-		if err != nil {
-			log.Fatalln(err)
+		if api == nil {
+			a, err := jira.NewJiraApi(os.Getenv(JiraRestUrlEnv), os.Getenv(JiraUsernameEnv), os.Getenv(JiraTokenEnv))
+			api = a
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
 		fjiraInstance = &Fjira{
 			app:       app.CreateNewApp(),

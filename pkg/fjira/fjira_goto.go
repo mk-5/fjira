@@ -16,16 +16,6 @@ func goIntoIssuesSearch(project *jira.JiraProject) {
 	app.GetApp().SetView(issuesSearchView)
 }
 
-// TODO - migrate to static one
-func (f *Fjira) goIntoIssuesSearch(project *jira.JiraProject) {
-	goIntoIssuesSearch(project)
-}
-
-func goIntoIssueView(issue *jira.JiraIssue) {
-	issueView := NewIssueView(issue)
-	app.GetApp().SetView(issueView)
-}
-
 func goIntoIssueViewFetchIssue(issueKey string) {
 	app.GetApp().Loading(true)
 	api, _ := GetApi()
@@ -36,11 +26,6 @@ func goIntoIssueViewFetchIssue(issueKey string) {
 	app.GetApp().Loading(false)
 	issueView := NewIssueView(issue)
 	app.GetApp().SetView(issueView)
-}
-
-// TODO - migrate to static one
-func (f *Fjira) goIntoIssueView(issue *jira.JiraIssue) {
-	goIntoIssueView(issue)
 }
 
 func goIntoChangeStatus(issue *jira.JiraIssue) {

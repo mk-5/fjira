@@ -67,7 +67,7 @@ func (view *fjiraIssueView) Update() {
 }
 
 func (view *fjiraIssueView) Resize(screenX, screenY int) {
-	view.descriptionLimitX = int(math.Floor(float64(screenX) * 0.9))
+	view.descriptionLimitX = app.ClampInt(int(math.Floor(float64(screenX)*0.9)), 1, 10000)
 	view.descriptionLimitY = screenY - 6
 	view.descriptionLines = int(math.Ceil(float64(len(view.issue.Fields.Description) / view.descriptionLimitX)))
 	view.maxScrollY = app.ClampInt(-((view.descriptionLimitY - 6 - 6) - view.descriptionLines), 0, 1000)

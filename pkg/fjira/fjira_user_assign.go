@@ -16,15 +16,6 @@ type fjiraAssignChangeView struct {
 	issue     *jira.JiraIssue
 }
 
-const (
-	MessageChangingAssigneeTo = "Changing %s assignee to %s [yn]: "
-	MessageCannotAssignUser   = "Cannot assign user %s to ticket %s. Reason: %s"
-	MessageAssignSuccess      = "User %s has been successfully assigned to issue %s."
-	MessageUsersFuzzyFind     = "Select new assignee or ESC to cancel"
-	MessageAssigningUser      = "Assigning user"
-	Unassigned                = "Unassigned"
-)
-
 func NewAssignChangeView(issue *jira.JiraIssue) *fjiraAssignChangeView {
 	return &fjiraAssignChangeView{
 		issue:     issue,

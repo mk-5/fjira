@@ -1,0 +1,25 @@
+package fjira
+
+const (
+	MessageProjectLabel          = "Project: "
+	MessageIssueLabel            = "Issue: "
+	MessageLabelStatus           = "Status: "
+	MessageTypeStatus            = "Type: "
+	MessageLabelAssignee         = "Assignee: "
+	MessageLabelReporter         = "Reporter: "
+	MessageSearchIssuesLoading   = "Fetching"
+	MessageSelectIssue           = "Select issue or ESC to cancel"
+	MessageSelectUser            = "Select user or ESC to cancel"
+	MessageSearchProjectsLoading = "Fetching projects"
+	MessageSelectProject         = "Select project or ESC to exit"
+	MessageChangingAssigneeTo    = "Changing %s assignee to %s [yn]: "
+	MessageCannotAssignUser      = "Cannot assign user %s to ticket %s. Reason: %s"
+	MessageAssignSuccess         = "User %s has been successfully assigned to issue %s."
+	MessageUsersFuzzyFind        = "Select new assignee or ESC to cancel"
+	MessageAssigningUser         = "Assigning user"
+	MessageUnassigned            = "Unassigned"
+	MessageChangingStatusTo      = "Are you sure about changing %s status?"
+	MessageStatusFuzzyFind       = "Select status or ESC to cancel"
+	MessageChangingStatus        = "Changing status"
+	MessageChangeStatusSuccess   = "Status for issue %s has been successfully changed to %s."
+)
