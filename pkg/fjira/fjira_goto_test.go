@@ -51,7 +51,7 @@ var tests = []struct {
 	},
 	{
 		gotoMethod: func() {
-			goIntoIssueViewFetchIssue("ABC-123")
+			goIntoIssueView("ABC-123")
 		},
 		viewPredicate: func() bool {
 			_, ok := app.GetApp().CurrentView().(*fjiraIssueView)

@@ -104,7 +104,7 @@ func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.JiraIssue, use
 	switch userAssign {
 	case true:
 		view.doAssignmentChange(issue, user)
-		goIntoIssueViewFetchIssue(view.issue.Key)
+		goIntoIssueView(view.issue.Key)
 		break
 	case false:
 		app.GetApp().SetView(NewIssueView(view.issue))

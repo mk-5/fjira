@@ -100,7 +100,7 @@ func (f *Fjira) Close() {
 
 func (f *Fjira) bootstrap(args *CliArgs) {
 	if args.IssueKey != "" {
-		goIntoIssueViewFetchIssue(args.IssueKey)
+		goIntoIssueView(args.IssueKey)
 		return
 	}
 	time.Sleep(500 * time.Millisecond)

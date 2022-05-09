@@ -16,7 +16,7 @@ func goIntoIssuesSearch(project *jira.JiraProject) {
 	app.GetApp().SetView(issuesSearchView)
 }
 
-func goIntoIssueViewFetchIssue(issueKey string) {
+func goIntoIssueView(issueKey string) {
 	app.GetApp().Loading(true)
 	api, _ := GetApi()
 	issue, err := api.GetIssueDetailed(issueKey)

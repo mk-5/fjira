@@ -120,7 +120,7 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 			return
 		}
 		chosenIssue := latestRecords[chosen.Index]
-		go goIntoIssueViewFetchIssue(chosenIssue.Key)
+		go goIntoIssueView(chosenIssue.Key)
 	}
 }
 
