@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/mk5/fjira/internal/app"
 	"regexp"
 )
 
@@ -56,7 +56,7 @@ func (api *httpJiraApi) SearchJqlPageable(jql string, page int32, pageSize int32
 	}
 	var sResponse searchResponse
 	if err := json.Unmarshal(body, &sResponse); err != nil {
-		log.Fatalln(err)
+		app.Error(err.Error())
 		return nil, -1, pageSize, SearchDeserializeErr
 	}
 	return sResponse.Issues, sResponse.Total, sResponse.MaxResults, err

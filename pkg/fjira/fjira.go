@@ -5,7 +5,6 @@ import (
 	"github.com/gdamore/tcell"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
-	"log"
 	"os"
 	"sync"
 	"time"
@@ -48,7 +47,7 @@ func CreateNewFjira(api jira.JiraApi) *Fjira {
 			a, err := jira.NewJiraApi(os.Getenv(JiraRestUrlEnv), os.Getenv(JiraUsernameEnv), os.Getenv(JiraTokenEnv))
 			api = a
 			if err != nil {
-				log.Fatalln(err)
+				app.Error(err.Error())
 			}
 		}
 		fjiraInstance = &Fjira{

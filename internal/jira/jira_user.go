@@ -3,7 +3,7 @@ package jira
 import (
 	"encoding/json"
 	"errors"
-	"log"
+	"github.com/mk5/fjira/internal/app"
 )
 
 const (
@@ -28,7 +28,7 @@ func (api httpJiraApi) FindUsers(project string) ([]JiraUser, error) {
 	}
 	var users []JiraUser
 	if err := json.Unmarshal(response, &users); err != nil {
-		log.Fatalln(err)
+		app.Error(err.Error())
 		return nil, UserSearchDeserializeErr
 	}
 	return users, nil

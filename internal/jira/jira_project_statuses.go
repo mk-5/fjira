@@ -2,7 +2,7 @@ package jira
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/mk5/fjira/internal/app"
 	"strings"
 )
 
@@ -23,7 +23,7 @@ func (a *httpJiraApi) FindProjectStatuses(projectId string) ([]JiraIssueStatus, 
 	var sResponse []statusesResponse
 	distinct := make(map[string]bool)
 	if err := json.Unmarshal(responseBody, &sResponse); err != nil {
-		log.Fatalln(err)
+		app.Error(err.Error())
 		return nil, SearchDeserializeErr
 	}
 	var statuses = make([]JiraIssueStatus, 0, 100)

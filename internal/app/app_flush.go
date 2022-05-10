@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	errorStyle   = DefaultStyle.Foreground(tcell.ColorRed).Background(tcell.ColorWhiteSmoke)
+	errorStyle   = DefaultStyle.Foreground(tcell.ColorDarkRed).Background(tcell.ColorWhiteSmoke)
 	successStyle = DefaultStyle.Foreground(tcell.ColorDarkGreen).Background(tcell.ColorWhiteSmoke)
 )
 

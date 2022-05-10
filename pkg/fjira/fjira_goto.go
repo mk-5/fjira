@@ -3,7 +3,6 @@ package fjira
 import (
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
-	"log"
 )
 
 func goIntoProjectsSearch() {
@@ -21,7 +20,7 @@ func goIntoIssueView(issueKey string) {
 	api, _ := GetApi()
 	issue, err := api.GetIssueDetailed(issueKey)
 	if err != nil {
-		log.Fatalln(err)
+		app.Error(err.Error())
 	}
 	app.GetApp().Loading(false)
 	issueView := NewIssueView(issue)

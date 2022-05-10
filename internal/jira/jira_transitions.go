@@ -2,7 +2,7 @@ package jira
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/mk5/fjira/internal/app"
 	"strings"
 )
 
@@ -39,7 +39,7 @@ func (a *httpJiraApi) FindTransitions(issueId string) ([]JiraIssueTransition, er
 	responseBody, _ := a.jiraRequest("GET", strings.Replace(GetTransitions, "{issue}", issueId, 1), &nilParams{}, nil)
 	var sResponse transitionsResponse
 	if err := json.Unmarshal(responseBody, &sResponse); err != nil {
-		log.Fatalln(err)
+		app.Error(err.Error())
 		return nil, SearchDeserializeErr
 	}
 	var transitions = make([]JiraIssueTransition, 0, 1000)

@@ -5,7 +5,6 @@ import (
 	"github.com/gdamore/tcell"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
-	"log"
 )
 
 type fjiraAssignChangeView struct {
@@ -85,7 +84,7 @@ func (view *fjiraAssignChangeView) findUser(project string) []jira.JiraUser {
 	api, _ := GetApi()
 	users, err := api.FindUsers(project)
 	if err != nil {
-		log.Fatalln(err)
+		app.Error(err.Error())
 	}
 	return users
 }

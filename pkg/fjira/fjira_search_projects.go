@@ -4,7 +4,6 @@ import (
 	"github.com/gdamore/tcell"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
-	"log"
 )
 
 type fjiraSearchProjectsView struct {
@@ -59,7 +58,7 @@ func (view *fjiraSearchProjectsView) findProjects() []jira.JiraProject {
 	api, _ := GetApi()
 	projects, err := api.FindProjects()
 	if err != nil {
-		log.Fatalln(err)
+		app.Error(err.Error())
 	}
 	return projects
 }

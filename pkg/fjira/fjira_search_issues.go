@@ -5,7 +5,6 @@ import (
 	"github.com/gdamore/tcell"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -179,7 +178,7 @@ func (view *fjiraSearchIssuesView) search(query string) []jira.JiraIssue {
 	api, _ := GetApi()
 	issues, _, err := api.Search(query)
 	if err != nil {
-		log.Fatalln(err)
+		app.Error(err.Error())
 	}
 	return issues
 }
