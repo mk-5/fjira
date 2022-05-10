@@ -24,7 +24,6 @@ type fjiraSearchIssuesView struct {
 
 const (
 	JiraRecordsMax = 100
-	StatusAll      = "All"
 )
 
 var (
@@ -66,14 +65,13 @@ func (view *fjiraSearchIssuesView) Update() {
 		view.fuzzyFind.Update()
 	}
 	if view.searchForStatus != nil && view.topBar.GetItem(0).Text2 != view.searchForStatus.Name {
-		view.topBar.GetItem(0).Text2 = view.searchForStatus.Name
+		view.topBar.GetItem(0).ChangeText(MessageLabelStatus, view.searchForStatus.Name)
 		view.topBar.Resize(view.screenX, view.screenY)
-		//app.GetApp().SetDirty()
+
 	}
 	if view.searchForUser != nil && view.topBar.GetItem(1).Text2 != view.searchForUser.DisplayName {
-		view.topBar.GetItem(1).Text2 = view.searchForUser.DisplayName
+		view.topBar.GetItem(1).ChangeText(MessageLabelAssignee, view.searchForUser.DisplayName)
 		view.topBar.Resize(view.screenX, view.screenY)
-		//app.GetApp().SetDirty()
 	}
 }
 
@@ -88,7 +86,7 @@ func (view *fjiraSearchIssuesView) Resize(screenX, screenY int) {
 }
 
 func (view *fjiraSearchIssuesView) HandleKeyEvent(ev *tcell.EventKey) {
-	view.bottomBar.HandleKeyEvent(ev)
+	go view.bottomBar.HandleKeyEvent(ev)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.HandleKeyEvent(ev)
 	}
@@ -142,7 +140,7 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 	app.GetApp().Loading(true)
 	formatter, _ := GetFormatter()
 	statuses := view.fetchStatuses(view.project.Id)
-	statuses = append(statuses, jira.JiraIssueStatus{Name: "All"})
+	statuses = append(statuses, jira.JiraIssueStatus{Name: MessageAll})
 	statusesStrings := formatter.formatJiraStatuses(statuses)
 	view.fuzzyFind = app.NewFuzzyFind(MessageStatusFuzzyFind, statusesStrings)
 	app.GetApp().Loading(false)
@@ -152,7 +150,8 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 		if status.Index >= 0 {
 			view.searchForStatus = &statuses[status.Index]
 		}
-		view.runIssuesFuzzyFind()
+		go view.runIssuesFuzzyFind()
+		go view.handleSearchActions()
 	}
 }
 
@@ -161,7 +160,7 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 	app.GetApp().Loading(true)
 	formatter, _ := GetFormatter()
 	users := view.fetchUsers(view.project.Id)
-	users = append(users, jira.JiraUser{DisplayName: "All"})
+	users = append(users, jira.JiraUser{DisplayName: MessageAll})
 	usersStrings := formatter.formatJiraUsers(users)
 	view.fuzzyFind = app.NewFuzzyFind(MessageSelectUser, usersStrings)
 	app.GetApp().Loading(false)
@@ -171,7 +170,8 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 		if user.Index >= 0 {
 			view.searchForUser = &users[user.Index]
 		}
-		view.runIssuesFuzzyFind()
+		go view.runIssuesFuzzyFind()
+		go view.handleSearchActions()
 	}
 }
 
@@ -203,10 +203,10 @@ func (view *fjiraSearchIssuesView) buildJql(query string) string {
 	if query != "" {
 		jql = jql + fmt.Sprintf(" AND summary~\"%s*\"", query)
 	}
-	if view.searchForStatus != nil && view.searchForStatus.Name == StatusAll {
+	if view.searchForStatus != nil && view.searchForStatus.Name == MessageAll {
 		view.searchForStatus = nil
 	}
-	if view.searchForUser != nil && view.searchForUser.DisplayName == StatusAll {
+	if view.searchForUser != nil && view.searchForUser.DisplayName == MessageAll {
 		view.searchForUser = nil
 	}
 	if view.searchForStatus != nil {

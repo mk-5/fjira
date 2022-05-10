@@ -37,3 +37,8 @@ func goIntoChangeAssignment(issue *jira.JiraIssue) {
 	assignChangeView := NewAssignChangeView(issue)
 	app.GetApp().SetView(assignChangeView)
 }
+
+func goIntoCommentView(issue *jira.JiraIssue) {
+	commentView := NewCommentView(issue)
+	app.GetApp().SetView(commentView)
+}

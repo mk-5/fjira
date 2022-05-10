@@ -9,61 +9,7 @@ import (
 	"testing"
 )
 
-var tests = []struct {
-	gotoMethod    func()
-	viewPredicate func() bool
-}{
-	{
-		gotoMethod: func() {
-			goIntoProjectsSearch()
-		},
-		viewPredicate: func() bool {
-			_, ok := app.GetApp().CurrentView().(*fjiraSearchProjectsView)
-			return ok
-		},
-	},
-	{
-		gotoMethod: func() {
-			goIntoIssuesSearch(&jira.JiraProject{})
-		},
-		viewPredicate: func() bool {
-			_, ok := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
-			return ok
-		},
-	},
-	{
-		gotoMethod: func() {
-			goIntoChangeAssignment(&jira.JiraIssue{})
-		},
-		viewPredicate: func() bool {
-			_, ok := app.GetApp().CurrentView().(*fjiraAssignChangeView)
-			return ok
-		},
-	},
-	{
-		gotoMethod: func() {
-			goIntoChangeStatus(&jira.JiraIssue{})
-		},
-		viewPredicate: func() bool {
-			_, ok := app.GetApp().CurrentView().(*fjiraStatusChangeView)
-			return ok
-		},
-	},
-	{
-		gotoMethod: func() {
-			goIntoIssueView("ABC-123")
-		},
-		viewPredicate: func() bool {
-			_, ok := app.GetApp().CurrentView().(*fjiraIssueView)
-			return ok
-		},
-	},
-}
-
-func Test_shouldGotoCorrectScreens(t *testing.T) {
-	assert := assert2.New(t)
-
-	// given
+func init() {
 	CreateNewFjira(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.String(), "issue") {
 			w.WriteHeader(200)
@@ -75,13 +21,68 @@ func Test_shouldGotoCorrectScreens(t *testing.T) {
 			w.Write([]byte("[]")) //nolint:errcheck
 		}
 	}))
+}
 
-	for _, test := range tests {
-		// when
-		test.gotoMethod()
+func Test_goIntoValidScreen(t *testing.T) {
+	type args struct {
+		gotoMethod    func()
+		viewPredicate func() bool
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"should switch view into assignment change view", args{
+			gotoMethod: func() { goIntoChangeAssignment(&jira.JiraIssue{}) },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraAssignChangeView)
+				return ok
+			},
+		}},
+		{"should switch view into search projects view", args{
+			gotoMethod: func() { goIntoProjectsSearch() },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraSearchProjectsView)
+				return ok
+			},
+		}},
+		{"should switch view into search issues view", args{
+			gotoMethod: func() { goIntoIssuesSearch(&jira.JiraProject{}) },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
+				return ok
+			},
+		}},
+		{"should switch view into change status view", args{
+			gotoMethod: func() { goIntoChangeStatus(&jira.JiraIssue{}) },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraStatusChangeView)
+				return ok
+			},
+		}},
+		{"should switch view into issue view", args{
+			gotoMethod: func() { goIntoIssueView("ABC-123") },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraIssueView)
+				return ok
+			},
+		}},
+		{"should switch view into comment view", args{
+			gotoMethod: func() { goIntoCommentView(&jira.JiraIssue{}) },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraCommentView)
+				return ok
+			},
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// when
+			tt.args.gotoMethod()
 
-		// then
-		ok := test.viewPredicate()
-		assert.True(ok, "Current view is invalid.")
+			// then
+			ok := tt.args.viewPredicate()
+			assert2.New(t).True(ok, "Current view is invalid.")
+		})
 	}
 }

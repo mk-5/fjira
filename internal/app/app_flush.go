@@ -9,7 +9,7 @@ import (
 
 var (
 	errorStyle   = DefaultStyle.Foreground(tcell.ColorRed).Background(tcell.ColorWhiteSmoke)
-	successStyle = DefaultStyle.Foreground(tcell.ColorGreen).Background(tcell.ColorWhiteSmoke)
+	successStyle = DefaultStyle.Foreground(tcell.ColorDarkGreen).Background(tcell.ColorWhiteSmoke)
 )
 
 func Error(message string) {

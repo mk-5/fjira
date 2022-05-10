@@ -10,9 +10,9 @@ import (
 const (
 	ActionAssigneeChange app.ActionBarAction = iota
 	ActionStatusChange
+	ActionComment
 	ActionEscape
 	ActionYes
-	ActionNo
 )
 
 var (
@@ -22,7 +22,6 @@ var (
 	IssueBarActionBarItemBold  = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkKhaki)
 )
 
-// TODO - concrete "bottomBar" struct with helper methods like "setCurrentProject(..)"
 func CreateNewEmptyProjectBottomBar() *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	actionBar.AddItemWithStyles(
@@ -55,7 +54,6 @@ func CreateNewSearchIssuesBottomBar(project *jira.JiraProject) *app.ActionBar {
 	return actionBar
 }
 
-// TODO - refactor - create general place with navigation definition
 func CreateNewSearchIssuesTopBar() *app.ActionBar {
 	actionBar := app.NewActionBar(app.Top, app.Right)
 	actionBar.AddItemWithStyles(
@@ -157,6 +155,18 @@ func NewAssigneeChangeBarItem() *app.ActionBarItem {
 	}
 }
 
+func CreateCommentBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(ActionComment),
+		Text1:       "c",
+		Text2:       " - comment",
+		Text1Style:  BottomBarActionBarKeyBold,
+		Text2Style:  tcell.StyleDefault,
+		TriggerKey:  tcell.KeyF2,
+		TriggerRune: 'c',
+	}
+}
+
 func NewNewStatusBarItem(newStatus string) *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         -1,
@@ -185,5 +195,16 @@ func NewYesBarItem() *app.ActionBarItem {
 		Text1Style:  BottomBarActionBarKeyBold,
 		Text2Style:  tcell.StyleDefault,
 		TriggerRune: 'y',
+	}
+}
+
+func NewSaveBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:         int(ActionYes),
+		Text1:      "F1",
+		Text2:      " - save",
+		Text1Style: BottomBarActionBarKeyBold,
+		Text2Style: tcell.StyleDefault,
+		TriggerKey: tcell.KeyF1,
 	}
 }

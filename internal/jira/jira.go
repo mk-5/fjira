@@ -18,6 +18,7 @@ type JiraApi interface {
 	DoTransition(issueId string, transition *JiraIssueTransition) error
 	DoAssignee(issueId string, accountId string) error
 	GetIssueDetailed(issueId string) (*JiraIssue, error)
+	DoComment(issueId string, commentBody string) error
 	Close()
 }
 

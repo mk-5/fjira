@@ -26,6 +26,7 @@ type App struct {
 	// separate arrays to iterate through
 	keepAlive    map[interface{}]bool
 	changeMutex  sync.Mutex
+	viewMutex    sync.Mutex
 	routineMutex sync.Mutex
 	quit         bool
 	// re-render screen if true
@@ -150,18 +151,20 @@ func (a *App) LoadingWithText(flag bool, text string) {
 }
 
 func (a *App) SetView(view View) {
+	a.viewMutex.Lock()
 	if a.view != nil {
 		a.view.Destroy()
 		delete(a.keepAlive, a.view)
 		a.RemoveDrawable(a.view.(Drawable))
 		a.RemoveSystem(a.view.(System))
 	}
-	a.keepAlive[view] = true
 	a.view = view
 	a.ClearNow()
 	a.AddDrawable(view.(Drawable))
 	a.AddSystem(view.(System))
+	a.keepAlive[view] = true
 	view.Init()
+	a.viewMutex.Unlock()
 }
 
 func (a *App) CurrentView() interface{} {

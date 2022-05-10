@@ -24,6 +24,7 @@ func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
 	bottomBar := CreateNewIssueBottomBar(issue)
 	bottomBar.AddItem(NewStatusChangeBarItem())
 	bottomBar.AddItem(NewAssigneeChangeBarItem())
+	bottomBar.AddItem(CreateCommentBarItem())
 	bottomBar.AddItem(NewCancelBarItem())
 
 	issueActionBar := CreateNewIssueTopBar(issue)
@@ -108,6 +109,9 @@ func (view *fjiraIssueView) handleIssueAction() {
 			return
 		case ActionAssigneeChange:
 			goIntoChangeAssignment(view.issue)
+			return
+		case ActionComment:
+			goIntoCommentView(view.issue)
 			return
 		}
 	}

@@ -100,6 +100,7 @@ func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.JiraIssue, use
 	view.bottomBar.AddItem(NewNewAssigneeBarItem(user))
 	view.bottomBar.AddItem(NewYesBarItem())
 	view.bottomBar.AddItem(NewCancelBarItem())
+	// TODO - should confirm be also drawable? at the moment yes/no are rendered out of the confirm thingy..
 	userAssign := app.Confirm(app.GetApp(), message)
 	switch userAssign {
 	case true:
