@@ -16,7 +16,7 @@ func Error(message string) {
 	app := GetApp()
 	errorMessage := fmt.Sprintf("Error! -%s", message)
 	errorBox := NewTextBox(app.ScreenX/2-len(errorMessage)/2, app.ScreenY-1, errorStyle, errorStyle, errorMessage)
-	GetApp().AddFlash(errorBox, 3*time.Second)
+	GetApp().AddFlash(errorBox, 7*time.Second)
 }
 
 func Success(message string) {
