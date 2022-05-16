@@ -27,8 +27,6 @@ var (
 	issueRegExp     = regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
 	searchForStatus *jira.JiraIssueStatus
 	searchForUser   *jira.JiraUser
-	userAll         = &jira.JiraUser{DisplayName: MessageAll}
-	statusAll       = &jira.JiraIssueStatus{Name: MessageAll}
 )
 
 func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
