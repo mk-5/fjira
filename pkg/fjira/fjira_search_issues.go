@@ -10,15 +10,13 @@ import (
 )
 
 type fjiraSearchIssuesView struct {
-	bottomBar       *app.ActionBar
-	topBar          *app.ActionBar
-	fuzzyFind       *app.FuzzyFind
-	project         *jira.JiraProject
-	currentQuery    string
-	searchForStatus *jira.JiraIssueStatus
-	searchForUser   *jira.JiraUser
-	screenX         int
-	screenY         int
+	bottomBar    *app.ActionBar
+	topBar       *app.ActionBar
+	fuzzyFind    *app.FuzzyFind
+	project      *jira.JiraProject
+	currentQuery string
+	screenX      int
+	screenY      int
 }
 
 const (
@@ -26,7 +24,11 @@ const (
 )
 
 var (
-	issueRegExp = regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
+	issueRegExp     = regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
+	searchForStatus *jira.JiraIssueStatus
+	searchForUser   *jira.JiraUser
+	userAll         = &jira.JiraUser{DisplayName: MessageAll}
+	statusAll       = &jira.JiraIssueStatus{Name: MessageAll}
 )
 
 func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
@@ -63,13 +65,12 @@ func (view *fjiraSearchIssuesView) Update() {
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Update()
 	}
-	if view.searchForStatus != nil && view.topBar.GetItem(0).Text2 != view.searchForStatus.Name {
-		view.topBar.GetItem(0).ChangeText(MessageLabelStatus, view.searchForStatus.Name)
+	if searchForStatus != nil && view.topBar.GetItem(0).Text2 != searchForStatus.Name {
+		view.topBar.GetItem(0).ChangeText(MessageLabelStatus, searchForStatus.Name)
 		view.topBar.Resize(view.screenX, view.screenY)
-
 	}
-	if view.searchForUser != nil && view.topBar.GetItem(1).Text2 != view.searchForUser.DisplayName {
-		view.topBar.GetItem(1).ChangeText(MessageLabelAssignee, view.searchForUser.DisplayName)
+	if searchForUser != nil && view.topBar.GetItem(1).Text2 != searchForUser.DisplayName {
+		view.topBar.GetItem(1).ChangeText(MessageLabelAssignee, searchForUser.DisplayName)
 		view.topBar.Resize(view.screenX, view.screenY)
 	}
 }
@@ -147,7 +148,7 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 	case status := <-view.fuzzyFind.Complete:
 		app.GetApp().ClearNow()
 		if status.Index >= 0 {
-			view.searchForStatus = &statuses[status.Index]
+			searchForStatus = &statuses[status.Index]
 		}
 		go view.runIssuesFuzzyFind()
 		go view.handleSearchActions()
@@ -167,7 +168,7 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 	case user := <-view.fuzzyFind.Complete:
 		app.GetApp().ClearNow()
 		if user.Index >= 0 {
-			view.searchForUser = &users[user.Index]
+			searchForUser = &users[user.Index]
 		}
 		go view.runIssuesFuzzyFind()
 		go view.handleSearchActions()
@@ -202,17 +203,11 @@ func (view *fjiraSearchIssuesView) buildJql(query string) string {
 	if query != "" {
 		jql = jql + fmt.Sprintf(" AND summary~\"%s*\"", query)
 	}
-	if view.searchForStatus != nil && view.searchForStatus.Name == MessageAll {
-		view.searchForStatus = nil
+	if searchForStatus != nil && searchForStatus.Name != MessageAll {
+		jql = jql + fmt.Sprintf(" AND status=%s", searchForStatus.Id)
 	}
-	if view.searchForUser != nil && view.searchForUser.DisplayName == MessageAll {
-		view.searchForUser = nil
-	}
-	if view.searchForStatus != nil {
-		jql = jql + fmt.Sprintf(" AND status=%s", view.searchForStatus.Id)
-	}
-	if view.searchForUser != nil {
-		jql = jql + fmt.Sprintf(" AND assignee=%s", view.searchForUser.AccountId)
+	if searchForUser != nil && searchForUser.DisplayName != MessageAll {
+		jql = jql + fmt.Sprintf(" AND assignee=%s", searchForUser.AccountId)
 	}
 	if query != "" && issueRegExp.MatchString(query) {
 		jql = jql + fmt.Sprintf(" OR issuekey=\"%s\"", query)

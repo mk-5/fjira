@@ -58,12 +58,12 @@ func CreateNewSearchIssuesTopBar() *app.ActionBar {
 	actionBar := app.NewActionBar(app.Top, app.Right)
 	actionBar.AddItemWithStyles(
 		"Status: ",
-		"All",
+		MessageAll,
 		tcell.StyleDefault, TopBarItemBold,
 	)
 	actionBar.AddItemWithStyles(
 		"Assignee: ",
-		"All",
+		MessageAll,
 		tcell.StyleDefault, TopBarItemBold,
 	)
 	return actionBar
