@@ -22,7 +22,7 @@ var (
 	IssueBarActionBarItemBold  = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkKhaki)
 )
 
-func CreateNewEmptyProjectBottomBar() *app.ActionBar {
+func CreateProjectBottomBar() *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	actionBar.AddItemWithStyles(
 		MessageProjectLabel,
@@ -32,7 +32,7 @@ func CreateNewEmptyProjectBottomBar() *app.ActionBar {
 	return actionBar
 }
 
-func CreateNewIssueBottomBar(issue *jira.JiraIssue) *app.ActionBar {
+func CreateIssueBottomBar(issue *jira.JiraIssue) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	actionBar.AddItemWithStyles(
 		MessageIssueLabel,
@@ -42,7 +42,7 @@ func CreateNewIssueBottomBar(issue *jira.JiraIssue) *app.ActionBar {
 	return actionBar
 }
 
-func CreateNewSearchIssuesBottomBar(project *jira.JiraProject) *app.ActionBar {
+func CreateSearchIssuesBottomBar(project *jira.JiraProject) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	actionBar.AddItemWithStyles(
 		MessageProjectLabel,
@@ -54,7 +54,7 @@ func CreateNewSearchIssuesBottomBar(project *jira.JiraProject) *app.ActionBar {
 	return actionBar
 }
 
-func CreateNewSearchIssuesTopBar() *app.ActionBar {
+func CreateSearchIssuesTopBar() *app.ActionBar {
 	actionBar := app.NewActionBar(app.Top, app.Right)
 	actionBar.AddItemWithStyles(
 		"Status: ",
@@ -69,7 +69,7 @@ func CreateNewSearchIssuesTopBar() *app.ActionBar {
 	return actionBar
 }
 
-func CreateNewIssueTopBar(issue *jira.JiraIssue) *app.ActionBar {
+func CreateIssueTopBar(issue *jira.JiraIssue) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Top, app.Right)
 	actionBar.AddItemWithStyles(
 		MessageLabelReporter,
@@ -181,7 +181,7 @@ func NewNewAssigneeBarItem(newAssignee *jira.JiraUser) *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         -1,
 		Text1:      "New assignee: ",
-		Text2:      fmt.Sprintf("%s <%s>", newAssignee.DisplayName, newAssignee.EmailAddress),
+		Text2:      fmt.Sprintf("%s", newAssignee.DisplayName),
 		Text1Style: tcell.StyleDefault,
 		Text2Style: BottomBarActionBarKeyBold,
 	}

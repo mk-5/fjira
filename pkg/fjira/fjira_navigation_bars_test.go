@@ -15,19 +15,19 @@ func TestCreateNavigationBars(t *testing.T) {
 			return CreateCommentBarItem()
 		}},
 		{"should create project bottom bar", func() interface{} {
-			return CreateNewEmptyProjectBottomBar()
+			return CreateProjectBottomBar()
 		}},
 		{"should create issue bottom bar", func() interface{} {
-			return CreateNewIssueBottomBar(&jira.JiraIssue{})
+			return CreateIssueBottomBar(&jira.JiraIssue{})
 		}},
 		{"should create issue top bar", func() interface{} {
-			return CreateNewIssueTopBar(&jira.JiraIssue{})
+			return CreateIssueTopBar(&jira.JiraIssue{})
 		}},
 		{"should create search issues bottom bar", func() interface{} {
-			return CreateNewSearchIssuesBottomBar(&jira.JiraProject{})
+			return CreateSearchIssuesBottomBar(&jira.JiraProject{})
 		}},
 		{"should create search issues top bar", func() interface{} {
-			return CreateNewSearchIssuesTopBar()
+			return CreateSearchIssuesTopBar()
 		}},
 		{"should create assignee change bar item", func() interface{} {
 			return NewAssigneeChangeBarItem()

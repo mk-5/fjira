@@ -22,7 +22,7 @@ func DrawText(screen tcell.Screen, x, y int, style tcell.Style, text string) {
 	}
 }
 
-func DrawTextLimited(s tcell.Screen, x1, y1, x2, y2 int, style tcell.Style, text string) {
+func DrawTextLimited(s tcell.Screen, x1, y1, x2, y2 int, style tcell.Style, text string) int {
 	row := y1
 	col := x1
 	for _, r := range []rune(text) {
@@ -41,4 +41,5 @@ func DrawTextLimited(s tcell.Screen, x1, y1, x2, y2 int, style tcell.Style, text
 			break
 		}
 	}
+	return row
 }

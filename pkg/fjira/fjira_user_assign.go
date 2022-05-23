@@ -18,8 +18,8 @@ type fjiraAssignChangeView struct {
 func NewAssignChangeView(issue *jira.JiraIssue) *fjiraAssignChangeView {
 	return &fjiraAssignChangeView{
 		issue:     issue,
-		topBar:    CreateNewIssueTopBar(issue),
-		bottomBar: CreateNewIssueBottomBar(issue),
+		topBar:    CreateIssueTopBar(issue),
+		bottomBar: CreateIssueBottomBar(issue),
 	}
 }
 

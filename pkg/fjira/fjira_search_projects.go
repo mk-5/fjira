@@ -12,7 +12,7 @@ type fjiraSearchProjectsView struct {
 }
 
 func NewProjectsSearchView() *fjiraSearchProjectsView {
-	bottomBar := CreateNewEmptyProjectBottomBar()
+	bottomBar := CreateProjectBottomBar()
 	return &fjiraSearchProjectsView{
 		bottomBar: bottomBar,
 	}

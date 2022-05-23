@@ -84,6 +84,7 @@ func initApp() {
 		runOnAppRoutine: make([]func(), 0, 64),
 		drawables:       make([]Drawable, 0, 256),
 		systems:         make([]System, 0, 128),
+		flash:           make([]Drawable, 0, 5),
 		keepAlive:       make(map[interface{}]bool),
 		dirty:           make(chan bool),
 		spinner:         s,
@@ -211,6 +212,7 @@ func (a *App) RemoveDrawable(drawable Drawable) {
 }
 
 func (a *App) AddFlash(flash Drawable, duration time.Duration) {
+	// TODO - ... it's causing weird overflow error :/
 	a.changeMutex.Lock()
 	a.flash = append(a.flash, flash)
 	index := len(a.flash) - 1
@@ -221,7 +223,9 @@ func (a *App) AddFlash(flash Drawable, duration time.Duration) {
 	ticker := time.NewTimer(duration)
 	go func() {
 		<-ticker.C
+		a.changeMutex.Lock()
 		a.flash = append(a.flash[:index], a.flash[index+1:]...)
+		a.changeMutex.Unlock()
 	}()
 }
 

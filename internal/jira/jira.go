@@ -40,6 +40,12 @@ type JiraIssue struct {
 	Id       string          `json:"id"`
 }
 
+type JiraComment struct {
+	Author  JiraUser `json:"author"`
+	Body    string   `json:"body"`
+	Created string   `json:"created"`
+}
+
 type JiraIssueFields struct {
 	Summary     string      `json:"summary"`
 	Project     JiraProject `json:"project"`
@@ -58,6 +64,7 @@ type JiraIssueFields struct {
 	Status struct {
 		Name string `json:"name"`
 	} `json:"status"`
+	Comments []JiraComment `json:"comments"`
 }
 
 type JiraUser struct {

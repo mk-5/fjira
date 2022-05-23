@@ -27,12 +27,12 @@ var (
 )
 
 func NewCommentView(issue *jira.JiraIssue) *fjiraCommentView {
-	bottomBar := CreateNewIssueBottomBar(issue)
+	bottomBar := CreateIssueBottomBar(issue)
 	bottomBar.AddItem(NewSaveBarItem())
 	bottomBar.AddItem(NewCancelBarItem())
 	return &fjiraCommentView{
 		issue:     issue,
-		topBar:    CreateNewIssueTopBar(issue),
+		topBar:    CreateIssueTopBar(issue),
 		bottomBar: bottomBar,
 		text:      "",
 	}

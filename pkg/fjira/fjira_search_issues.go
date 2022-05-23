@@ -30,8 +30,8 @@ var (
 )
 
 func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
-	bottomBar := CreateNewSearchIssuesBottomBar(project)
-	topBar := CreateNewSearchIssuesTopBar()
+	bottomBar := CreateSearchIssuesBottomBar(project)
+	topBar := CreateSearchIssuesTopBar()
 	return &fjiraSearchIssuesView{
 		bottomBar: bottomBar,
 		topBar:    topBar,

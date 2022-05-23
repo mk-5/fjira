@@ -18,8 +18,8 @@ type fjiraStatusChangeView struct {
 func NewStatusChangeView(issue *jira.JiraIssue) *fjiraStatusChangeView {
 	return &fjiraStatusChangeView{
 		issue:     issue,
-		topBar:    CreateNewIssueTopBar(issue),
-		bottomBar: CreateNewIssueBottomBar(issue),
+		topBar:    CreateIssueTopBar(issue),
+		bottomBar: CreateIssueBottomBar(issue),
 	}
 }
 
