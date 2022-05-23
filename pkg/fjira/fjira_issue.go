@@ -1,6 +1,7 @@
 package fjira
 
 import (
+	"fmt"
 	"github.com/gdamore/tcell"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
@@ -27,6 +28,7 @@ func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
 	bottomBar.AddItem(NewStatusChangeBarItem())
 	bottomBar.AddItem(NewAssigneeChangeBarItem())
 	bottomBar.AddItem(CreateCommentBarItem())
+	bottomBar.AddItem(NewOpenBarItem())
 	bottomBar.AddItem(NewCancelBarItem())
 
 	issueActionBar := CreateIssueTopBar(issue)
@@ -127,6 +129,10 @@ func (view *fjiraIssueView) handleIssueAction() {
 			return
 		case ActionComment:
 			goIntoCommentView(view.issue)
+			return
+		case ActionOpen:
+			jiraUrl, _ := GetJiraUrl()
+			app.OpenLink(fmt.Sprintf("%s/browse/%s", jiraUrl, view.issue.Key))
 			return
 		}
 	}

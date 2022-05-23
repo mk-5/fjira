@@ -12,6 +12,7 @@ const (
 	ActionStatusChange
 	ActionComment
 	ActionEscape
+	ActionOpen
 	ActionYes
 )
 
@@ -195,6 +196,17 @@ func NewYesBarItem() *app.ActionBarItem {
 		Text1Style:  BottomBarActionBarKeyBold,
 		Text2Style:  tcell.StyleDefault,
 		TriggerRune: 'y',
+	}
+}
+
+func NewOpenBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(ActionOpen),
+		Text1:       "o",
+		Text2:       " - open",
+		Text1Style:  BottomBarActionBarKeyBold,
+		Text2Style:  tcell.StyleDefault,
+		TriggerRune: 'o',
 	}
 }
 

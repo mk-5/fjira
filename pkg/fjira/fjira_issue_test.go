@@ -5,15 +5,11 @@ import (
 	"github.com/mk5/fjira/internal/jira"
 	assert2 "github.com/stretchr/testify/assert"
 	"net/http"
+	"strings"
 	"testing"
 )
 
-func Test_shouldDisplayIssueView(t *testing.T) {
-	// given
-	assert := assert2.New(t)
-	CreateNewFjira(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		_, err := w.Write([]byte(`
+const jiraIssueJson = `
 {
     "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations,customfield_10010.requestTypePractice",
     "id": "10011",
@@ -74,18 +70,39 @@ func Test_shouldDisplayIssueView(t *testing.T) {
             "accountType": "atlassian"
         }
     }
-}`))
-		if err != nil {
-			panic(err)
+}`
+
+func Test_shouldDisplayIssueView(t *testing.T) {
+	CreateNewFjira(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.String(), "issue") {
+			w.WriteHeader(200)
+			w.Write([]byte(jiraIssueJson)) //nolint:errcheck
+			return
+		}
+		if strings.Contains(r.URL.String(), "project") {
+			w.WriteHeader(200)
+			w.Write([]byte("[]")) //nolint:errcheck
 		}
 	}))
+	assert := assert2.New(t)
+	tests := []struct {
+		name     string
+		testFunc func()
+	}{
+		{"should crate valid issue view", func() {
+			// when
+			goIntoIssueView("ABC-123")
+			view, ok := app.GetApp().CurrentView().(*fjiraIssueView)
 
-	// when
-	goIntoIssueView("ABC-123")
-	view, ok := app.GetApp().CurrentView().(*fjiraIssueView)
-
-	// then
-	assert.True(ok, "Invalid view has been set")
-	assert.Equalf("JWC-3", view.issue.Key, "Invalid issue key")
-	assert.Equalf("Lorem ipsum", view.issue.Fields.Description, "Invalid issue description")
+			// then
+			assert.True(ok, "Invalid view has been set")
+			assert.Equal("JWC-3", view.issue.Key, "Invalid issue key")
+			assert.Equal("Lorem ipsum", view.issue.Fields.Description, "Invalid issue description")
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.testFunc()
+		})
+	}
 }

@@ -29,6 +29,7 @@ type Fjira struct {
 	app       *app.App
 	api       jira.JiraApi
 	formatter FjiraFormatter
+	jiraUrl   string
 }
 
 type CliArgs struct {
@@ -43,8 +44,9 @@ var (
 
 func CreateNewFjira(api jira.JiraApi) *Fjira {
 	fjiraOnce.Do(func() {
+		url := os.Getenv(JiraRestUrlEnv)
 		if api == nil {
-			a, err := jira.NewJiraApi(os.Getenv(JiraRestUrlEnv), os.Getenv(JiraUsernameEnv), os.Getenv(JiraTokenEnv))
+			a, err := jira.NewJiraApi(url, os.Getenv(JiraUsernameEnv), os.Getenv(JiraTokenEnv))
 			api = a
 			if err != nil {
 				app.Error(err.Error())
@@ -54,6 +56,7 @@ func CreateNewFjira(api jira.JiraApi) *Fjira {
 			app:       app.CreateNewApp(),
 			api:       api,
 			formatter: &defaultFormatter{},
+			jiraUrl:   url,
 		}
 	})
 	return fjiraInstance
@@ -71,6 +74,13 @@ func GetFormatter() (FjiraFormatter, error) {
 		return nil, FjiraNotInitalizedErr
 	}
 	return fjiraInstance.formatter, nil
+}
+
+func GetJiraUrl() (string, error) {
+	if fjiraInstance == nil {
+		return "", FjiraNotInitalizedErr
+	}
+	return fjiraInstance.jiraUrl, nil
 }
 
 func (f *Fjira) Install() []error {

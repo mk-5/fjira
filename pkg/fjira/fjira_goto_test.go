@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func init() {
+func Test_goIntoValidScreen(t *testing.T) {
 	CreateNewFjira(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.String(), "issue") {
 			w.WriteHeader(200)
@@ -21,9 +21,7 @@ func init() {
 			w.Write([]byte("[]")) //nolint:errcheck
 		}
 	}))
-}
 
-func Test_goIntoValidScreen(t *testing.T) {
 	type args struct {
 		gotoMethod    func()
 		viewPredicate func() bool

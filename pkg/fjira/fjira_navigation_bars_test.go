@@ -56,6 +56,9 @@ func TestCreateNavigationBars(t *testing.T) {
 		{"should create new YES change bar item", func() interface{} {
 			return NewYesBarItem()
 		}},
+		{"should create new OPEN bar item", func() interface{} {
+			return NewOpenBarItem()
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
