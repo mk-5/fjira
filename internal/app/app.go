@@ -73,6 +73,9 @@ func initApp() {
 	}
 	screen.SetStyle(DefaultStyle)
 	screen.EnableMouse()
+	screen.EnablePaste()
+	screen.Clear()
+
 	s := NewSimpleSpinner()
 	x, y := screen.Size()
 	appInstance = &App{
@@ -108,7 +111,7 @@ func (a *App) Start() {
 		for _, system := range a.systems {
 			system.Update()
 		}
-		a.screen.Clear()
+		a.screen.Fill(' ', DefaultStyle)
 		if a.loading {
 			a.spinner.Draw(a.screen)
 		}
@@ -135,7 +138,8 @@ func (a *App) Start() {
 }
 
 func (a *App) Close() {
-	a.screen.Clear()
+	//a.screen.Clear()
+	a.screen.Fill(' ', DefaultStyle)
 	a.screen.Show()
 	a.screen.Fini()
 	close(a.keyEvent)
@@ -259,7 +263,9 @@ func (a *App) SetDirty() {
 
 func (a *App) ClearNow() {
 	a.clear()
-	a.screen.Clear()
+	// a.screen.Clear() is preserving terminal buffer :/ different then in 1.3
+	//a.screen.Clear()
+	a.screen.Fill(' ', DefaultStyle)
 	a.screen.HideCursor()
 }
 
