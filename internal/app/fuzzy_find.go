@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bep/debounce"
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 	"github.com/sahilm/fuzzy"
 	"strings"
 	"time"

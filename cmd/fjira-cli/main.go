@@ -18,21 +18,21 @@ const (
 Optional options:
     -p, --project               Search for issues withing project, example: GEN.
     -i, --issue                 Open Jira Issue, example: GEN-123.
-
+    -w, --workspace             Use fjira workspace, example: my-workspace2
 `
 )
 
 func main() {
 	f := fjira.CreateNewFjira(nil)
 	defer f.Close()
-	errors := f.Install()
+	args := parseCliArgs()
+	errors := f.Install(args.Workspace)
 	if errors != nil {
 		for _, err := range errors {
 			log.Println(err.Error())
 		}
 		log.Fatalln(fjira.InstallFailedErr.Error())
 	}
-	args := parseCliArgs()
 	f.Run(&args)
 }
 
@@ -48,14 +48,18 @@ func parseCliArgs() fjira.CliArgs {
 	}
 	var projectId string
 	var issueKey string
+	var workspace string
 	//var help bool
 	flag.StringVar(&projectId, "project", "", "Jira Project ID")
 	flag.StringVar(&projectId, "p", "", "Jira Project ID")
 	flag.StringVar(&issueKey, "issue", "", "Jira Issue Key")
 	flag.StringVar(&issueKey, "i", "", "Jira Issue Key")
+	flag.StringVar(&workspace, "workspace", "", "Fjira workspace")
+	flag.StringVar(&workspace, "w", "", "Fjira workspace")
 	flag.Parse()
 	return fjira.CliArgs{
 		ProjectId: projectId,
 		IssueKey:  issueKey,
+		Workspace: workspace,
 	}
 }

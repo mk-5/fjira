@@ -2,7 +2,7 @@ package fjira
 
 import (
 	"errors"
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
 	"os"
@@ -35,6 +35,7 @@ type Fjira struct {
 type CliArgs struct {
 	ProjectId string
 	IssueKey  string
+	Workspace string
 }
 
 var (
@@ -83,9 +84,12 @@ func GetJiraUrl() (string, error) {
 	return fjiraInstance.jiraUrl, nil
 }
 
-func (f *Fjira) Install() []error {
+func (f *Fjira) Install(workspace string) []error {
 	errs := make([]error, 0, 10)
-	if err := checkJiraEnvironments(); err != nil {
+	if workspace != DefaultWorkspace {
+
+	}
+	if err := checkJiraEnvironments(); workspace == DefaultWorkspace && err != nil {
 		errs = append(errs, checkJiraEnvironments())
 	}
 	if len(errs) > 0 {

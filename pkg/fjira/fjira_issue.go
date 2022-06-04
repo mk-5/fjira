@@ -2,7 +2,7 @@ package fjira
 
 import (
 	"fmt"
-	"github.com/gdamore/tcell"
+	"github.com/gdamore/tcell/v2"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
 	"math"
@@ -133,6 +133,7 @@ func (view *fjiraIssueView) handleIssueAction() {
 		case ActionOpen:
 			jiraUrl, _ := GetJiraUrl()
 			app.OpenLink(fmt.Sprintf("%s/browse/%s", jiraUrl, view.issue.Key))
+			go view.handleIssueAction()
 			return
 		}
 	}
