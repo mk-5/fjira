@@ -97,7 +97,11 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 	// TODO - maybe we should have some additional condition here ..
 	// TODO - there is a problem when there is no match from JQL but it's from fuzzy matcher
 	issuesProvider := func(query string) []string {
-		if len(latestRecords) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() {
+		// when there is more records than max
+		// when backspace
+		// when query has issue format
+		// when there is no results
+		if len(latestRecords) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() || len(latestRecords) == 0 {
 			a.LoadingWithText(true, MessageSearchIssuesLoading)
 			latestRecords = view.searchForIssues(query)
 			a.Loading(false)
