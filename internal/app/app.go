@@ -263,7 +263,7 @@ func (a *App) SetDirty() {
 
 func (a *App) ClearNow() {
 	a.clear()
-	// a.screen.Clear() is preserving terminal buffer :/ different then in 1.3
+	// a.screen.Clear() is preserving terminal buffer (not alternate screen buffer) :/ different then in 1.3
 	//a.screen.Clear()
 	a.screen.Fill(' ', DefaultStyle)
 	a.screen.HideCursor()

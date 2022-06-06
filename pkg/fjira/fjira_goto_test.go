@@ -10,7 +10,8 @@ import (
 )
 
 func Test_goIntoValidScreen(t *testing.T) {
-	CreateNewFjira(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+	fjira := CreateNewFjira(&fjiraSettings{})
+	fjira.SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.String(), "issue") {
 			w.WriteHeader(200)
 			w.Write([]byte("{}")) //nolint:errcheck

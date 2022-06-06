@@ -1,20 +1,28 @@
 package fjira
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 )
 
 type fjiraSettings struct {
-	JiraRestUrl    string `json:"jiraRestUrl"`
-	JiraBasicToken string `json:"jiraBasicToken"`
+	JiraRestUrl  string `json:"jiraRestUrl"`
+	JiraToken    string `json:"jiraToken"`
+	JiraUsername string `json:"jiraUsername"`
 }
 
-var WorkspaceNotFoundErr = errors.New("Workspace not initialized.")
+var (
+	WorkspaceNotFoundErr      = errors.New("workspace not initialized")
+	WorkspaceFormatInvalidErr = errors.New("workspace name needs to match pattern [a-z0-9]{2,50}")
+	workspaceRegExp           = regexp.MustCompile("^[a-z0-9]{2,50}$")
+)
 
 const (
-	DefaultWorkspace = ""
+	DefaultWorkspace     = ""
+	DefaultWorkspaceName = "default"
 )
 
 type userHomeSettingsStorage struct{}
@@ -25,25 +33,49 @@ type settingsStorage interface { //nolint
 }
 
 func (s *userHomeSettingsStorage) read(workspace string) (*fjiraSettings, error) {
-	return nil, nil
+	if workspace != DefaultWorkspace && !workspaceRegExp.MatchString(workspace) {
+		return nil, WorkspaceFormatInvalidErr
+	}
+	settingsFilePath, err := s.settingsFilePath(workspace)
+	if _, err := os.Stat(settingsFilePath); errors.Is(err, os.ErrNotExist) {
+		return nil, WorkspaceNotFoundErr
+	}
+	if err != nil {
+		return nil, err
+	}
+	fileBytes, err := os.ReadFile(settingsFilePath)
+	if err != nil {
+		return nil, err
+	}
+	var settings fjiraSettings
+	err = json.Unmarshal(fileBytes, &settings)
+	if err != nil {
+		return nil, err
+	}
+	return &settings, nil
 }
 
 func (s *userHomeSettingsStorage) write(workspace string, settings *fjiraSettings) error {
-	if workspace != DefaultWorkspace {
-		workspace = fmt.Sprintf("_%s", workspace)
+	if workspaceRegExp.MatchString(workspace) {
+		return WorkspaceFormatInvalidErr
 	}
-	//settingsFilePath, err := s.settingsFilePath(workspace)
-	//if err != nil {
-	//	return err
-	//}
-	//settingsJson, err := json.Marshal(settings)
-
-	//err = os.WriteFile(settingsFilePath, settingsJson, 0644)
-	return nil
+	settingsFilePath, err := s.settingsFilePath(workspace)
+	if err != nil {
+		return err
+	}
+	settingsJson, err := json.Marshal(settings)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(settingsFilePath, settingsJson, 0644)
+	return err
 }
 
 func (s *userHomeSettingsStorage) settingsFilePath(workspace string) (string, error) {
-	settingsFilename := fmt.Sprintf("fjira%s.json", workspace)
+	if workspace == DefaultWorkspace {
+		workspace = DefaultWorkspaceName
+	}
+	settingsFilename := fmt.Sprintf("%s.json", workspace)
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

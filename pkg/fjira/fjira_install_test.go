@@ -14,7 +14,7 @@ func Test_shouldReturnErrorWhenNoEnvironments(t *testing.T) {
 	os.Setenv(JiraRestUrlEnv, "")
 
 	// when
-	error := checkJiraEnvironments()
+	error := readFromEnvironments()
 
 	// then
 	assert.Error(error, "Should return error when no fjira environments")
@@ -28,7 +28,7 @@ func Test_shouldReturnNoErrorWhenEnvironments(t *testing.T) {
 	os.Setenv(JiraRestUrlEnv, "http://test.test")
 
 	// when
-	error := checkJiraEnvironments()
+	error := readFromEnvironments()
 
 	// then
 	assert.NoError(error, "Should return no error when fjira environments")

@@ -18,21 +18,19 @@ const (
 Optional options:
     -p, --project               Search for issues withing project, example: GEN.
     -i, --issue                 Open Jira Issue, example: GEN-123.
-    -w, --workspace             Use fjira workspace, example: my-workspace2
+    -w, --workspace             Use fjira workspace, example: myworkspace
 `
 )
 
 func main() {
-	f := fjira.CreateNewFjira(nil)
-	defer f.Close()
 	args := parseCliArgs()
-	errors := f.Install(args.Workspace)
-	if errors != nil {
-		for _, err := range errors {
-			log.Println(err.Error())
-		}
+	settings, err := fjira.Install(args.Workspace)
+	if err != nil {
+		log.Println(err)
 		log.Fatalln(fjira.InstallFailedErr.Error())
 	}
+	f := fjira.CreateNewFjira(settings)
+	defer f.Close()
 	f.Run(&args)
 }
 
@@ -49,6 +47,7 @@ func parseCliArgs() fjira.CliArgs {
 	var projectId string
 	var issueKey string
 	var workspace string
+	var switchDefaultWorkspace bool // TODO - implement fuzzy search view with workspaces
 	//var help bool
 	flag.StringVar(&projectId, "project", "", "Jira Project ID")
 	flag.StringVar(&projectId, "p", "", "Jira Project ID")
@@ -56,10 +55,13 @@ func parseCliArgs() fjira.CliArgs {
 	flag.StringVar(&issueKey, "i", "", "Jira Issue Key")
 	flag.StringVar(&workspace, "workspace", "", "Fjira workspace")
 	flag.StringVar(&workspace, "w", "", "Fjira workspace")
+	flag.BoolVar(&switchDefaultWorkspace, "default", false, "Switch default workspace")
+	flag.BoolVar(&switchDefaultWorkspace, "d", false, "Switch default workspace")
 	flag.Parse()
 	return fjira.CliArgs{
-		ProjectId: projectId,
-		IssueKey:  issueKey,
-		Workspace: workspace,
+		ProjectId:              projectId,
+		IssueKey:               issueKey,
+		Workspace:              workspace,
+		SwitchDefaultWorkspace: switchDefaultWorkspace,
 	}
 }

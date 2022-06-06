@@ -1,6 +1,12 @@
 package fjira
 
 const (
+	MessageCreatingNewWorkspace  = "Preparing new workspace "
+	MessageEnterUsername         = "Enter Jira username: "
+	MessageEnterJiraUrl          = "Enter Jira URL "
+	MessageEnterJiraUrlExample   = "[ex. https://my-jira.atlassian.net]: "
+	MessageQuestionMark          = "? "
+	MessageEnterJiraApiToken     = "Enter Jira Api Token: "
 	MessageProjectLabel          = "Project: "
 	MessageIssueLabel            = "Issue: "
 	MessageLabelStatus           = "Status: "

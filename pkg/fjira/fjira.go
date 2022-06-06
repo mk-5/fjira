@@ -5,7 +5,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
-	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -33,9 +33,10 @@ type Fjira struct {
 }
 
 type CliArgs struct {
-	ProjectId string
-	IssueKey  string
-	Workspace string
+	ProjectId              string
+	IssueKey               string
+	Workspace              string
+	SwitchDefaultWorkspace bool
 }
 
 var (
@@ -43,15 +44,15 @@ var (
 	fjiraOnce     sync.Once
 )
 
-func CreateNewFjira(api jira.JiraApi) *Fjira {
+func CreateNewFjira(settings *fjiraSettings) *Fjira {
+	if settings == nil {
+		panic("Cannot find appropriate fjira settings!")
+	}
 	fjiraOnce.Do(func() {
-		url := os.Getenv(JiraRestUrlEnv)
-		if api == nil {
-			a, err := jira.NewJiraApi(url, os.Getenv(JiraUsernameEnv), os.Getenv(JiraTokenEnv))
-			api = a
-			if err != nil {
-				app.Error(err.Error())
-			}
+		url := strings.TrimSuffix(settings.JiraRestUrl, "/")
+		api, err := jira.NewJiraApi(url, settings.JiraUsername, settings.JiraToken)
+		if err != nil {
+			app.Error(err.Error())
 		}
 		fjiraInstance = &Fjira{
 			app:       app.CreateNewApp(),
@@ -84,18 +85,26 @@ func GetJiraUrl() (string, error) {
 	return fjiraInstance.jiraUrl, nil
 }
 
-func (f *Fjira) Install(workspace string) []error {
-	errs := make([]error, 0, 10)
-	if workspace != DefaultWorkspace {
+func Install(workspace string) (*fjiraSettings, error) {
+	settings, err := readFromEnvironments()
+	if err == nil {
+		return settings, nil // envs found
+	}
+	if err != EnvironmentsMissingErr {
+		return nil, err
+	}
+	settings2, err := readFromUserSettings(workspace)
+	if err == WorkspaceNotFoundErr {
+		return readFromUserInputAndStore(workspace)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return settings2, nil
+}
 
-	}
-	if err := checkJiraEnvironments(); workspace == DefaultWorkspace && err != nil {
-		errs = append(errs, checkJiraEnvironments())
-	}
-	if len(errs) > 0 {
-		return errs
-	}
-	return nil
+func (f *Fjira) SetApi(api jira.JiraApi) {
+	f.api = api
 }
 
 func (f *Fjira) Run(args *CliArgs) {
