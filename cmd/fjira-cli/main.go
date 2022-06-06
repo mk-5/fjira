@@ -3,11 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/mk5/fjira/internal/fjira"
 	"log"
 	"os"
 	"regexp"
-
-	"github.com/mk5/fjira/pkg/fjira"
 )
 
 const (
