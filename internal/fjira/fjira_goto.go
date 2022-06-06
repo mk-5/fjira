@@ -41,3 +41,8 @@ func goIntoCommentView(issue *jira.JiraIssue) {
 	commentView := NewCommentView(issue)
 	app.GetApp().SetView(commentView)
 }
+
+func goIntoSwitchWorkspaceView() {
+	switchWorkspaceView := NewSwitchWorkspaceView()
+	app.GetApp().SetView(switchWorkspaceView)
+}

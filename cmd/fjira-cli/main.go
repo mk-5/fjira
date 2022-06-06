@@ -12,6 +12,7 @@ import (
 const (
 	usage = `Usage:
     fjira JIRA-TICKET
+    fjira workspace
     fjira [OPTIONS]
 
 Optional options:
@@ -43,10 +44,14 @@ func parseCliArgs() fjira.CliArgs {
 			IssueKey: os.Args[1],
 		}
 	}
+	if len(os.Args) == 2 && os.Args[1] == "workspace" {
+		return fjira.CliArgs{
+			SwitchWorkspace: true,
+		}
+	}
 	var projectId string
 	var issueKey string
 	var workspace string
-	var switchDefaultWorkspace bool // TODO - implement fuzzy search view with workspaces
 	//var help bool
 	flag.StringVar(&projectId, "project", "", "Jira Project ID")
 	flag.StringVar(&projectId, "p", "", "Jira Project ID")
@@ -54,13 +59,11 @@ func parseCliArgs() fjira.CliArgs {
 	flag.StringVar(&issueKey, "i", "", "Jira Issue Key")
 	flag.StringVar(&workspace, "workspace", "", "Fjira workspace")
 	flag.StringVar(&workspace, "w", "", "Fjira workspace")
-	flag.BoolVar(&switchDefaultWorkspace, "default", false, "Switch default workspace")
-	flag.BoolVar(&switchDefaultWorkspace, "d", false, "Switch default workspace")
 	flag.Parse()
 	return fjira.CliArgs{
-		ProjectId:              projectId,
-		IssueKey:               issueKey,
-		Workspace:              workspace,
-		SwitchDefaultWorkspace: switchDefaultWorkspace,
+		ProjectId:       projectId,
+		IssueKey:        issueKey,
+		Workspace:       workspace,
+		SwitchWorkspace: false,
 	}
 }

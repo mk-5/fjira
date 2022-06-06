@@ -33,10 +33,10 @@ type Fjira struct {
 }
 
 type CliArgs struct {
-	ProjectId              string
-	IssueKey               string
-	Workspace              string
-	SwitchDefaultWorkspace bool
+	ProjectId       string
+	IssueKey        string
+	Workspace       string
+	SwitchWorkspace bool
 }
 
 var (
@@ -86,6 +86,10 @@ func GetJiraUrl() (string, error) {
 }
 
 func Install(workspace string) (*fjiraSettings, error) {
+	err := validateWorkspaceName(workspace)
+	if err != nil {
+		return nil, err
+	}
 	settings, err := readFromEnvironments()
 	if err == nil {
 		return settings, nil // envs found
@@ -123,6 +127,10 @@ func (f *Fjira) Close() {
 func (f *Fjira) bootstrap(args *CliArgs) {
 	if args.IssueKey != "" {
 		goIntoIssueView(args.IssueKey)
+		return
+	}
+	if args.SwitchWorkspace == true {
+		goIntoSwitchWorkspaceView()
 		return
 	}
 	time.Sleep(500 * time.Millisecond)

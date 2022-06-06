@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
 )
 
 type fjiraSettings struct {
@@ -15,13 +14,11 @@ type fjiraSettings struct {
 }
 
 var (
-	WorkspaceNotFoundErr      = errors.New("workspace not initialized")
-	WorkspaceFormatInvalidErr = errors.New("workspace name needs to match pattern [a-z0-9]{2,50}")
-	workspaceRegExp           = regexp.MustCompile("^[a-z0-9]{2,50}$")
+	WorkspaceNotFoundErr = errors.New("workspace not initialized")
 )
 
 const (
-	DefaultWorkspace     = ""
+	EmptyWorkspace       = ""
 	DefaultWorkspaceName = "default"
 )
 
@@ -29,13 +26,9 @@ type userHomeSettingsStorage struct{}
 
 type settingsStorage interface { //nolint
 	write(workspace string, settings *fjiraSettings) error
-	read(workspace string) (*fjiraSettings, error)
 }
 
 func (s *userHomeSettingsStorage) read(workspace string) (*fjiraSettings, error) {
-	if workspace != DefaultWorkspace && !workspaceRegExp.MatchString(workspace) {
-		return nil, WorkspaceFormatInvalidErr
-	}
 	settingsFilePath, err := s.settingsFilePath(workspace)
 	if _, err := os.Stat(settingsFilePath); errors.Is(err, os.ErrNotExist) {
 		return nil, WorkspaceNotFoundErr
@@ -56,9 +49,6 @@ func (s *userHomeSettingsStorage) read(workspace string) (*fjiraSettings, error)
 }
 
 func (s *userHomeSettingsStorage) write(workspace string, settings *fjiraSettings) error {
-	if workspaceRegExp.MatchString(workspace) {
-		return WorkspaceFormatInvalidErr
-	}
 	settingsFilePath, err := s.settingsFilePath(workspace)
 	if err != nil {
 		return err
@@ -72,10 +62,10 @@ func (s *userHomeSettingsStorage) write(workspace string, settings *fjiraSetting
 }
 
 func (s *userHomeSettingsStorage) settingsFilePath(workspace string) (string, error) {
-	if workspace == DefaultWorkspace {
+	if workspace == EmptyWorkspace {
 		workspace = DefaultWorkspaceName
 	}
-	settingsFilename := fmt.Sprintf("%s.json", workspace)
+	settingsFilename := fmt.Sprintf("_%s.json", workspace)
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

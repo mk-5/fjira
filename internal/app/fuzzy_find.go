@@ -13,6 +13,7 @@ import (
 
 type FuzzyFind struct {
 	MarginTop        int
+	MarginBottom     int
 	Complete         chan FuzzyFindResult
 	records          []string
 	recordsProvider  func(query string) []string
@@ -35,7 +36,6 @@ type FuzzyFindResult struct {
 }
 
 const (
-	FuzzyFindMarginBottom   = 3
 	ResultsMarginBottom     = 3
 	WriteIndicator          = "> "
 	MaxResults              = 4096
@@ -73,6 +73,7 @@ func NewFuzzyFind(title string, records []string) *FuzzyFind {
 		recordsProvider: nil,
 		title:           title,
 		MarginTop:       0,
+		MarginBottom:    3,
 	}
 }
 
@@ -90,6 +91,7 @@ func NewFuzzyFindWithProvider(title string, recordsProvider func(query string) [
 		supplierDebounce: debounce.New(DynamicSupplierDebounce),
 		title:            title,
 		MarginTop:        0,
+		MarginBottom:     3,
 	}
 }
 
@@ -100,14 +102,13 @@ func (f *FuzzyFind) Draw(screen tcell.Screen) {
 		f.screenY = y
 	}
 	f.drawRecords(screen)
-
 	if f.title != "" {
-		DrawText(screen, 2, f.screenY-ResultsMarginBottom-FuzzyFindMarginBottom+1, titleStyle, f.title)
+		DrawText(screen, 2, f.screenY-ResultsMarginBottom-f.MarginBottom+1, titleStyle, f.title)
 	}
-	DrawText(screen, f.screenX-len(f.fuzzyStatus)-2, f.screenY-ResultsMarginBottom-FuzzyFindMarginBottom+1, titleStyle, f.fuzzyStatus)
-	DrawText(screen, 0, f.screenY-1-FuzzyFindMarginBottom, boldStyle, WriteIndicator)
-	DrawText(screen, 2, f.screenY-1-FuzzyFindMarginBottom, tcell.StyleDefault, f.query)
-	screen.ShowCursor(2+len(f.query), f.screenY-1-FuzzyFindMarginBottom)
+	DrawText(screen, f.screenX-len(f.fuzzyStatus)-2, f.screenY-ResultsMarginBottom-f.MarginBottom+1, titleStyle, f.fuzzyStatus)
+	DrawText(screen, 0, f.screenY-1-f.MarginBottom, boldStyle, WriteIndicator)
+	DrawText(screen, 2, f.screenY-1-f.MarginBottom, tcell.StyleDefault, f.query)
+	screen.ShowCursor(2+len(f.query), f.screenY-1-f.MarginBottom)
 }
 
 func (f *FuzzyFind) Update() {
@@ -167,7 +168,7 @@ func (f *FuzzyFind) Resize(screenX, screenY int) {
 }
 
 func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
-	var row = f.screenY - ResultsMarginBottom - FuzzyFindMarginBottom
+	var row = f.screenY - ResultsMarginBottom - f.MarginBottom
 	var currentStyleDefault tcell.Style
 	var currentStyleBold tcell.Style
 	indexDelta := ClampInt(f.selected-row+SearchResultsPivot, 0, f.matches.Len()-1)
