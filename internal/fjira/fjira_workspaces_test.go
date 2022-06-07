@@ -1,7 +1,6 @@
 package fjira
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -9,7 +8,8 @@ import (
 
 func Test_userHomeWorkspaces_getWorkspaceFilepath(t *testing.T) {
 	// TODO - it's not multi-platform
-	os.Setenv("HOME", "/tmp")
+	tempDir := t.TempDir()
+	os.Setenv("HOME", tempDir)
 	type args struct {
 		workspace string
 		current   bool
@@ -19,8 +19,8 @@ func Test_userHomeWorkspaces_getWorkspaceFilepath(t *testing.T) {
 		args args
 		want string
 	}{
-		{"should convert filename into filepath, not current", args{workspace: "test", current: false}, "/tmp/.fjira/test.json"},
-		{"should convert filename into filepath, current", args{workspace: "test", current: true}, "/tmp/.fjira/_test.json"},
+		{"should convert filename into filepath, not current", args{workspace: "test", current: false}, tempDir + "/.fjira/test.json"},
+		{"should convert filename into filepath, current", args{workspace: "test", current: true}, tempDir + "/.fjira/_test.json"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -52,11 +52,12 @@ func Test_userHomeWorkspaces_normalizeWorkspaceFilename(t *testing.T) {
 
 func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 	// TODO - it's not multi-platform
-	os.Setenv("HOME", os.TempDir())
-	os.Mkdir(os.TempDir()+"/.fjira", os.ModePerm)  //nolint:errcheck
-	os.Create(os.TempDir() + "/.fjira/test1.json") //nolint:errcheck
-	os.Create(os.TempDir() + "/.fjira/test2.json") //nolint:errcheck
-	os.Create(os.TempDir() + "/.fjira/test3.json") //nolint:errcheck
+	tempDir := t.TempDir()
+	os.Setenv("HOME", tempDir)
+	os.Mkdir(tempDir+"/.fjira", os.ModePerm)  //nolint:errcheck
+	os.Create(tempDir + "/.fjira/test1.json") //nolint:errcheck
+	os.Create(tempDir + "/.fjira/test2.json") //nolint:errcheck
+	os.Create(tempDir + "/.fjira/test3.json") //nolint:errcheck
 
 	tests := []struct {
 		name string
@@ -75,9 +76,10 @@ func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 
 func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 	// TODO - it's not multi-platform
-	os.Setenv("HOME", os.TempDir())
-	os.Mkdir(os.TempDir()+"/.fjira", os.ModePerm) //nolint:errcheck
-	os.Create(os.TempDir() + "/.fjira/_xyz.json") //nolint:errcheck
+	tempDir := t.TempDir()
+	os.Setenv("HOME", tempDir)
+	os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
+	os.Create(tempDir + "/.fjira/_xyz.json") //nolint:errcheck
 
 	tests := []struct {
 		name    string
@@ -90,7 +92,7 @@ func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &userHomeWorkspaces{}
 			got, err := u.readCurrentWorkspace()
-			if tt.wantErr != nil && !tt.wantErr(t, err, fmt.Sprintf("readCurrentWorkspace()")) {
+			if tt.wantErr != nil && !tt.wantErr(t, err, "readCurrentWorkspace()") {
 				return
 			}
 			assert.Equalf(t, tt.want, got, "readCurrentWorkspace()")
@@ -99,10 +101,11 @@ func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 }
 
 func Test_userHomeWorkspaces_setCurrentWorkspace(t *testing.T) {
-	os.Setenv("HOME", os.TempDir())
-	os.Mkdir(os.TempDir()+"/.fjira", os.ModePerm)     //nolint:errcheck
-	os.Create(os.TempDir() + "/.fjira/_default.json") //nolint:errcheck
-	os.Create(os.TempDir() + "/.fjira/yyy.json")      //nolint:errcheck
+	tempDir := t.TempDir()
+	os.Setenv("HOME", tempDir)
+	os.Mkdir(tempDir+"/.fjira", os.ModePerm)     //nolint:errcheck
+	os.Create(tempDir + "/.fjira/_default.json") //nolint:errcheck
+	os.Create(tempDir + "/.fjira/yyy.json")      //nolint:errcheck
 
 	type args struct {
 		workspace string
@@ -117,8 +120,8 @@ func Test_userHomeWorkspaces_setCurrentWorkspace(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &userHomeWorkspaces{}
 			err := u.setCurrentWorkspace(tt.args.workspace)
-			_, err2 := os.Stat(os.TempDir() + "/.fjira/_yyy.json")
-			_, err3 := os.Stat(os.TempDir() + "/.fjira/_default.json")
+			_, err2 := os.Stat(tempDir + "/.fjira/_yyy.json")
+			_, err3 := os.Stat(tempDir + "/.fjira/_default.json")
 
 			assert.Nil(t, err)
 			assert.Nil(t, err2)

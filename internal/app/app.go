@@ -24,11 +24,10 @@ type App struct {
 	// clear/add/remove is less accurate execution than clear.
 	// so it makes sense to store keep-alive stuff like this, instead of having
 	// separate arrays to iterate through
-	keepAlive    map[interface{}]bool
-	changeMutex  sync.Mutex
-	viewMutex    sync.Mutex
-	routineMutex sync.Mutex
-	quit         bool
+	keepAlive   map[interface{}]bool
+	changeMutex sync.Mutex
+	viewMutex   sync.Mutex
+	quit        bool
 	// re-render screen if true
 	dirty           chan bool
 	loading         bool
@@ -54,20 +53,32 @@ func CreateNewApp() *App {
 	return appInstance
 }
 
+// CreateNewAppWithScreen accessible for testing
+func CreateNewAppWithScreen(screen tcell.Screen) *App {
+	once.Do(func() {
+		initAppWithScreen(screen)
+	})
+	return appInstance
+}
+
 func GetApp() *App {
 	return appInstance
 }
 
 func initApp() {
+	screen, err := tcell.NewScreen()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	initAppWithScreen(screen)
+}
+
+func initAppWithScreen(screen tcell.Screen) {
 	if os.Getenv("TERM") == "cygwin" {
 		os.Setenv("TERM", "")
 	}
 	encoding.Register()
 	tcell.SetEncodingFallback(tcell.EncodingFallbackUTF8)
-	screen, err := tcell.NewScreen()
-	if err != nil {
-		log.Fatalln(err)
-	}
 	if err := screen.Init(); err != nil {
 		log.Fatalf("%+v", err)
 	}
@@ -99,7 +110,7 @@ func (a *App) Start() {
 	go a.processTerminalEvents()
 	go a.processOsSignals()
 	for {
-		if a.quit == true {
+		if a.quit {
 			return
 		}
 		// TODO - could be added as an potential performance improvement
@@ -198,7 +209,7 @@ func (a *App) AddDrawable(drawable Drawable) {
 }
 
 func (a *App) RemoveDrawable(drawable Drawable) {
-	if a.keepAlive[drawable] == true {
+	if a.keepAlive[drawable] {
 		return
 	}
 	a.changeMutex.Lock()
@@ -240,7 +251,7 @@ func (a *App) AddSystem(system System) {
 }
 
 func (a *App) RemoveSystem(system System) {
-	if a.keepAlive[system] == true {
+	if a.keepAlive[system] {
 		return
 	}
 	a.changeMutex.Lock()

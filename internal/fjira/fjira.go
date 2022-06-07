@@ -71,6 +71,14 @@ func GetApi() (jira.JiraApi, error) {
 	return fjiraInstance.api, nil
 }
 
+func SetApi(api jira.JiraApi) error {
+	if fjiraInstance == nil {
+		return FjiraNotInitalizedErr
+	}
+	fjiraInstance.api = api
+	return nil
+}
+
 func GetFormatter() (FjiraFormatter, error) {
 	if fjiraInstance == nil {
 		return nil, FjiraNotInitalizedErr

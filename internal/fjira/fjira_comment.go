@@ -43,7 +43,7 @@ func (view *fjiraCommentView) Init() {
 }
 
 func (view *fjiraCommentView) Destroy() {
-
+	// do nothing
 }
 
 func (view *fjiraCommentView) Draw(screen tcell.Screen) {
