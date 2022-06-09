@@ -2,6 +2,8 @@
 
 ![Fira](fjira.png)
 
+![Test](https://github.com/mk-5/fjira/actions/workflows/tests.yml/badge.svg)
+
 ## Getting started
 
 ```shell

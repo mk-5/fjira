@@ -35,7 +35,7 @@ func Test_shouldReturnNoErrorWhenEnvironments(t *testing.T) {
 }
 
 func Test_readFromUserSettings(t *testing.T) {
-	// TODO - it's not multi-platform
+	// TODO - not working on windows
 	tempDir := t.TempDir()
 	os.Setenv("HOME", tempDir)
 	os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck

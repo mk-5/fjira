@@ -7,7 +7,7 @@ import (
 )
 
 func Test_userHomeWorkspaces_getWorkspaceFilepath(t *testing.T) {
-	// TODO - it's not multi-platform
+	// TODO - not working on windows
 	tempDir := t.TempDir()
 	os.Setenv("HOME", tempDir)
 	defer os.Remove(tempDir + "/.fjira")
@@ -53,7 +53,7 @@ func Test_userHomeWorkspaces_normalizeWorkspaceFilename(t *testing.T) {
 }
 
 func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
-	// TODO - it's not multi-platform
+	// TODO - not working on windows
 	tempDir := t.TempDir()
 	os.Setenv("HOME", tempDir)
 	os.Mkdir(tempDir+"/.fjira", os.ModePerm)  //nolint:errcheck
@@ -78,7 +78,7 @@ func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 }
 
 func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
-	// TODO - it's not multi-platform
+	// TODO - not working on windows
 	tempDir := t.TempDir()
 	os.Setenv("HOME", tempDir)
 	os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
@@ -106,6 +106,7 @@ func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 
 func Test_userHomeWorkspaces_setCurrentWorkspace(t *testing.T) {
 	tempDir := t.TempDir()
+	// TODO - not working on windows
 	os.Setenv("HOME", tempDir)
 	os.Mkdir(tempDir+"/.fjira", os.ModePerm)     //nolint:errcheck
 	os.Create(tempDir + "/.fjira/_default.json") //nolint:errcheck
