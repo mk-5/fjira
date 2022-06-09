@@ -10,6 +10,8 @@ func Test_userHomeWorkspaces_getWorkspaceFilepath(t *testing.T) {
 	// TODO - it's not multi-platform
 	tempDir := t.TempDir()
 	os.Setenv("HOME", tempDir)
+	defer os.Remove(tempDir + "/.fjira")
+
 	type args struct {
 		workspace string
 		current   bool
@@ -58,6 +60,7 @@ func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 	os.Create(tempDir + "/.fjira/test1.json") //nolint:errcheck
 	os.Create(tempDir + "/.fjira/test2.json") //nolint:errcheck
 	os.Create(tempDir + "/.fjira/test3.json") //nolint:errcheck
+	defer os.Remove(tempDir + "/.fjira")
 
 	tests := []struct {
 		name string
@@ -80,6 +83,7 @@ func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 	os.Setenv("HOME", tempDir)
 	os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
 	os.Create(tempDir + "/.fjira/_xyz.json") //nolint:errcheck
+	defer os.Remove(tempDir + "/.fjira")
 
 	tests := []struct {
 		name    string
@@ -106,6 +110,7 @@ func Test_userHomeWorkspaces_setCurrentWorkspace(t *testing.T) {
 	os.Mkdir(tempDir+"/.fjira", os.ModePerm)     //nolint:errcheck
 	os.Create(tempDir + "/.fjira/_default.json") //nolint:errcheck
 	os.Create(tempDir + "/.fjira/yyy.json")      //nolint:errcheck
+	defer os.Remove(tempDir + "/.fjira")
 
 	type args struct {
 		workspace string

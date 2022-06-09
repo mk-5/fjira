@@ -90,7 +90,7 @@ func (u *userHomeWorkspaces) getWorkspaceFilepath(workspace string, current bool
 	if err != nil {
 		panic(err.Error())
 	}
-	if current == true {
+	if current {
 		return fmt.Sprintf("%s/.fjira/_%s.json", userHomeDir, workspace)
 	}
 	return fmt.Sprintf("%s/.fjira/%s.json", userHomeDir, workspace)
