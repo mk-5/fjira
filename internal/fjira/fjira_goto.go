@@ -21,6 +21,11 @@ func goIntoIssueView(issueKey string) {
 	issue, err := api.GetIssueDetailed(issueKey)
 	if err != nil {
 		app.Error(err.Error())
+		//go func() {
+		//	<-time.NewTimer(3 * time.Second).C
+		//	app.GetApp().Quit()
+		//}()
+		//return
 	}
 	app.GetApp().Loading(false)
 	issueView := NewIssueView(issue)

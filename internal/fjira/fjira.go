@@ -137,7 +137,7 @@ func (f *Fjira) bootstrap(args *CliArgs) {
 		goIntoIssueView(args.IssueKey)
 		return
 	}
-	if args.SwitchWorkspace == true {
+	if args.SwitchWorkspace {
 		goIntoSwitchWorkspaceView()
 		return
 	}

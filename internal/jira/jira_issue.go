@@ -3,7 +3,6 @@ package jira
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mk5/fjira/internal/app"
 )
 
 const (
@@ -17,7 +16,6 @@ func (api *httpJiraApi) GetIssueDetailed(id string) (*JiraIssue, error) {
 	}
 	var jiraIssue JiraIssue
 	if err := json.Unmarshal(body, &jiraIssue); err != nil {
-		app.Error(err.Error())
 		return nil, SearchDeserializeErr
 	}
 	return &jiraIssue, nil

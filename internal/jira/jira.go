@@ -64,7 +64,12 @@ type JiraIssueFields struct {
 	Status struct {
 		Name string `json:"name"`
 	} `json:"status"`
-	Comments []JiraComment `json:"comments"`
+	Comment struct {
+		Comments   []JiraComment `json:"comments"`
+		MaxResults int32         `json:"maxResults"`
+		Total      int32         `json:"total"`
+		StartAt    int32         `json:"startAt"`
+	} `json:"comment"`
 }
 
 type JiraUser struct {

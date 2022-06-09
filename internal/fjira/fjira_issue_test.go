@@ -1,6 +1,8 @@
 package fjira
 
 import (
+	"bytes"
+	"github.com/gdamore/tcell/v2"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
 	assert2 "github.com/stretchr/testify/assert"
@@ -68,11 +70,30 @@ const jiraIssueJson = `
             "active": true,
             "timeZone": "Europe/Warsaw",
             "accountType": "atlassian"
+        },
+ 		"comment": {
+            "comments": [
+                {
+                    "author": {
+                        "displayName": "Mateusz Kulawik"
+                    },
+                    "body": "Comment 123-ABC",
+                    "created": "2022-06-09T22:53:42.057+0200",
+                    "updated": "2022-06-09T22:53:42.057+0200"
+                }
+            ],
+            "maxResults": 1,
+            "total": 1,
+            "startAt": 0
         }
     }
 }`
 
 func Test_shouldDisplayIssueView(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
 	fjira := CreateNewFjira(&fjiraSettings{})
 	fjira.SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.String(), "issue") {
@@ -89,17 +110,35 @@ func Test_shouldDisplayIssueView(t *testing.T) {
 	assert := assert2.New(t)
 	tests := []struct {
 		name     string
+		screen   tcell.Screen
 		testFunc func()
 	}{
-		{"should crate valid issue view", func() {
+		{"should crate valid issue view", screen, func() {
 			// when
 			goIntoIssueView("ABC-123")
 			view, ok := app.GetApp().CurrentView().(*fjiraIssueView)
 
+			// when
+			view.Draw(screen)
+			var buffer bytes.Buffer
+			contents, x, y := screen.GetContents()
+			screen.Show()
+			for i := 0; i < x*y; i++ {
+				if len(contents[i].Bytes) != 0 {
+					buffer.Write(contents[i].Bytes)
+				}
+			}
+			result := buffer.String()
+
 			// then
+
 			assert.True(ok, "Invalid view has been set")
 			assert.Equal("JWC-3", view.issue.Key, "Invalid issue key")
 			assert.Equal("Lorem ipsum", view.issue.Fields.Description, "Invalid issue description")
+			assert.Contains(result, "JWC-3", "should contain issue number")
+			assert.Contains(result, "Lorem ipsum", "should contain ticket description")
+			assert.Contains(result, "Mateusz Kulawik", "should contain comment")
+			assert.Contains(result, "Comment 123-ABC", "should contain comment author")
 		}},
 	}
 	for _, tt := range tests {

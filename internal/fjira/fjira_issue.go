@@ -1,6 +1,7 @@
 package fjira
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk5/fjira/internal/app"
@@ -10,17 +11,16 @@ import (
 
 type fjiraIssueView struct {
 	app.View
-	bottomBar            *app.ActionBar
-	topBar               *app.ActionBar
-	fuzzyFind            *app.FuzzyFind
-	issue                *jira.JiraIssue
-	descriptionLimitX    int
-	descriptionLimitY    int
-	descriptionBodyLines int
-	commentsLines        int
-	scrollY              int
-	descriptionLines     int
-	maxScrollY           int
+	bottomBar         *app.ActionBar
+	topBar            *app.ActionBar
+	fuzzyFind         *app.FuzzyFind
+	issue             *jira.JiraIssue
+	descriptionLimitX int
+	descriptionLimitY int
+	scrollY           int
+	descriptionLines  int
+	maxScrollY        int
+	body              string
 }
 
 func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
@@ -33,11 +33,23 @@ func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
 
 	issueActionBar := CreateIssueTopBar(issue)
 
+	var bodyBuffer bytes.Buffer
+	bodyBuffer.WriteString(issue.Fields.Description)
+	if len(issue.Fields.Comment.Comments) > 0 {
+		bodyBuffer.WriteString("\n\nComments\n--------")
+		for _, comment := range issue.Fields.Comment.Comments {
+			bodyBuffer.WriteString("\n")
+			bodyBuffer.WriteString(fmt.Sprintf("%s, %s", comment.Created, comment.Author.DisplayName))
+			bodyBuffer.WriteString(fmt.Sprintf("\n%s", comment.Body))
+		}
+	}
+
 	return &fjiraIssueView{
 		bottomBar: bottomBar,
 		topBar:    issueActionBar,
 		issue:     issue,
 		scrollY:   0,
+		body:      bodyBuffer.String(),
 	}
 }
 
@@ -54,14 +66,7 @@ func (view *fjiraIssueView) Draw(screen tcell.Screen) {
 		for col := 1; col <= len(view.issue.Fields.Summary); col++ {
 			screen.SetContent(col, 4-view.scrollY, tcell.RuneHLine, nil, tcell.StyleDefault)
 		}
-		rows := app.DrawTextLimited(screen, 1, 6-view.scrollY, view.descriptionLimitX, view.descriptionLimitY, tcell.StyleDefault, view.issue.Fields.Description)
-		app.DrawText(screen, 1, 6+rows-view.scrollY, tcell.StyleDefault, "Comments")
-		for col := 1; col <= 60; col++ {
-			screen.SetContent(col, 6+rows+1-view.scrollY, tcell.RuneHLine, nil, tcell.StyleDefault)
-		}
-	}
-	if len(view.issue.Fields.Comments) > 0 {
-
+		app.DrawTextLimited(screen, 1, 6-view.scrollY, view.descriptionLimitX, view.descriptionLimitY, tcell.StyleDefault, view.body)
 	}
 	view.bottomBar.Draw(screen)
 	view.topBar.Draw(screen)
@@ -80,19 +85,10 @@ func (view *fjiraIssueView) Update() {
 
 func (view *fjiraIssueView) Resize(screenX, screenY int) {
 	view.descriptionLimitX = app.ClampInt(int(math.Floor(float64(screenX)*0.9)), 1, 10000)
-	view.descriptionLimitY = screenY - 6
-	view.descriptionBodyLines = int(math.Ceil(float64(len(view.issue.Fields.Description) / view.descriptionLimitX)))
-	if len(view.issue.Fields.Comments) > 0 {
-		view.commentsLines = 2
-		for _, comment := range view.issue.Fields.Comments {
-			view.commentsLines = view.commentsLines + int(math.Ceil(float64(len(comment.Body)/view.descriptionLimitX)))
-		}
-	}
-	view.descriptionLines = view.descriptionBodyLines + view.commentsLines
-	view.maxScrollY = app.ClampInt(-((view.descriptionLimitY - 6 - 6) - view.descriptionLines), 0, 1000)
-	if view.maxScrollY >= view.descriptionLimitY {
-		view.maxScrollY += 1
-	}
+	view.descriptionLimitY = 1000
+	view.descriptionLines = (len(view.body) / view.descriptionLimitX) * 2
+	topAndBottomBarSize := 12
+	view.maxScrollY = app.ClampInt(int(math.Abs(float64(screenY-topAndBottomBarSize-view.descriptionLines))), 0, 1000)
 	view.bottomBar.Resize(screenX, screenY)
 	view.topBar.Resize(screenX, screenY)
 	if view.fuzzyFind != nil {
@@ -115,8 +111,7 @@ func (view *fjiraIssueView) HandleKeyEvent(ev *tcell.EventKey) {
 }
 
 func (view *fjiraIssueView) handleIssueAction() {
-	select {
-	case selectedAction := <-view.bottomBar.Action:
+	if selectedAction := <-view.bottomBar.Action; true {
 		switch selectedAction {
 		case ActionEscape:
 			app.GetApp().SetView(NewIssuesSearchView(&view.issue.Fields.Project))
