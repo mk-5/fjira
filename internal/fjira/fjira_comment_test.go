@@ -62,8 +62,6 @@ func Test_fjiraCommentView_Draw(t *testing.T) {
 
 			// when
 			view.Draw(tt.args.screen)
-
-			// then
 			var buffer bytes.Buffer
 			contents, x, y := tt.args.screen.(tcell.SimulationScreen).GetContents()
 			tt.args.screen.Show()
@@ -72,7 +70,10 @@ func Test_fjiraCommentView_Draw(t *testing.T) {
 					buffer.Write(contents[i].Bytes)
 				}
 			}
-			assert.Contains(t, buffer.String(), view.text)
+			result := buffer.String()
+
+			// then
+			assert.Contains(t, result, view.text)
 		})
 	}
 }

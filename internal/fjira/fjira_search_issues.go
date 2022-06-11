@@ -1,7 +1,6 @@
 package fjira
 
 import (
-	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
@@ -17,6 +16,7 @@ type fjiraSearchIssuesView struct {
 	currentQuery string
 	screenX      int
 	screenY      int
+	issues       []jira.JiraIssue
 }
 
 const (
@@ -25,7 +25,7 @@ const (
 
 var (
 	issueRegExp     = regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
-	searchForStatus *jira.JiraIssueStatus
+	searchForStatus *jira.JiraIssueStatus // global in order to keep status&user between views
 	searchForUser   *jira.JiraUser
 )
 
@@ -46,7 +46,7 @@ func (view *fjiraSearchIssuesView) Init() {
 }
 
 func (view *fjiraSearchIssuesView) Destroy() {
-
+	// do nothing
 }
 
 func (view *fjiraSearchIssuesView) Draw(screen tcell.Screen) {
@@ -84,49 +84,49 @@ func (view *fjiraSearchIssuesView) Resize(screenX, screenY int) {
 }
 
 func (view *fjiraSearchIssuesView) HandleKeyEvent(ev *tcell.EventKey) {
-	go view.bottomBar.HandleKeyEvent(ev)
+	go view.bottomBar.HandleKeyEvent(ev) // TODO - do not trigger new routine
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.HandleKeyEvent(ev)
 	}
 }
 
 func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
-	formatter, _ := GetFormatter()
 	a := app.GetApp()
-	latestRecords := view.searchForIssues("")
-	// TODO - maybe we should have some additional condition here ..
-	// TODO - there is a problem when there is no match from JQL but it's from fuzzy matcher
-	issuesProvider := func(query string) []string {
-		// when there is more records than max
-		// when backspace
-		// when query has issue format
-		// when there is no results
-		if len(latestRecords) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() || len(latestRecords) == 0 {
-			a.LoadingWithText(true, MessageSearchIssuesLoading)
-			latestRecords = view.searchForIssues(query)
-			a.Loading(false)
-		}
-		view.currentQuery = query
-		return formatter.formatJiraIssues(latestRecords)
-	}
-	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageSelectIssue, issuesProvider)
+	//view.issues = view.searchForIssues("")
+	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageSelectIssue, view.provideIssue)
 	a.Loading(false)
 	a.ClearNow()
-	select {
-	case chosen := <-view.fuzzyFind.Complete:
+	if chosen := <-view.fuzzyFind.Complete; true {
 		a.ClearNow()
 		if chosen.Index < 0 {
 			go goIntoProjectsSearch()
 			return
 		}
-		chosenIssue := latestRecords[chosen.Index]
+		chosenIssue := view.issues[chosen.Index]
 		go goIntoIssueView(chosenIssue.Key)
 	}
 }
 
+func (view *fjiraSearchIssuesView) provideIssue(query string) []string {
+	formatter, _ := GetFormatter()
+	a := app.GetApp()
+
+	// when there is more records than max
+	// when backspace
+	// when query has issue format
+	// when there is no results
+	if len(view.issues) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() || len(view.issues) == 0 {
+		a.LoadingWithText(true, MessageSearchIssuesLoading)
+		view.issues = view.searchForIssues(query)
+		a.Loading(false)
+	}
+
+	view.currentQuery = query
+	return formatter.formatJiraIssues(view.issues)
+}
+
 func (view *fjiraSearchIssuesView) handleSearchActions() {
-	select {
-	case selectedAction := <-view.bottomBar.Action:
+	if selectedAction := <-view.bottomBar.Action; true {
 		switch selectedAction {
 		case ActionStatusChange:
 			view.runSelectStatus()
@@ -146,8 +146,7 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 	statusesStrings := formatter.formatJiraStatuses(statuses)
 	view.fuzzyFind = app.NewFuzzyFind(MessageStatusFuzzyFind, statusesStrings)
 	app.GetApp().Loading(false)
-	select {
-	case status := <-view.fuzzyFind.Complete:
+	if status := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if status.Index >= 0 {
 			searchForStatus = &statuses[status.Index]
@@ -166,8 +165,7 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 	usersStrings := formatter.formatJiraUsers(users)
 	view.fuzzyFind = app.NewFuzzyFind(MessageSelectUser, usersStrings)
 	app.GetApp().Loading(false)
-	select {
-	case user := <-view.fuzzyFind.Complete:
+	if user := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if user.Index >= 0 {
 			searchForUser = &users[user.Index]
@@ -189,7 +187,7 @@ func (view *fjiraSearchIssuesView) search(query string) []jira.JiraIssue {
 func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.JiraIssue {
 	q := strings.TrimSpace(query)
 	api, _ := GetApi()
-	jql := view.buildJql(q)
+	jql := buildSearchIssuesJql(view.project, q, searchForStatus, searchForUser)
 	issues, err := api.SearchJql(jql)
 	if err != nil {
 		app.Error(err.Error())
@@ -197,37 +195,23 @@ func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.JiraIssu
 	return issues
 }
 
-// TODO - jql builder?
-func (view *fjiraSearchIssuesView) buildJql(query string) string {
-	jql := fmt.Sprintf("project=%s", view.project.Id)
-	orderBy := "ORDER BY status"
-	query = strings.TrimSpace(query)
-	if query != "" {
-		jql = jql + fmt.Sprintf(" AND summary~\"%s*\"", query)
-	}
-	if searchForStatus != nil && searchForStatus.Name != MessageAll {
-		jql = jql + fmt.Sprintf(" AND status=%s", searchForStatus.Id)
-	}
-	if searchForUser != nil && searchForUser.DisplayName != MessageAll {
-		jql = jql + fmt.Sprintf(" AND assignee=%s", searchForUser.AccountId)
-	}
-	if query != "" && issueRegExp.MatchString(query) {
-		jql = jql + fmt.Sprintf(" OR issuekey=\"%s\"", query)
-	}
-	return fmt.Sprintf("%s %s", jql, orderBy)
-}
-
 func (view *fjiraSearchIssuesView) fetchStatuses(projectId string) []jira.JiraIssueStatus {
 	api, _ := GetApi()
 	app.GetApp().Loading(true)
-	statuses, _ := api.FindProjectStatuses(projectId)
+	statuses, err := api.FindProjectStatuses(projectId)
+	if err != nil {
+		app.Error(err.Error())
+	}
 	app.GetApp().Loading(false)
 	return statuses
 }
 
 func (view *fjiraSearchIssuesView) fetchUsers(projectId string) []jira.JiraUser {
 	api, _ := GetApi()
-	users, _ := api.FindUsers(projectId)
+	users, err := api.FindUsers(projectId)
+	if err != nil {
+		app.Error(err.Error())
+	}
 	return users
 }
 
