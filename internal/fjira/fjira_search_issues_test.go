@@ -63,7 +63,7 @@ func Test_fjiraSearchIssuesView_Init(t *testing.T) {
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				w.Write([]byte(`{
+				_, _ = w.Write([]byte(`{
     "expand": "schema,names",
     "startAt": 0,
     "maxResults": 100,
