@@ -1,0 +1,99 @@
+---
+title: Creating docs
+description: Learn how to create docs using Rocket Docs.
+---
+
+All MDX files created inside your docs folder will become pages, with the path defined by the filename.
+Inside all docs files, you can define the following options:
+
+| Key                    | Required | Description                |
+| ---------------------- | -------- | -------------------------- |
+| title                  | Yes      | No                         |
+| description            | No       | Page description           |
+| image                  | No       | Used for og:image          |
+| disableTableOfContents | No       | Disables Table Of Contents |
+
+## Example
+
+```mdx
+---
+title: 'My Example'
+description: 'A simple description for this page'
+image: /banner.jpeg
+disableTableOfContents: false
+---
+
+Wow, this is a nice page
+```
+
+## Embedding files
+
+In a documentation website, sometimes you will need to embed well known services (like CodeSandbox, Twitter, or others...). If you need to
+do it, you can simply copy-paste the link (powered by the awesome [gatsby-remark-embeder](https://www.gatsbyjs.com/packages/gatsby-remark-embedder/)).
+Make sure to check the [supported services](https://github.com/MichaelDeBoey/gatsby-remark-embedder#supported-services).
+
+https://youtu.be/QfcozcbDhNM
+
+## Code Highlight
+
+We support many options for code components.
+
+### Title
+
+To show a title, just add it to your code block. Ex: `title=src/myfile.css`
+
+```css title=src/myfile.css
+.gatsby::before {
+  content: 'niceee...';
+}
+```
+
+### Line numbers
+
+To add line numbers for that code block, pass an option `lineNumbers=true`.
+
+```js lineNumbers=true
+const rocket = {
+  launch: () => console.log('Launching...'),
+};
+
+rocket.launch();
+```
+
+### React live
+
+As mentioned in the introduction, this theme uses `react-live`, so you can
+create a playground for live editing React components.
+
+To use it, just add a `live=true` option to your code block.
+
+```jsx lineNumbers=true title=gatsby-config.js live=true
+function MyComponent() {
+  function handleButtonClick() {
+    alert('wowww');
+  }
+
+  return <button onClick={handleButtonClick}>Hey, click me!</button>;
+}
+
+render(<MyComponent />);
+```
+
+> If you need to add elements to the scope, check this [guide](/usage/shadowing#adding-elements-to-react-live-scope).
+
+### Highlight lines
+
+To highlight lines, you can pass ranges to a `highlight` option.
+For example `highlight={1-4,6-7,9}` on the code below would result in:
+
+```jsx highlight={1-4,6-7,9}
+function MyComponent() {
+  function handleButtonClick() {
+    alert('wowww');
+  }
+
+  return <button onClick={handleButtonClick}>Hey, click me!</button>;
+}
+
+render(<MyComponent />);
+```

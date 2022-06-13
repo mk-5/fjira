@@ -1,0 +1,33 @@
+{
+  "name": "gatsby-starter-rocketdocs",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Out of the box Gatsby Starter for creating documentation websites easily and quickly. With support for MDX, code highlight, Analytics, SEO and more",
+  "author": "João Pedro Schmitz <hey@joaopedro.dev> (@jpedroschmitz)",
+  "license": "MIT",
+  "starter-name": "gatsby-starter-rocketdocs",
+  "dependencies": {
+    "@rocketseat/gatsby-theme-docs": "^3.1.0",
+    "gatsby": "^4.2.0",
+    "gatsby-plugin-canonical-urls": "^4.2.0",
+    "gatsby-plugin-google-analytics": "^4.2.0",
+    "gatsby-plugin-manifest": "^4.2.0",
+    "gatsby-plugin-offline": "^5.2.0",
+    "gatsby-plugin-remove-trailing-slashes": "^4.2.0",
+    "gatsby-plugin-sitemap": "^5.2.0",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "gatsby",
+    "gatsby-starter"
+  ],
+  "scripts": {
+    "build": "gatsby build",
+    "start": "gatsby develop",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  }
+}
