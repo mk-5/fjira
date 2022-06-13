@@ -167,17 +167,17 @@ func Test_fjiraSearchIssuesView_Init(t *testing.T) {
 
 			// when
 			view.Init()
-			<-time.After(1 * time.Second)
+			<-time.NewTimer(1 * time.Second).C
 			query := "summary"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
 			view.Update()
 			view.Resize(screen.Size())
-			<-time.After(1 * time.Second)
+			<-time.NewTimer(1 * time.Second).C
 			view.Update()
 			view.Draw(tt.args.screen)
-			<-time.After(1 * time.Second)
+			<-time.NewTimer(100 * time.Millisecond).C
 
 			// and when
 			var buffer bytes.Buffer
@@ -244,7 +244,7 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 
 			// when
 			go view.runSelectStatus()
-			<-time.NewTimer(1 * time.Second).C
+			<-time.NewTimer(100 * time.Millisecond).C
 			query := "xxx"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
@@ -252,7 +252,7 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 			view.Update()
 			view.Update()
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(1 * time.Second).C
+			<-time.NewTimer(100 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForStatus)
@@ -282,7 +282,7 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 
 			// when
 			go view.runSelectUser()
-			<-time.NewTimer(1 * time.Second).C
+			<-time.NewTimer(100 * time.Millisecond).C
 			query := "John"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
@@ -290,7 +290,7 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 			view.Update()
 			view.Update()
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(1 * time.Second).C
+			<-time.NewTimer(100 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForUser)
