@@ -79,9 +79,9 @@ func (b *ActionBar) AddTextItem(id string, text string) {
 
 // TODO - refactor
 func (b *ActionBar) AddItem(item *ActionBarItem) {
-	item.bgStyle = DefaultStyle
-	item.borderStyle = DefaultStyle.Foreground(tcell.ColorWhite).Background(AppBackground)
-	// It's making problems if we want to have different styles.
+	item.bgStyle = DefaultStyle.Background(AppBackground)
+	item.borderStyle = DefaultStyle.Foreground(tcell.ColorForestGreen)
+
 	// TODO - We could think about introducing textMap argument where you can put styles and text together (or second array)
 	item.text = fmt.Sprintf("%s%s", item.Text1, item.Text2)
 	item.x = b.lastItemX

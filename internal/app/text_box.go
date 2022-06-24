@@ -66,3 +66,17 @@ func (t *TextBox) Draw(screen tcell.Screen) {
 		DrawText(screen, t.x2-1, t.y+1, t.textStyle, " ")
 	}
 }
+
+func (t *TextBox) SetX(x int) {
+	t.x = x
+	t.x2 = x + len(t.text) + 3
+}
+
+func (t *TextBox) SetY(y int) {
+	t.y = y
+}
+
+func (t *TextBox) SetText(text string) {
+	t.text = text
+	t.SetX(t.x)
+}

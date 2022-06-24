@@ -128,6 +128,7 @@ func (f *FuzzyFind) Update() {
 		f.matches = fuzzy.Find(f.query, f.records)
 	}
 	f.fuzzyStatus = fmt.Sprintf("%d/%d", len(f.matches), len(f.records))
+	f.selected = ClampInt(f.selected, 0, f.matches.Len()-1)
 	f.dirty = false
 }
 
@@ -168,6 +169,9 @@ func (f *FuzzyFind) Resize(screenX, screenY int) {
 }
 
 func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
+	if f.matches.Len() == 0 {
+		return
+	}
 	var row = f.screenY - ResultsMarginBottom - f.MarginBottom
 	var currentStyleDefault tcell.Style
 	var currentStyleBold tcell.Style

@@ -350,5 +350,6 @@ func (a *App) processOsSignals() {
 	go func() {
 		<-signals
 		a.quit = true
+		a.Close()
 	}()
 }

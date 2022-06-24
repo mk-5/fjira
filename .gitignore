@@ -8,3 +8,4 @@ vendor
 gopath
 out
 node_modules/
+coverage.out
