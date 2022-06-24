@@ -39,7 +39,7 @@ const (
 	ResultsMarginBottom     = 3
 	WriteIndicator          = "> "
 	MaxResults              = 4096
-	DynamicSupplierDebounce = 150 * time.Millisecond
+	DynamicSupplierDebounce = 50 * time.Millisecond
 	SearchResultsPivot      = 6
 )
 
@@ -121,7 +121,7 @@ func (f *FuzzyFind) Update() {
 		f.dirty = false
 		return
 	}
-	f.query = strings.TrimSpace(f.buffer.String())
+	f.query = f.buffer.String()
 	if len(f.query) == 0 {
 		f.matches = f.matchesAll
 	} else {
