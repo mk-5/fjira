@@ -9,3 +9,5 @@ gopath
 out
 node_modules/
 coverage.out
+
+dist/

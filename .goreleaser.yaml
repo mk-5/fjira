@@ -1,0 +1,58 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    - go mod download
+    - go mod tidy
+    - go generate ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      #      - windows
+      - darwin
+    id: fjira
+    main: ./cmd/fjira-cli
+    binary: fjira
+release:
+  github:
+    owner: mk-5
+    name: fjira
+  draft: true
+  mode: append
+  header: |
+    ## Release ({{ .Version }})
+brews:
+  - name: fjira
+    tap:
+      owner: mk-5
+      name: fjira
+      branch: master
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    download_strategy: CurlDownloadStrategy
+    commit_author:
+      name: mk-5
+      email: mateusz+goreleaser@mk5.pl
+    commit_msg_template: "feat: Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    folder: release/Formula
+    homepage: "https://github.com/mk-5/fjira"
+    skip_upload: true
+    license: "AGPL-3.0"
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      #      windows: Windows
+      386: i386
+      amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: desc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

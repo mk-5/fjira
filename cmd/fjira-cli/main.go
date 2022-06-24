@@ -13,6 +13,7 @@ const (
 	usage = `Usage:
     fjira JIRA-TICKET
     fjira workspace
+    fjira version
     fjira [OPTIONS]
 
 Optional options:
@@ -20,6 +21,10 @@ Optional options:
     -i, --issue                 Open Jira Issue, example: GEN-123.
     -w, --workspace             Use fjira workspace, example: myworkspace
 `
+)
+
+var (
+	version = "dev"
 )
 
 func main() {
@@ -48,6 +53,10 @@ func parseCliArgs() fjira.CliArgs {
 		return fjira.CliArgs{
 			SwitchWorkspace: true,
 		}
+	}
+	if len(os.Args) == 2 && os.Args[1] == "version" {
+		fmt.Println(fmt.Sprintf("fjira version: %s", version))
+		os.Exit(0)
 	}
 	var projectId string
 	var issueKey string
