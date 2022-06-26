@@ -8,6 +8,7 @@ import (
 
 type fjiraSearchProjectsView struct {
 	bottomBar *app.ActionBar
+	topBar    *app.ActionBar
 	fuzzyFind *app.FuzzyFind
 }
 
@@ -15,6 +16,7 @@ func NewProjectsSearchView() *fjiraSearchProjectsView {
 	bottomBar := CreateProjectBottomBar()
 	return &fjiraSearchProjectsView{
 		bottomBar: bottomBar,
+		topBar:    CreateProjectsTopBar(),
 	}
 }
 
@@ -27,28 +29,32 @@ func (view *fjiraSearchProjectsView) Destroy() {
 }
 
 func (view *fjiraSearchProjectsView) Draw(screen tcell.Screen) {
-	view.bottomBar.Draw(screen)
+	//view.bottomBar.Draw(screen)
+	//view.topBar.Draw(screen)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Draw(screen)
 	}
 }
 
 func (view *fjiraSearchProjectsView) Update() {
-	view.bottomBar.Update()
+	//view.bottomBar.Update()
+	//view.topBar.Update()
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Update()
 	}
 }
 
 func (view *fjiraSearchProjectsView) Resize(screenX, screenY int) {
-	view.bottomBar.Resize(screenX, screenY)
+	//view.bottomBar.Resize(screenX, screenY)
+	//view.topBar.Resize(screenX, screenY)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Resize(screenX, screenY)
 	}
 }
 
 func (view *fjiraSearchProjectsView) HandleKeyEvent(ev *tcell.EventKey) {
-	view.bottomBar.HandleKeyEvent(ev)
+	//view.topBar.HandleKeyEvent(ev)
+	//view.bottomBar.HandleKeyEvent(ev)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.HandleKeyEvent(ev)
 	}
@@ -68,6 +74,7 @@ func (view *fjiraSearchProjectsView) runProjectsFuzzyFind() {
 	formatter, _ := GetFormatter()
 	projectsString := formatter.formatJiraProjects(projects)
 	view.fuzzyFind = app.NewFuzzyFind(MessageSelectProject, projectsString)
+	view.fuzzyFind.MarginBottom = 0
 	app.GetApp().Loading(false)
 	app.GetApp().ClearNow()
 	select {

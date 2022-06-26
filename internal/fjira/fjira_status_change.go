@@ -68,6 +68,7 @@ func (view *fjiraStatusChangeView) startStatusSearching() {
 	statuses := view.transitions(view.issue.Id)
 	statusesStrings := formatter.formatJiraTransitions(statuses)
 	view.fuzzyFind = app.NewFuzzyFind(MessageStatusFuzzyFind, statusesStrings)
+	view.fuzzyFind.MarginBottom = 0
 	app.GetApp().Loading(false)
 	select {
 	case status := <-view.fuzzyFind.Complete:
@@ -82,9 +83,9 @@ func (view *fjiraStatusChangeView) startStatusSearching() {
 }
 
 func (view *fjiraStatusChangeView) changeStatusTo(status *jira.JiraIssueTransition) {
-	message := fmt.Sprintf(MessageChangingStatusTo, view.issue.Key)
+	message := fmt.Sprintf(MessageChangingStatusTo, view.issue.Key, status.Name)
 	app.GetApp().ClearNow()
-	view.bottomBar.AddItem(NewNewStatusBarItem(status.Name))
+	//view.bottomBar.AddItem(NewNewStatusBarItem(status.Name))
 	view.bottomBar.AddItem(NewYesBarItem())
 	view.bottomBar.AddItem(NewCancelBarItem())
 	changeStatus := app.Confirm(app.GetApp(), message)

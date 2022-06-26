@@ -30,8 +30,8 @@ var (
 )
 
 func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
-	bottomBar := CreateSearchIssuesBottomBar(project)
-	topBar := CreateSearchIssuesTopBar()
+	bottomBar := CreateSearchIssuesBottomBar()
+	topBar := CreateSearchIssuesTopBar(project)
 	return &fjiraSearchIssuesView{
 		bottomBar: bottomBar,
 		topBar:    topBar,
@@ -94,6 +94,7 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 	a := app.GetApp()
 	//view.issues = view.searchForIssues("")
 	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageSelectIssue, view.provideIssue)
+	view.fuzzyFind.MarginBottom = 1
 	a.Loading(false)
 	a.ClearNow()
 	if chosen := <-view.fuzzyFind.Complete; true {

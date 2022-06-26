@@ -41,7 +41,6 @@ func (t *TextBox) Draw(screen tcell.Screen) {
 			screen.SetContent(col, row, ' ', nil, t.bgStyle)
 		}
 	}
-
 	// Draw borders
 	for col := t.x; col <= t.x2; col++ {
 		screen.SetContent(col, t.y, tcell.RuneHLine, nil, t.borderStyle)
@@ -59,7 +58,6 @@ func (t *TextBox) Draw(screen tcell.Screen) {
 		screen.SetContent(t.x, t.y2, tcell.RuneLLCorner, nil, t.borderStyle)
 		screen.SetContent(t.x2, t.y2, tcell.RuneLRCorner, nil, t.borderStyle)
 	}
-
 	if t.text != "" {
 		DrawText(screen, t.x+1, t.y+1, t.textStyle, " ")
 		DrawText(screen, t.x+2, t.y+1, t.textStyle, t.text)
