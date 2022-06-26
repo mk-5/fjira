@@ -17,10 +17,13 @@ const (
 )
 
 var (
-	BottomBarActionBarItemBold = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkKhaki)
-	BottomBarActionBarKeyBold  = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkCyan).Underline(true)
-	TopBarItemBold             = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkKhaki)
-	IssueBarActionBarItemBold  = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorDarkKhaki)
+	BottomBarItemDefaultStyle  = app.DefaultStyle.Background(tcell.ColorSteelBlue)
+	BottomBarActionBarItemBold = app.DefaultStyle.Bold(true).Foreground(tcell.ColorDarkKhaki)
+	BottomBarActionBarKeyBold  = BottomBarItemDefaultStyle.Bold(true).Foreground(app.AppBackground).Underline(true)
+	TopBarItemDefault          = app.DefaultStyle.Background(tcell.ColorDarkOliveGreen)
+	TopBarItemBold             = TopBarItemDefault.Bold(true).Foreground(tcell.ColorDarkKhaki) // DarkOrange looks good here as well
+	BarItemHighlightDefault    = app.DefaultStyle.Background(tcell.ColorGreenYellow)
+	BarItemHighlightBold       = BarItemHighlightDefault.Foreground(tcell.ColorDarkOrange)
 )
 
 func CreateProjectBottomBar() *app.ActionBar {
@@ -28,73 +31,84 @@ func CreateProjectBottomBar() *app.ActionBar {
 	actionBar.AddItemWithStyles(
 		MessageProjectLabel,
 		app.ActionBarLabel(""),
-		tcell.StyleDefault, BottomBarActionBarItemBold,
+		BottomBarItemDefaultStyle, BottomBarActionBarItemBold,
+	)
+	return actionBar
+}
+
+func CreateProjectsTopBar() *app.ActionBar {
+	actionBar := app.NewActionBar(app.Top, app.Right)
+	actionBar.AddItemWithStyles(
+		MessageProjectLabel,
+		app.ActionBarLabel(""),
+		TopBarItemDefault, TopBarItemBold,
+	)
+	return actionBar
+}
+
+func CreateSearchIssuesBottomBar() *app.ActionBar {
+	actionBar := app.NewActionBar(app.Bottom, app.Left)
+	actionBar.AddItem(NewByStatusBarItem())
+	actionBar.AddItem(NewByAssigneeBarItem())
+	return actionBar
+}
+
+func CreateSearchIssuesTopBar(project *jira.JiraProject) *app.ActionBar {
+	actionBar := app.NewActionBar(app.Top, app.Left)
+	actionBar.AddItemWithStyles(
+		MessageProjectLabel,
+		app.ActionBarLabel(fmt.Sprintf("[%s]%s", project.Key, project.Name)),
+		TopBarItemDefault, TopBarItemBold,
+	)
+	actionBar.AddItemWithStyles(
+		"Status: ",
+		MessageAll,
+		TopBarItemDefault, TopBarItemBold,
+	)
+	actionBar.AddItemWithStyles(
+		"Assignee: ",
+		MessageAll,
+		TopBarItemDefault, TopBarItemBold,
 	)
 	return actionBar
 }
 
 func CreateIssueBottomBar(issue *jira.JiraIssue) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
-	actionBar.AddItemWithStyles(
-		MessageIssueLabel,
-		app.ActionBarLabel(issue.Key),
-		tcell.StyleDefault, BottomBarActionBarItemBold,
-	)
-	return actionBar
-}
-
-func CreateSearchIssuesBottomBar(project *jira.JiraProject) *app.ActionBar {
-	actionBar := app.NewActionBar(app.Bottom, app.Left)
-	actionBar.AddItemWithStyles(
-		MessageProjectLabel,
-		app.ActionBarLabel(fmt.Sprintf("[%s]%s", project.Key, project.Name)),
-		tcell.StyleDefault, BottomBarActionBarItemBold,
-	)
-	actionBar.AddItem(NewByStatusBarItem())
-	actionBar.AddItem(NewByAssigneeBarItem())
-	return actionBar
-}
-
-func CreateSearchIssuesTopBar() *app.ActionBar {
-	actionBar := app.NewActionBar(app.Top, app.Right)
-	actionBar.AddItemWithStyles(
-		"Status: ",
-		MessageAll,
-		tcell.StyleDefault, TopBarItemBold,
-	)
-	actionBar.AddItemWithStyles(
-		"Assignee: ",
-		MessageAll,
-		tcell.StyleDefault, TopBarItemBold,
-	)
 	return actionBar
 }
 
 func CreateIssueTopBar(issue *jira.JiraIssue) *app.ActionBar {
-	actionBar := app.NewActionBar(app.Top, app.Right)
+	actionBar := app.NewActionBar(app.Top, app.Left)
+	actionBar.AddItemWithStyles(
+		MessageIssueLabel,
+		app.ActionBarLabel(issue.Key),
+		TopBarItemDefault,
+		TopBarItemBold,
+	)
 	actionBar.AddItemWithStyles(
 		MessageLabelReporter,
 		issue.Fields.Reporter.DisplayName,
-		tcell.StyleDefault,
-		IssueBarActionBarItemBold,
+		TopBarItemDefault,
+		TopBarItemBold,
 	)
 	actionBar.AddItemWithStyles(
 		MessageLabelAssignee,
 		issue.Fields.Assignee.DisplayName,
-		tcell.StyleDefault,
-		IssueBarActionBarItemBold,
+		TopBarItemDefault,
+		TopBarItemBold,
 	)
 	actionBar.AddItemWithStyles(
 		MessageTypeStatus,
 		issue.Fields.Type.Name,
-		tcell.StyleDefault,
-		IssueBarActionBarItemBold,
+		TopBarItemDefault,
+		TopBarItemBold,
 	)
 	actionBar.AddItemWithStyles(
 		MessageLabelStatus,
 		issue.Fields.Status.Name,
-		tcell.StyleDefault,
-		IssueBarActionBarItemBold,
+		TopBarItemDefault,
+		TopBarItemBold,
 	)
 	return actionBar
 }
@@ -102,10 +116,10 @@ func CreateIssueTopBar(issue *jira.JiraIssue) *app.ActionBar {
 func NewCancelBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionEscape),
-		Text1:      "ESC",
-		Text2:      " - cancel",
-		Text1Style: BottomBarActionBarKeyBold,
-		Text2Style: tcell.StyleDefault,
+		Text1:      "Cancel ",
+		Text2:      "[ESC]",
+		Text1Style: BottomBarItemDefaultStyle,
+		Text2Style: BottomBarActionBarKeyBold,
 		TriggerKey: tcell.KeyEscape,
 	}
 }
@@ -113,10 +127,10 @@ func NewCancelBarItem() *app.ActionBarItem {
 func NewStatusChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionStatusChange),
-		Text1:       "s",
-		Text2:       " - change status",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
+		Text1:       "Change status ",
+		Text2:       "[s]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
 		TriggerKey:  tcell.KeyF1,
 		TriggerRune: 's',
 	}
@@ -125,10 +139,10 @@ func NewStatusChangeBarItem() *app.ActionBarItem {
 func NewByStatusBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionStatusChange),
-		Text1:      "F1",
-		Text2:      " - by status",
-		Text1Style: BottomBarActionBarKeyBold,
-		Text2Style: tcell.StyleDefault,
+		Text1:      "by status ",
+		Text2:      "[F1]",
+		Text1Style: BottomBarItemDefaultStyle,
+		Text2Style: BottomBarActionBarKeyBold,
 		TriggerKey: tcell.KeyF1,
 	}
 }
@@ -136,10 +150,10 @@ func NewByStatusBarItem() *app.ActionBarItem {
 func NewByAssigneeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionAssigneeChange),
-		Text1:      "F2",
-		Text2:      " - by assignee",
-		Text1Style: BottomBarActionBarKeyBold,
-		Text2Style: tcell.StyleDefault,
+		Text1:      "by assignee ",
+		Text2:      "[F2]",
+		Text1Style: BottomBarItemDefaultStyle,
+		Text2Style: BottomBarActionBarKeyBold,
 		TriggerKey: tcell.KeyF2,
 	}
 }
@@ -147,10 +161,10 @@ func NewByAssigneeBarItem() *app.ActionBarItem {
 func NewAssigneeChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionAssigneeChange),
-		Text1:       "a",
-		Text2:       " - assign user",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
+		Text1:       "Assign user ",
+		Text2:       "[a]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
 		TriggerKey:  tcell.KeyF2,
 		TriggerRune: 'a',
 	}
@@ -159,42 +173,22 @@ func NewAssigneeChangeBarItem() *app.ActionBarItem {
 func CreateCommentBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionComment),
-		Text1:       "c",
-		Text2:       " - comment",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
+		Text1:       "Comment ",
+		Text2:       "[c]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
 		TriggerKey:  tcell.KeyF2,
 		TriggerRune: 'c',
-	}
-}
-
-func NewNewStatusBarItem(newStatus string) *app.ActionBarItem {
-	return &app.ActionBarItem{
-		Id:         -1,
-		Text1:      "New status: ",
-		Text2:      newStatus,
-		Text1Style: tcell.StyleDefault,
-		Text2Style: BottomBarActionBarKeyBold,
-	}
-}
-
-func NewNewAssigneeBarItem(newAssignee *jira.JiraUser) *app.ActionBarItem {
-	return &app.ActionBarItem{
-		Id:         -1,
-		Text1:      "New assignee: ",
-		Text2:      fmt.Sprintf("%s", newAssignee.DisplayName),
-		Text1Style: tcell.StyleDefault,
-		Text2Style: BottomBarActionBarKeyBold,
 	}
 }
 
 func NewYesBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionYes),
-		Text1:       "y",
-		Text2:       " - yes",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
+		Text1:       "Yes ",
+		Text2:       "[y]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
 		TriggerRune: 'y',
 	}
 }
@@ -202,10 +196,10 @@ func NewYesBarItem() *app.ActionBarItem {
 func NewOpenBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionOpen),
-		Text1:       "o",
-		Text2:       " - open",
-		Text1Style:  BottomBarActionBarKeyBold,
-		Text2Style:  tcell.StyleDefault,
+		Text1:       "Open ",
+		Text2:       "[o]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
 		TriggerRune: 'o',
 	}
 }
@@ -213,10 +207,10 @@ func NewOpenBarItem() *app.ActionBarItem {
 func NewSaveBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionYes),
-		Text1:      "F1",
-		Text2:      " - save",
-		Text1Style: BottomBarActionBarKeyBold,
-		Text2Style: tcell.StyleDefault,
+		Text1:      "Save ",
+		Text2:      "[F1]",
+		Text1Style: BottomBarItemDefaultStyle,
+		Text2Style: BottomBarActionBarKeyBold,
 		TriggerKey: tcell.KeyF1,
 	}
 }

@@ -185,6 +185,7 @@ func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
 			currentStyleDefault = highlightDefault
 			currentStyleBold = highlightBold
 		}
+		// TODO - there is an issue with displaying diacritics characters
 		for i, s := range match.Str {
 			if contains(i, match.MatchedIndexes) {
 				DrawText(screen, i+2, row, currentStyleBold, string(s))

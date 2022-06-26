@@ -39,8 +39,8 @@ func newConfirmation(message string) *Confirmation {
 }
 
 func (c *Confirmation) Draw(screen tcell.Screen) {
-	DrawText(screen, 0, c.screenY-4, QuestionMarkStyle, QuestionMark)
-	DrawText(screen, 2, c.screenY-4, tcell.StyleDefault, c.message)
+	DrawText(screen, 0, c.screenY-2, QuestionMarkStyle, QuestionMark)
+	DrawText(screen, 2, c.screenY-2, tcell.StyleDefault, c.message)
 }
 
 func (c *Confirmation) Resize(screenX, screenY int) {

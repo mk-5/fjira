@@ -67,6 +67,7 @@ func (view *fjiraAssignChangeView) startUsersSearching() {
 	users := view.findUser(view.issue.Fields.Project.Id)
 	usersStrings := formatter.formatJiraUsers(users)
 	view.fuzzyFind = app.NewFuzzyFind(MessageUsersFuzzyFind, usersStrings)
+	view.fuzzyFind.MarginBottom = 0
 	app.GetApp().Loading(false)
 	select {
 	case user := <-view.fuzzyFind.Complete:
@@ -96,7 +97,6 @@ func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.JiraIssue, use
 	}
 	message := fmt.Sprintf(MessageChangingAssigneeTo, issue.Key, user.DisplayName)
 	app.GetApp().ClearNow()
-	view.bottomBar.AddItem(NewNewAssigneeBarItem(user))
 	view.bottomBar.AddItem(NewYesBarItem())
 	view.bottomBar.AddItem(NewCancelBarItem())
 	// TODO - should confirm be also drawable? at the moment yes/no are rendered out of the confirm thingy..

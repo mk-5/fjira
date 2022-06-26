@@ -24,10 +24,15 @@ type fjiraIssueView struct {
 	body              string
 	comments          []struct {
 		body  string
+		title string
 		lines int
 	}
 	lastY int
 }
+
+var (
+	boxTitleStyle = app.DefaultStyle.Foreground(tcell.ColorDimGrey)
+)
 
 func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
 	bottomBar := CreateIssueBottomBar(issue)
@@ -59,15 +64,18 @@ func (view *fjiraIssueView) Destroy() {
 
 func (view *fjiraIssueView) Draw(screen tcell.Screen) {
 	if view.fuzzyFind == nil {
-		app.DrawBox(screen, 1, 2-view.scrollY, len(view.issue.Fields.Summary)+4, 4-view.scrollY, tcell.StyleDefault)
+		app.DrawBox(screen, 1, 2-view.scrollY, len(view.issue.Fields.Summary)+4, 4-view.scrollY, boxTitleStyle)
+		app.DrawText(screen, 2, 2-view.scrollY, boxTitleStyle, MessageSummary)
 		app.DrawText(screen, 3, 3-view.scrollY, app.DefaultStyle, view.issue.Fields.Summary)
 
-		app.DrawBox(screen, 1, 5-view.scrollY, view.descriptionLimitX+4, 5-view.scrollY+view.descriptionLines+4, tcell.StyleDefault)
+		app.DrawBox(screen, 1, 5-view.scrollY, view.descriptionLimitX+4, 5-view.scrollY+view.descriptionLines+4, boxTitleStyle)
+		app.DrawText(screen, 2, 5-view.scrollY, boxTitleStyle, MessageDescription)
 		app.DrawTextLimited(screen, 3, 7-view.scrollY, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, view.body)
 
-		view.lastY = 5 - view.scrollY + view.descriptionLines + 5
+		view.lastY = 5 - view.scrollY + view.descriptionLines + 4
 		for _, comment := range view.comments {
-			app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+comment.lines+2, tcell.StyleDefault)
+			app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+comment.lines+2, boxTitleStyle)
+			app.DrawText(screen, 2, view.lastY+1, boxTitleStyle, comment.title)
 			app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, comment.body)
 			view.lastY = view.lastY + 1 + comment.lines + 3
 		}
@@ -146,24 +154,25 @@ func (view *fjiraIssueView) handleIssueAction() {
 
 func parseComments(issue *jira.JiraIssue, limitX, limitY int) []struct {
 	body  string
+	title string
 	lines int
 } {
 	comments := make([]struct {
 		body  string
+		title string
 		lines int
 	}, 0, 100)
 	var commentsBuffer bytes.Buffer
 	if len(issue.Fields.Comment.Comments) > 0 {
-		//commentsBuffer.WriteString("\n\nComments\n--------")
 		for _, comment := range issue.Fields.Comment.Comments {
-			commentsBuffer.WriteString(fmt.Sprintf("%s, %s\n", comment.Created, comment.Author.DisplayName))
-			commentsBuffer.WriteString(fmt.Sprintf("\n%s", comment.Body))
-			comment := commentsBuffer.String()
-			lines := app.DrawTextLimited(nil, 0, 0, limitX, limitY, app.DefaultStyle, comment) + 1
+			title := fmt.Sprintf("%s, %s", comment.Created, comment.Author.DisplayName)
+			body := fmt.Sprintf("\n%s", comment.Body)
+			lines := app.DrawTextLimited(nil, 0, 0, limitX, limitY, app.DefaultStyle, comment.Body) + 2
 			comments = append(comments, struct {
 				body  string
+				title string
 				lines int
-			}{comment, lines})
+			}{body, title, lines})
 			commentsBuffer.Reset()
 		}
 	}

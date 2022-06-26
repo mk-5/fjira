@@ -24,10 +24,10 @@ func TestCreateNavigationBars(t *testing.T) {
 			return CreateIssueTopBar(&jira.JiraIssue{})
 		}},
 		{"should create search issues bottom bar", func() interface{} {
-			return CreateSearchIssuesBottomBar(&jira.JiraProject{})
+			return CreateSearchIssuesBottomBar()
 		}},
 		{"should create search issues top bar", func() interface{} {
-			return CreateSearchIssuesTopBar()
+			return CreateSearchIssuesTopBar(&jira.JiraProject{})
 		}},
 		{"should create assignee change bar item", func() interface{} {
 			return NewAssigneeChangeBarItem()
@@ -40,12 +40,6 @@ func TestCreateNavigationBars(t *testing.T) {
 		}},
 		{"should create cancel bar item", func() interface{} {
 			return NewCancelBarItem()
-		}},
-		{"should create new assignee bar item", func() interface{} {
-			return NewNewAssigneeBarItem(&jira.JiraUser{})
-		}},
-		{"should create new status bar item", func() interface{} {
-			return NewNewStatusBarItem("test")
 		}},
 		{"should create new save bar item", func() interface{} {
 			return NewSaveBarItem()

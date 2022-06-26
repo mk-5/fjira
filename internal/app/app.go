@@ -83,7 +83,8 @@ func initAppWithScreen(screen tcell.Screen) {
 		log.Fatalf("%+v", err)
 	}
 	screen.SetStyle(DefaultStyle)
-	screen.EnableMouse()
+	// TODO - it's making noises in case of crash!
+	//screen.EnableMouse()
 	screen.EnablePaste()
 	screen.Clear()
 
@@ -150,6 +151,7 @@ func (a *App) Start() {
 
 func (a *App) Close() {
 	//a.screen.Clear()
+	a.screen.DisableMouse()
 	a.screen.Fill(' ', DefaultStyle)
 	a.screen.Show()
 	a.screen.Fini()
@@ -350,6 +352,5 @@ func (a *App) processOsSignals() {
 	go func() {
 		<-signals
 		a.quit = true
-		a.Close()
 	}()
 }
