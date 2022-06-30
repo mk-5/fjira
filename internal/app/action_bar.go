@@ -47,7 +47,7 @@ func (b *ActionBar) AddTextItem(id string, text string) {
 
 func (b *ActionBar) AddItem(item *ActionBarItem) {
 	item.text = fmt.Sprintf("%s%s", item.Text1, item.Text2)
-	item.x = b.getNextItemX()
+	item.x = b.getNextItemX(len(b.items) - 1)
 	item.y = b.Y
 	b.items = append(b.items, item)
 	b.Resize(b.screenX, b.screenY)
@@ -128,24 +128,25 @@ func (b *ActionBar) Resize(screenX, screenY int) {
 	case Top:
 		b.Y = 0
 	}
-	for _, item := range b.items {
+	for i, item := range b.items {
+		item.x = b.getNextItemX(i)
 		item.y = b.Y
 	}
 }
 
-func (b *ActionBar) getNextItemX() int {
+func (b *ActionBar) getNextItemX(startIndex int) int {
 	switch b.hAlign {
 	case Right:
-		if len(b.items) == 0 {
+		if startIndex-1 < 0 {
 			return b.screenX
 		}
-		item := b.items[len(b.items)-1]
+		item := b.items[startIndex-1]
 		return item.x - utf8.RuneCountInString(item.text) - ActionBarItemPadding
 	default:
-		if len(b.items) == 0 {
+		if startIndex-1 < 0 {
 			return 0
 		}
-		item := b.items[len(b.items)-1]
+		item := b.items[startIndex-1]
 		return item.x + utf8.RuneCountInString(item.text) + ActionBarItemPadding
 	}
 }

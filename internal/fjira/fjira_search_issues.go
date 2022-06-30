@@ -17,6 +17,7 @@ type fjiraSearchIssuesView struct {
 	screenX      int
 	screenY      int
 	issues       []jira.JiraIssue
+	queryDirty   bool
 }
 
 const (
@@ -63,12 +64,12 @@ func (view *fjiraSearchIssuesView) Update() {
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Update()
 	}
-	if searchForStatus != nil && view.topBar.GetItem(0).Text2 != searchForStatus.Name {
-		view.topBar.GetItem(0).ChangeText(MessageLabelStatus, searchForStatus.Name)
+	if searchForStatus != nil && view.topBar.GetItem(1).Text2 != searchForStatus.Name {
+		view.topBar.GetItem(1).ChangeText(MessageLabelStatus, searchForStatus.Name)
 		view.topBar.Resize(view.screenX, view.screenY)
 	}
-	if searchForUser != nil && view.topBar.GetItem(1).Text2 != searchForUser.DisplayName {
-		view.topBar.GetItem(1).ChangeText(MessageLabelAssignee, searchForUser.DisplayName)
+	if searchForUser != nil && view.topBar.GetItem(2).Text2 != searchForUser.DisplayName {
+		view.topBar.GetItem(2).ChangeText(MessageLabelAssignee, searchForUser.DisplayName)
 		view.topBar.Resize(view.screenX, view.screenY)
 	}
 }
@@ -92,7 +93,6 @@ func (view *fjiraSearchIssuesView) HandleKeyEvent(ev *tcell.EventKey) {
 
 func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 	a := app.GetApp()
-	//view.issues = view.searchForIssues("")
 	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageSelectIssue, view.provideIssue)
 	view.fuzzyFind.MarginBottom = 1
 	a.Loading(false)
@@ -101,6 +101,8 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 		a.ClearNow()
 		if chosen.Index < 0 {
 			go goIntoProjectsSearch()
+			searchForStatus = nil
+			searchForUser = nil
 			return
 		}
 		chosenIssue := view.issues[chosen.Index]
@@ -112,11 +114,13 @@ func (view *fjiraSearchIssuesView) provideIssue(query string) []string {
 	formatter, _ := GetFormatter()
 	a := app.GetApp()
 
+	// when manual set queryDirty=true
 	// when there is more records than max
 	// when backspace
 	// when query has issue format
 	// when there is no results
-	if len(view.issues) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() || len(view.issues) == 0 {
+	if view.queryDirty || len(view.issues) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() || len(view.issues) == 0 {
+		view.queryDirty = false
 		a.LoadingWithText(true, MessageSearchIssuesLoading)
 		view.issues = view.searchForIssues(query)
 		a.Loading(false)
@@ -151,6 +155,7 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 		app.GetApp().ClearNow()
 		if status.Index >= 0 {
 			searchForStatus = &statuses[status.Index]
+			view.queryDirty = true
 		}
 		go view.runIssuesFuzzyFind()
 		go view.handleSearchActions()
@@ -170,19 +175,11 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 		app.GetApp().ClearNow()
 		if user.Index >= 0 {
 			searchForUser = &users[user.Index]
+			view.queryDirty = true
 		}
 		go view.runIssuesFuzzyFind()
 		go view.handleSearchActions()
 	}
-}
-
-func (view *fjiraSearchIssuesView) search(query string) []jira.JiraIssue {
-	api, _ := GetApi()
-	issues, _, err := api.Search(query)
-	if err != nil {
-		app.Error(err.Error())
-	}
-	return issues
 }
 
 func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.JiraIssue {

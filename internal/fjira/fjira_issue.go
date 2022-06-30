@@ -152,6 +152,7 @@ func (view *fjiraIssueView) handleIssueAction() {
 	}
 }
 
+// TODO - could be optimized a bit
 func parseComments(issue *jira.JiraIssue, limitX, limitY int) []struct {
 	body  string
 	title string
