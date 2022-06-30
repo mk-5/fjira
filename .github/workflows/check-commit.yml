@@ -1,0 +1,12 @@
+on: [ push ]
+jobs:
+  build:
+    name: Check Commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify commit message
+        id: verify_commit_message
+        run: |
+          if [[ ! "${{ github.event.head_commit.message }}" =~ ^(feat:)|(fix:).* ]]; then 
+            exit 1
+          fi
