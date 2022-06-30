@@ -73,7 +73,7 @@ func NewFuzzyFind(title string, records []string) *FuzzyFind {
 		recordsProvider: nil,
 		title:           title,
 		MarginTop:       0,
-		MarginBottom:    3,
+		MarginBottom:    1,
 	}
 }
 
@@ -91,7 +91,7 @@ func NewFuzzyFindWithProvider(title string, recordsProvider func(query string) [
 		supplierDebounce: debounce.New(DynamicSupplierDebounce),
 		title:            title,
 		MarginTop:        0,
-		MarginBottom:     3,
+		MarginBottom:     1,
 	}
 }
 
