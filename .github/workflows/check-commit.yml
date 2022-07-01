@@ -7,6 +7,6 @@ jobs:
       - name: Verify commit message
         id: verify_commit_message
         run: |
-          if [[ ! "${{ github.event.head_commit.message }}" =~ ^(feat:)|(fix:).* ]]; then 
+          if [[ ! "${{ github.event.head_commit.message }}" =~ ^(feat:)|(fix:)|(docs:).* ]]; then 
             exit 1
           fi
