@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-const (
-	DoAssigneePath = "/rest/api/2/issue/%s/assignee"
-)
-
 type assigneeRequestBody struct {
 	AccountId string `json:"accountId"`
 }
+
+const (
+	DoAssigneePath = "/rest/api/2/issue/%s/assignee"
+)
 
 func (api httpJiraApi) DoAssignee(issueId string, accountId string) error {
 	url := fmt.Sprintf(DoAssigneePath, issueId)

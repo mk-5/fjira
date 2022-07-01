@@ -22,8 +22,6 @@ func (api *httpJiraApi) jiraRequest(method string, restPath string, queryParams 
 		return nil, err
 	}
 	response, err := api.client.Do(req)
-	//b, _ := io.ReadAll(response.Body)
-	//fmt.Println("Response ", string(b))
 	if err != nil {
 		return nil, err
 	}

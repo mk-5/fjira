@@ -10,13 +10,13 @@ import (
 // https://docs.atlassian.com/software/jira/docs/api/REST/8.5.1/#api/2/project-getAllStatuses
 //
 
-const (
-	GetProjectStatuses = "/rest/api/2/project/{project}/statuses"
-)
-
 type statusesResponse struct {
 	Statuses []JiraIssueStatus `json:"statuses"`
 }
+
+const (
+	GetProjectStatuses = "/rest/api/2/project/{project}/statuses"
+)
 
 func (a *httpJiraApi) FindProjectStatuses(projectId string) ([]JiraIssueStatus, error) {
 	responseBody, _ := a.jiraRequest("GET", strings.Replace(GetProjectStatuses, "{project}", projectId, 1), &nilParams{}, nil)
