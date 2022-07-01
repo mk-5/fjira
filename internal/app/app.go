@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -37,8 +38,8 @@ type App struct {
 }
 
 const (
-	AppFPS             = 30
-	AppFPSMilliseconds = time.Second / AppFPS
+	FPS             = 30
+	FPSMilliseconds = time.Second / FPS
 )
 
 var (
@@ -83,8 +84,7 @@ func initAppWithScreen(screen tcell.Screen) {
 		log.Fatalf("%+v", err)
 	}
 	screen.SetStyle(DefaultStyle)
-	// TODO - it's making noises in case of crash!
-	//screen.EnableMouse()
+	screen.EnableMouse()
 	screen.EnablePaste()
 	screen.Clear()
 
@@ -110,6 +110,8 @@ func (a *App) Start() {
 	defer a.Close()
 	go a.processTerminalEvents()
 	go a.processOsSignals()
+	defer a.panicClose()
+
 	for {
 		if a.quit {
 			return
@@ -134,7 +136,7 @@ func (a *App) Start() {
 			flash.Draw(a.screen)
 		}
 		if len(a.runOnAppRoutine) == 0 {
-			time.Sleep(AppFPSMilliseconds)
+			time.Sleep(FPSMilliseconds)
 			continue
 		}
 		funcsToRun := len(a.runOnAppRoutine) - 1
@@ -147,10 +149,11 @@ func (a *App) Start() {
 		}
 		a.runOnAppRoutine = nil
 	}
+
+	fmt.Println("SURVIVE!!!!")
 }
 
 func (a *App) Close() {
-	//a.screen.Clear()
 	a.screen.DisableMouse()
 	a.screen.Fill(' ', DefaultStyle)
 	a.screen.Show()
@@ -309,6 +312,7 @@ func (a *App) clear() {
 }
 
 func (a *App) processTerminalEvents() {
+	defer a.panicClose()
 	for {
 		if a.quit {
 			return
@@ -337,7 +341,11 @@ func (a *App) processTerminalEvents() {
 			// TODO - should keep only one array with components?
 			for _, s := range a.systems {
 				if ft, ok := (s).(KeyListener); ok {
-					go ft.HandleKeyEvent(ev)
+					// TODO - should we really handle every key event in separate go-routine?
+					go func() {
+						defer a.panicClose()
+						ft.HandleKeyEvent(ev)
+					}()
 				}
 			}
 		default:
@@ -353,4 +361,12 @@ func (a *App) processOsSignals() {
 		<-signals
 		a.quit = true
 	}()
+}
+
+func (a *App) panicClose() {
+	rec := recover()
+	if rec != nil {
+		a.Close()
+		panic(rec)
+	}
 }
