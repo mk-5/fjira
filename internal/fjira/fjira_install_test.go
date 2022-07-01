@@ -1,6 +1,8 @@
 package fjira
 
 import (
+	"github.com/gdamore/tcell/v2"
+	"github.com/mk5/fjira/internal/app"
 	assert2 "github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -32,6 +34,58 @@ func Test_shouldReturnNoErrorWhenEnvironments(t *testing.T) {
 
 	// then
 	assert.NoError(error, "Should return no error when fjira environments")
+}
+
+func Test_shouldInstallWithoutErrorWhenInstallEnvironmentProps(t *testing.T) {
+	// given
+	assert := assert2.New(t)
+	os.Setenv(JiraTokenEnv, "test")
+	os.Setenv(JiraUsernameEnv, "test")
+	os.Setenv(JiraRestUrlEnv, "http://test.test")
+
+	// when
+	_, error := Install("abc")
+
+	// then
+	assert.NoError(error, "Should Install app without error")
+}
+
+func Test_fjira_Close(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{"should close without error"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			screen := tcell.NewSimulationScreen("utf-8")
+			screen.Init() //nolint:errcheck
+			defer screen.Fini()
+			app.CreateNewAppWithScreen(screen)
+			fjira := CreateNewFjira(&fjiraSettings{})
+
+			// when
+			fjira.Close()
+
+			// then
+			assert2.True(t, true) // no error during execution
+		})
+	}
+}
+
+func Test_shouldInstallWithoutErrorWhenInstallUserSettings(t *testing.T) {
+	// given
+	assert := assert2.New(t)
+	os.Setenv(JiraTokenEnv, "")
+	os.Setenv(JiraUsernameEnv, "")
+	os.Setenv(JiraRestUrlEnv, "")
+
+	// when
+	_, error := Install("")
+
+	// then
+	assert.NoError(error, "Should Install app without error")
 }
 
 func Test_readFromUserSettings(t *testing.T) {

@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -32,6 +31,7 @@ type App struct {
 	// re-render screen if true
 	dirty           chan bool
 	loading         bool
+	closed          bool
 	runOnAppRoutine []func()
 	spinner         *SpinnerTCell
 	view            View
@@ -149,11 +149,13 @@ func (a *App) Start() {
 		}
 		a.runOnAppRoutine = nil
 	}
-
-	fmt.Println("SURVIVE!!!!")
 }
 
 func (a *App) Close() {
+	if a.closed {
+		return
+	}
+	a.closed = true
 	a.screen.DisableMouse()
 	a.screen.Fill(' ', DefaultStyle)
 	a.screen.Show()
