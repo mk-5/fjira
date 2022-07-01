@@ -47,7 +47,7 @@ func Test_shouldInstallWithoutErrorWhenInstallEnvironmentProps(t *testing.T) {
 	_, error := Install("abc")
 
 	// then
-	assert.NoError(error, "Should Install app without error")
+	assert.NoError(error, "Should Install app without error when EnvironmentProps")
 }
 
 func Test_fjira_Close(t *testing.T) {
@@ -72,20 +72,6 @@ func Test_fjira_Close(t *testing.T) {
 			assert2.True(t, true) // no error during execution
 		})
 	}
-}
-
-func Test_shouldInstallWithoutErrorWhenInstallUserSettings(t *testing.T) {
-	// given
-	assert := assert2.New(t)
-	os.Setenv(JiraTokenEnv, "")
-	os.Setenv(JiraUsernameEnv, "")
-	os.Setenv(JiraRestUrlEnv, "")
-
-	// when
-	_, error := Install("")
-
-	// then
-	assert.NoError(error, "Should Install app without error")
 }
 
 func Test_readFromUserSettings(t *testing.T) {
