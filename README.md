@@ -3,6 +3,7 @@
 <img src="fjira.png" alt="drawing" width="256"/>
 
 ![Test](https://github.com/mk-5/fjira/actions/workflows/tests.yml/badge.svg)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://github.com/mk-5/fjira/blob/master/LICENSE)
 
 ## Demo
 
