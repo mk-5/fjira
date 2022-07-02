@@ -16,7 +16,3 @@ jobs:
           go test  -coverprofile=coverage.out ./internal/...
           COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
           echo "Total coverage: $COVERAGE"
-      - name: Go Coverage Badge
-        uses: tj-actions/coverage-badge-go@v1.2
-        with:
-          filename: coverage.out
