@@ -27,17 +27,15 @@ brews:
   - name: fjira
     tap:
       owner: mk-5
-      name: fjira
-      branch: master
+      name: homebrew-mk5
+      branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     download_strategy: CurlDownloadStrategy
     commit_author:
       name: mk-5
       email: mateusz+goreleaser@mk5.pl
-    commit_msg_template: "feat: Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    folder: release/Formula
+    commit_msg_template: "misc: brew formula update for {{ .ProjectName }} version {{ .Tag }}"
     homepage: "https://github.com/mk-5/fjira"
-    skip_upload: true
     license: "AGPL-3.0"
 archives:
   - replacements:
@@ -56,3 +54,4 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^misc:'
