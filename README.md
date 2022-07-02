@@ -24,13 +24,16 @@ brew install fjira
 
 ```shell
 Usage:
-    fjira [OPTIONS]
-    fjira JIRA-TICKET [OPTIONS]
-    fjira workspace
-    fjira version
+    fjira [command]
+    fjira [flags]
+    fjira [jira-issue] [flags]
 
-Optional options:
-    -p, --project               Search for issues withing project, example: GEN.
-    -i, --issue                 Open Jira Issue, example: GEN-123.
-    -w, --workspace             Use fjira workspace, example: myworkspace
+Available Commands:
+    workspace               Switch fjira workspace
+    help               	    Help
+    version                 Show version
+
+Flags:
+    -p, --project           Search for issues withing project, example: -p GEN.
+    -w, --workspace         Use different fjira workspace, example: -w myworkspace
 ```
