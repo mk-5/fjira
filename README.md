@@ -1,6 +1,6 @@
 # Fjira - the fuzziest Jira command line tool in the world.
 
-![Fjira](fjira.png)
+<img src="fjira.png" alt="drawing" width="256"/>
 
 ![Test](https://github.com/mk-5/fjira/actions/workflows/tests.yml/badge.svg)
 
