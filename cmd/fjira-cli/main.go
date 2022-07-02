@@ -11,16 +11,18 @@ import (
 
 const (
 	usage = `Usage:
-	fjira
-    fjira JIRA-TICKET
-    fjira workspace
-    fjira version
-    fjira [OPTIONS]
+    fjira [command]
+    fjira [flags]
+    fjira [jira-issue] [flags]
 
-Optional options:
-    -p, --project               Search for issues withing project, example: GEN.
-    -i, --issue                 Open Jira Issue, example: GEN-123.
-    -w, --workspace             Use fjira workspace, example: myworkspace
+Available Commands:
+    workspace               Switch fjira workspace
+    help               	    Help
+    version                 Show version
+
+Flags:
+    -p, --project           Search for issues withing project, example: -p GEN.
+    -w, --workspace         Use different fjira workspace, example: -w myworkspace
 `
 )
 
@@ -45,12 +47,9 @@ func parseCliArgs() fjira.CliArgs {
 		fmt.Print(usage)
 	}
 	var projectId string
-	var issueKey string
 	var workspace string
 	flag.StringVar(&projectId, "project", "", "Jira Project ID")
 	flag.StringVar(&projectId, "p", "", "Jira Project ID")
-	flag.StringVar(&issueKey, "issue", "", "Jira Issue Key")
-	flag.StringVar(&issueKey, "i", "", "Jira Issue Key")
 	flag.StringVar(&workspace, "workspace", "", "Fjira workspace")
 	flag.StringVar(&workspace, "w", "", "Fjira workspace")
 	flag.Parse()
@@ -71,9 +70,12 @@ func parseCliArgs() fjira.CliArgs {
 		fmt.Println(fmt.Sprintf("fjira version: %s", version))
 		os.Exit(0)
 	}
+	if len(os.Args) == 2 && os.Args[1] == "help" {
+		fmt.Println(usage)
+		os.Exit(0)
+	}
 	return fjira.CliArgs{
 		ProjectId:       projectId,
-		IssueKey:        issueKey,
 		Workspace:       workspace,
 		SwitchWorkspace: false,
 	}
