@@ -1,10 +1,12 @@
 # Fjira - the fuzziest Jira command line tool in the world.
 
-![Fira](fjira.png)
+![Fjira](fjira.png)
 
 ![Test](https://github.com/mk-5/fjira/actions/workflows/tests.yml/badge.svg)
 
 ## Demo
+
+![Fjira Demo](demo.gif)
 
 ## Features
 
@@ -16,8 +18,19 @@
 
 ## Getting started
 
+### Mac OS
+
 ```shell
 brew install fjira
+```
+
+### Build from sources
+
+```shell
+git clone git@github.com:mk-5/fjira.git
+cd fjira
+./scripts/build.sh
+cp fjira /usr/local/bin/fjira # or ln -s / or whatever you like
 ```
 
 ## Usage
