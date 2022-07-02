@@ -93,7 +93,7 @@ func (f *defaultFormatter) formatJiraProjects(projects []jira.JiraProject) []str
 func (f *defaultFormatter) formatJiraTransitions(statuses []jira.JiraIssueTransition) []string {
 	formatted := make([]string, 0, len(statuses))
 	for _, status := range statuses {
-		formatted = append(formatted, fmt.Sprintf("%s", status.Name))
+		formatted = append(formatted, status.Name)
 	}
 	return formatted
 }
@@ -101,7 +101,7 @@ func (f *defaultFormatter) formatJiraTransitions(statuses []jira.JiraIssueTransi
 func (f *defaultFormatter) formatJiraStatuses(statuses []jira.JiraIssueStatus) []string {
 	formatted := make([]string, 0, len(statuses))
 	for _, status := range statuses {
-		formatted = append(formatted, fmt.Sprintf("%s", status.Name))
+		formatted = append(formatted, status.Name)
 	}
 	return formatted
 }

@@ -221,7 +221,7 @@ func (a *App) RemoveDrawable(drawable Drawable) {
 	}
 	a.changeMutex.Lock()
 	index := -1
-	for i, _ := range a.drawables {
+	for i := range a.drawables {
 		if a.drawables[i] == drawable {
 			index = i
 			break

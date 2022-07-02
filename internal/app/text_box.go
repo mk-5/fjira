@@ -3,16 +3,14 @@ package app
 import "github.com/gdamore/tcell/v2"
 
 type TextBox struct {
-	x            int
-	y            int
-	x2           int
-	y2           int
-	text         string
-	textStyle    tcell.Style
-	bgStyle      tcell.Style
-	borderStyle  tcell.Style
-	borderTop    bool
-	borderBottom bool
+	x           int
+	y           int
+	x2          int
+	y2          int
+	text        string
+	textStyle   tcell.Style
+	bgStyle     tcell.Style
+	borderStyle tcell.Style
 }
 
 func NewTextBox(x, y int, style tcell.Style, borderStyle tcell.Style, text string) *TextBox {

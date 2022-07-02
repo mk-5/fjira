@@ -93,7 +93,6 @@ func (view *fjiraStatusChangeView) changeStatusTo(status *jira.JiraIssueTransiti
 	case true:
 		view.changeStatusForTicket(view.issue, status)
 		goIntoIssueView(view.issue.Key)
-		break
 	case false:
 		app.GetApp().SetView(NewIssueView(view.issue))
 	}

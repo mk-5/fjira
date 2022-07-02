@@ -67,11 +67,11 @@ func parseCliArgs() fjira.CliArgs {
 		}
 	}
 	if len(os.Args) == 2 && os.Args[1] == "version" {
-		fmt.Println(fmt.Sprintf("fjira version: %s", version))
+		fmt.Printf("fjira version: %s", version)
 		os.Exit(0)
 	}
 	if len(os.Args) == 2 && os.Args[1] == "help" {
-		fmt.Println(usage)
+		fmt.Print(usage)
 		os.Exit(0)
 	}
 	return fjira.CliArgs{
