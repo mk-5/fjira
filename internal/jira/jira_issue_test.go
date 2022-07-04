@@ -38,7 +38,8 @@ func Test_httpJiraApi_GetIssueDetailed(t *testing.T) {
 						AccountId   string
 						DisplayName string
 					}{"", ""}),
-					Type: JiraIssueType{Name: "Task"},
+					Type:   JiraIssueType{Name: "Task"},
+					Labels: []string{"TestLabel"},
 					Status: struct {
 						Name string `json:"name"`
 					}(struct{ Name string }{"Done"}),
@@ -108,6 +109,7 @@ func Test_httpJiraApi_GetIssueDetailed(t *testing.T) {
             "name": "Done",
             "id": "10013"
         },
+		"labels": ["TestLabel"],
         "description": "Lorem ipsum",
         "summary": "Tutorial - create tutorial",
         "creator": {
