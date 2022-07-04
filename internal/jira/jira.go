@@ -33,11 +33,9 @@ type JiraIssueType struct {
 }
 
 type JiraIssue struct {
-	Key      string          `json:"key"`
-	Status   string          `json:"status"`
-	Assignee string          `json:"assignee"`
-	Fields   JiraIssueFields `json:"Fields"`
-	Id       string          `json:"id"`
+	Key    string          `json:"key"`
+	Fields JiraIssueFields `json:"Fields"`
+	Id     string          `json:"id"`
 }
 
 type JiraComment struct {
