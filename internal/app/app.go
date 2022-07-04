@@ -110,7 +110,7 @@ func (a *App) Start() {
 	defer a.Close()
 	go a.processTerminalEvents()
 	go a.processOsSignals()
-	defer a.panicClose()
+	defer a.PanicClose()
 
 	for {
 		if a.quit {
@@ -295,6 +295,14 @@ func (a *App) Quit() {
 	a.quit = true
 }
 
+func (a *App) PanicClose() {
+	rec := recover()
+	if rec != nil {
+		a.Close()
+		panic(rec)
+	}
+}
+
 func (a *App) clear() {
 	a.changeMutex.Lock()
 	a.drawables = nil
@@ -314,7 +322,7 @@ func (a *App) clear() {
 }
 
 func (a *App) processTerminalEvents() {
-	defer a.panicClose()
+	defer a.PanicClose()
 	for {
 		if a.quit {
 			return
@@ -345,7 +353,7 @@ func (a *App) processTerminalEvents() {
 				if ft, ok := (s).(KeyListener); ok {
 					// TODO - should we really handle every key event in separate go-routine?
 					go func() {
-						defer a.panicClose()
+						defer a.PanicClose()
 						ft.HandleKeyEvent(ev)
 					}()
 				}
@@ -363,12 +371,4 @@ func (a *App) processOsSignals() {
 		<-signals
 		a.quit = true
 	}()
-}
-
-func (a *App) panicClose() {
-	rec := recover()
-	if rec != nil {
-		a.Close()
-		panic(rec)
-	}
 }

@@ -3,10 +3,26 @@ package fjira
 import (
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
+	"time"
 )
 
 func goIntoProjectsSearch() {
 	projectsView := NewProjectsSearchView()
+	app.GetApp().SetView(projectsView)
+}
+
+func goIntoIssuesSearchForProject(projectKey string) {
+	app.GetApp().Loading(true)
+	api, _ := GetApi()
+	project, err := api.FindProject(projectKey)
+	if err != nil {
+		app.Error(err.Error())
+		<-time.NewTimer(2 * time.Second).C
+		app.GetApp().Quit()
+		return
+	}
+	app.GetApp().Loading(false)
+	projectsView := NewIssuesSearchView(project)
 	app.GetApp().SetView(projectsView)
 }
 
@@ -21,11 +37,6 @@ func goIntoIssueView(issueKey string) {
 	issue, err := api.GetIssueDetailed(issueKey)
 	if err != nil {
 		app.Error(err.Error())
-		//go func() {
-		//	<-time.NewTimer(3 * time.Second).C
-		//	app.GetApp().Quit()
-		//}()
-		//return
 	}
 	app.GetApp().Loading(false)
 	issueView := NewIssueView(issue)

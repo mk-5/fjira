@@ -17,7 +17,10 @@ func Test_goIntoValidScreen(t *testing.T) {
 			w.Write([]byte("{}")) //nolint:errcheck
 			return
 		}
-		if strings.Contains(r.URL.String(), "project") {
+		if strings.Contains(r.URL.String(), "project/ABC") {
+			w.WriteHeader(200)
+			w.Write([]byte("{}")) //nolint:errcheck
+		} else if strings.Contains(r.URL.String(), "project") {
 			w.WriteHeader(200)
 			w.Write([]byte("[]")) //nolint:errcheck
 		}
@@ -47,6 +50,13 @@ func Test_goIntoValidScreen(t *testing.T) {
 		}},
 		{"should switch view into search issues view", args{
 			gotoMethod: func() { goIntoIssuesSearch(&jira.JiraProject{}) },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
+				return ok
+			},
+		}},
+		{"should switch view into search issues view", args{
+			gotoMethod: func() { goIntoIssuesSearchForProject("ABC") },
 			viewPredicate: func() bool {
 				_, ok := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
 				return ok

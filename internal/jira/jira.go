@@ -13,6 +13,7 @@ type JiraApi interface {
 	SearchJqlPageable(query string, page int32, pageSize int32) ([]JiraIssue, int32, int32, error)
 	FindUsers(project string) ([]JiraUser, error)
 	FindProjects() ([]JiraProject, error)
+	FindProject(projectKey string) (*JiraProject, error)
 	FindTransitions(issueId string) ([]JiraIssueTransition, error)
 	FindProjectStatuses(projectId string) ([]JiraIssueStatus, error)
 	DoTransition(issueId string, transition *JiraIssueTransition) error

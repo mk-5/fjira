@@ -11,6 +11,7 @@ import (
 
 const (
 	usage = `Usage:
+    fjira
     fjira [command]
     fjira [command] [flags]
     fjira [flags]
@@ -22,9 +23,9 @@ Available Commands:
     version                 Show version
 
 Flags:
-    -p, --project             Search for issues withing project, example: -p GEN.
+    -p, --project             Open project issues search directly from CLI, example: -p GEN.
     -w, --workspace           Use different fjira workspace without switching it globally, example: -w myworkspace
-    -n, --new                 If true, workspace with name given in --workspace, example: fjira workspace --new=myworkspace
+    -nw, --new-workspace      Create new workspace, example: fjira --new-workspace=abc
 `
 )
 
@@ -51,8 +52,8 @@ func parseCliArgs() fjira.CliArgs {
 	var projectId string
 	var workspace string
 	var newWorkspace string
-	flag.StringVar(&projectId, "project", "", "Jira Project ID")
-	flag.StringVar(&projectId, "p", "", "Jira Project ID")
+	flag.StringVar(&projectId, "project", "", "Jira Project Key")
+	flag.StringVar(&projectId, "p", "", "Jira Project Key")
 	flag.StringVar(&workspace, "workspace", "", "Fjira workspace")
 	flag.StringVar(&workspace, "w", "", "Fjira workspace")
 	flag.StringVar(&newWorkspace, "new-workspace", "", "New workspace name")
