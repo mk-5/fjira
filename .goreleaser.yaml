@@ -55,4 +55,3 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-      - '^misc:'

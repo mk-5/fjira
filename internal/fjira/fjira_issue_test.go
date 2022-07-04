@@ -39,6 +39,7 @@ const jiraIssueJson = `
             "issuerestrictions": {},
             "shouldDisplay": true
         },
+        "labels": ["TestLabel"],
         "lastViewed": "2022-02-22T00:27:17.356+0100",
         "created": "2021-10-02T22:34:22.521+0200",
         "aggregatetimeoriginalestimate": null,
@@ -139,6 +140,7 @@ func Test_shouldDisplayIssueView(t *testing.T) {
 			assert.Contains(result, "Lorem ipsum", "should contain ticket description")
 			assert.Contains(result, "Mateusz Kulawik", "should contain comment")
 			assert.Contains(result, "Comment 123-ABC", "should contain comment author")
+			assert.Contains(result, "TestLabel", "should contain labels")
 		}},
 	}
 	for _, tt := range tests {

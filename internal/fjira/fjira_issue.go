@@ -7,6 +7,7 @@ import (
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
 	"math"
+	"strings"
 )
 
 type fjiraIssueView struct {
@@ -22,6 +23,9 @@ type fjiraIssueView struct {
 	commentsLines     int
 	maxScrollY        int
 	body              string
+	summaryLen        int
+	labels            string
+	labelsLen         int
 	comments          []struct {
 		body  string
 		title string
@@ -34,6 +38,10 @@ var (
 	boxTitleStyle = app.DefaultStyle.Foreground(tcell.ColorDimGrey)
 )
 
+const (
+	labelsDelimiter = " | "
+)
+
 func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
 	bottomBar := CreateIssueBottomBar(issue)
 	bottomBar.AddItem(NewStatusChangeBarItem())
@@ -44,14 +52,19 @@ func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
 
 	issueActionBar := CreateIssueTopBar(issue)
 	comments := parseComments(issue, 1000, 1000)
+	labels := strings.Join(issue.Fields.Labels, labelsDelimiter)
+	labelsLen := len(labels)
 
 	return &fjiraIssueView{
-		bottomBar: bottomBar,
-		topBar:    issueActionBar,
-		issue:     issue,
-		scrollY:   0,
-		body:      issue.Fields.Description,
-		comments:  comments,
+		bottomBar:  bottomBar,
+		topBar:     issueActionBar,
+		issue:      issue,
+		scrollY:    0,
+		body:       issue.Fields.Description,
+		comments:   comments,
+		labels:     labels,
+		labelsLen:  labelsLen,
+		summaryLen: len(issue.Fields.Summary),
 	}
 }
 
@@ -64,15 +77,25 @@ func (view *fjiraIssueView) Destroy() {
 
 func (view *fjiraIssueView) Draw(screen tcell.Screen) {
 	if view.fuzzyFind == nil {
-		app.DrawBox(screen, 1, 2-view.scrollY, len(view.issue.Fields.Summary)+4, 4-view.scrollY, boxTitleStyle)
+		app.DrawBox(screen, 1, 2-view.scrollY, view.summaryLen+4, 4-view.scrollY, boxTitleStyle)
 		app.DrawText(screen, 2, 2-view.scrollY, boxTitleStyle, MessageSummary)
 		app.DrawText(screen, 3, 3-view.scrollY, app.DefaultStyle, view.issue.Fields.Summary)
 
-		app.DrawBox(screen, 1, 5-view.scrollY, view.descriptionLimitX+4, 5-view.scrollY+view.descriptionLines+4, boxTitleStyle)
-		app.DrawText(screen, 2, 5-view.scrollY, boxTitleStyle, MessageDescription)
-		app.DrawTextLimited(screen, 3, 7-view.scrollY, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, view.body)
+		view.lastY = 2 - view.scrollY + 2
 
-		view.lastY = 5 - view.scrollY + view.descriptionLines + 4
+		if view.labels != "" {
+			app.DrawBox(screen, 1, view.lastY+1, view.labelsLen+4, view.lastY+3, boxTitleStyle)
+			app.DrawText(screen, 2, view.lastY+1, boxTitleStyle, MessageLabels)
+			app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.lastY+2, app.DefaultStyle, view.labels)
+			view.lastY = view.lastY + 3
+		}
+
+		app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, 5-view.scrollY+view.descriptionLines+4, boxTitleStyle)
+		app.DrawText(screen, 2, view.lastY+1, boxTitleStyle, MessageDescription)
+		app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, view.body)
+
+		view.lastY = view.lastY + view.descriptionLines + 6
+
 		for _, comment := range view.comments {
 			app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+comment.lines+2, boxTitleStyle)
 			app.DrawText(screen, 2, view.lastY+1, boxTitleStyle, comment.title)

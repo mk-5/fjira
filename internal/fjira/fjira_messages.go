@@ -37,4 +37,5 @@ const (
 	MessageTypeCommentAndSave     = "Type new comment, and press F1 to save:"
 	MessageSummary                = "Summary"
 	MessageDescription            = "Description"
+	MessageLabels                 = "Labels"
 )

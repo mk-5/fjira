@@ -68,6 +68,7 @@ type JiraIssueFields struct {
 		Total      int32         `json:"total"`
 		StartAt    int32         `json:"startAt"`
 	} `json:"comment"`
+	Labels []string `json:"labels"`
 }
 
 type JiraUser struct {
