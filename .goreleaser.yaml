@@ -27,7 +27,7 @@ brews:
   - name: fjira
     tap:
       owner: mk-5
-      name: homebrew-mk5
+      name: homebrew-mk-5
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     download_strategy: CurlDownloadStrategy

@@ -23,7 +23,7 @@
 ### Mac OS
 
 ```shell
-brew tap mk-5/mk5
+brew tap mk-5/mk-5
 brew install fjira
 ```
 
