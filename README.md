@@ -40,6 +40,8 @@ cp fjira /usr/local/bin/fjira
 
 ### Build from sources
 
+**Requirements**: go 1.18
+
 ```shell
 git clone git@github.com:mk-5/fjira.git
 cd fjira
