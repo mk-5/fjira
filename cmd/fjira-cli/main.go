@@ -55,8 +55,8 @@ func parseCliArgs() fjira.CliArgs {
 	flag.StringVar(&projectId, "p", "", "Jira Project ID")
 	flag.StringVar(&workspace, "workspace", "", "Fjira workspace")
 	flag.StringVar(&workspace, "w", "", "Fjira workspace")
-	flag.StringVar(&newWorkspace, "new", "", "New workspace name")
-	flag.StringVar(&newWorkspace, "n", "", "New workspace name")
+	flag.StringVar(&newWorkspace, "new-workspace", "", "New workspace name")
+	flag.StringVar(&newWorkspace, "nw", "", "New workspace name")
 	flag.Parse()
 
 	issueRegExp := regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
@@ -66,10 +66,15 @@ func parseCliArgs() fjira.CliArgs {
 			Workspace: workspace,
 		}
 	}
-	if len(os.Args) >= 2 && os.Args[1] == "workspace" {
+	if newWorkspace != "" {
 		return fjira.CliArgs{
 			Workspace:       newWorkspace,
-			SwitchWorkspace: len(newWorkspace) == 0,
+			SwitchWorkspace: false,
+		}
+	}
+	if len(os.Args) >= 2 && os.Args[1] == "workspace" {
+		return fjira.CliArgs{
+			SwitchWorkspace: true,
 		}
 	}
 	if len(os.Args) == 2 && os.Args[1] == "version" {
