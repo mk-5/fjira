@@ -12,6 +12,7 @@ import (
 const (
 	usage = `Usage:
     fjira [command]
+    fjira [command] [flags]
     fjira [flags]
     fjira [jira-issue] [flags]
 
@@ -21,8 +22,9 @@ Available Commands:
     version                 Show version
 
 Flags:
-    -p, --project           Search for issues withing project, example: -p GEN.
-    -w, --workspace         Use different fjira workspace, example: -w myworkspace
+    -p, --project             Search for issues withing project, example: -p GEN.
+    -w, --workspace           Use different fjira workspace without switching it globally, example: -w myworkspace
+    -n, --new                 If true, workspace with name given in --workspace, example: fjira workspace --new=myworkspace
 `
 )
 
@@ -48,10 +50,13 @@ func parseCliArgs() fjira.CliArgs {
 	}
 	var projectId string
 	var workspace string
+	var newWorkspace string
 	flag.StringVar(&projectId, "project", "", "Jira Project ID")
 	flag.StringVar(&projectId, "p", "", "Jira Project ID")
 	flag.StringVar(&workspace, "workspace", "", "Fjira workspace")
 	flag.StringVar(&workspace, "w", "", "Fjira workspace")
+	flag.StringVar(&newWorkspace, "new", "", "New workspace name")
+	flag.StringVar(&newWorkspace, "n", "", "New workspace name")
 	flag.Parse()
 
 	issueRegExp := regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
@@ -61,9 +66,10 @@ func parseCliArgs() fjira.CliArgs {
 			Workspace: workspace,
 		}
 	}
-	if len(os.Args) == 2 && os.Args[1] == "workspace" {
+	if len(os.Args) >= 2 && os.Args[1] == "workspace" {
 		return fjira.CliArgs{
-			SwitchWorkspace: true,
+			Workspace:       newWorkspace,
+			SwitchWorkspace: len(newWorkspace) == 0,
 		}
 	}
 	if len(os.Args) == 2 && os.Args[1] == "version" {
