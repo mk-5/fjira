@@ -114,6 +114,14 @@ fjira --project=PROJ
 
 The fjira app will skip projects search screen, and it'll go to the next screen with issues search.
 
+#### Open Jira Issue from cli
+
+```shell
+fjira PROJ-123
+```
+
+The app will skip all the screens, and it'll go to the issue view directly.
+
 ## The Future (TODO)
 
 - More docs
