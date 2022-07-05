@@ -22,12 +22,16 @@ type fjiraSearchIssuesView struct {
 
 const (
 	JiraRecordsMax = 100
+	topBarStatus   = 1
+	topBarAssignee = 2
+	topBarLabel    = 3
 )
 
 var (
 	issueRegExp     = regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
 	searchForStatus *jira.JiraIssueStatus // global in order to keep status&user between views
 	searchForUser   *jira.JiraUser
+	searchForLabel  string
 )
 
 func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
@@ -64,12 +68,16 @@ func (view *fjiraSearchIssuesView) Update() {
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Update()
 	}
-	if searchForStatus != nil && view.topBar.GetItem(1).Text2 != searchForStatus.Name {
-		view.topBar.GetItem(1).ChangeText(MessageLabelStatus, searchForStatus.Name)
+	if searchForStatus != nil && view.topBar.GetItem(topBarStatus).Text2 != searchForStatus.Name {
+		view.topBar.GetItem(topBarStatus).ChangeText(MessageLabelStatus, searchForStatus.Name)
 		view.topBar.Resize(view.screenX, view.screenY)
 	}
-	if searchForUser != nil && view.topBar.GetItem(2).Text2 != searchForUser.DisplayName {
-		view.topBar.GetItem(2).ChangeText(MessageLabelAssignee, searchForUser.DisplayName)
+	if searchForUser != nil && view.topBar.GetItem(topBarAssignee).Text2 != searchForUser.DisplayName {
+		view.topBar.GetItem(topBarAssignee).ChangeText(MessageLabelAssignee, searchForUser.DisplayName)
+		view.topBar.Resize(view.screenX, view.screenY)
+	}
+	if searchForLabel != "" && view.topBar.GetItem(topBarLabel).Text2 != searchForLabel {
+		view.topBar.GetItem(topBarLabel).ChangeText(MessageLabelLabel, searchForLabel)
 		view.topBar.Resize(view.screenX, view.screenY)
 	}
 }
@@ -133,11 +141,12 @@ func (view *fjiraSearchIssuesView) provideIssue(query string) []string {
 func (view *fjiraSearchIssuesView) handleSearchActions() {
 	if selectedAction := <-view.bottomBar.Action; true {
 		switch selectedAction {
-		case ActionStatusChange:
+		case ActionSearchByStatus:
 			view.runSelectStatus()
-			return
-		case ActionAssigneeChange:
+		case ActionSearchByAssignee:
 			view.runSelectUser()
+		case ActionSearchByLabel:
+			view.runSelectLabel()
 		}
 	}
 }
@@ -182,10 +191,27 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 	}
 }
 
+func (view *fjiraSearchIssuesView) runSelectLabel() {
+	app.GetApp().ClearNow()
+	app.GetApp().Loading(true)
+	labels := view.fetchLabels()
+	view.fuzzyFind = app.NewFuzzyFind(MessageSelectLabel, labels)
+	app.GetApp().Loading(false)
+	if label := <-view.fuzzyFind.Complete; true {
+		app.GetApp().ClearNow()
+		if label.Index >= 0 {
+			searchForLabel = labels[label.Index]
+			view.queryDirty = true
+		}
+		go view.runIssuesFuzzyFind()
+		go view.handleSearchActions()
+	}
+}
+
 func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.JiraIssue {
 	q := strings.TrimSpace(query)
 	api, _ := GetApi()
-	jql := buildSearchIssuesJql(view.project, q, searchForStatus, searchForUser)
+	jql := buildSearchIssuesJql(view.project, q, searchForStatus, searchForUser, searchForLabel)
 	issues, err := api.SearchJql(jql)
 	if err != nil {
 		app.Error(err.Error())
@@ -211,6 +237,15 @@ func (view *fjiraSearchIssuesView) fetchUsers(projectId string) []jira.JiraUser 
 		app.Error(err.Error())
 	}
 	return users
+}
+
+func (view *fjiraSearchIssuesView) fetchLabels() []string {
+	api, _ := GetApi()
+	labels, err := api.FindLabels()
+	if err != nil {
+		app.Error(err.Error())
+	}
+	return labels
 }
 
 func (view *fjiraSearchIssuesView) queryHasIssueFormat() bool {
