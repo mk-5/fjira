@@ -13,6 +13,7 @@ type JiraApi interface {
 	SearchJqlPageable(query string, page int32, pageSize int32) ([]JiraIssue, int32, int32, error)
 	FindUsers(project string) ([]JiraUser, error)
 	FindProjects() ([]JiraProject, error)
+	FindLabels() ([]string, error)
 	FindProject(projectKey string) (*JiraProject, error)
 	FindTransitions(issueId string) ([]JiraIssueTransition, error)
 	FindProjectStatuses(projectId string) ([]JiraIssueStatus, error)
@@ -97,6 +98,14 @@ type JiraIssueStatus struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+}
+
+type JiraLabelsResponse struct {
+	MaxResults int      `json:"maxResults"`
+	StartAt    int      `json:"startAt"`
+	Total      int      `json:"total"`
+	IsLast     bool     `json:"isLast"`
+	Values     []string `json:"values"`
 }
 
 type JiraApiCredentials struct {

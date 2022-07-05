@@ -10,6 +10,9 @@ import (
 const (
 	ActionAssigneeChange app.ActionBarAction = iota
 	ActionStatusChange
+	ActionSearchByStatus
+	ActionSearchByAssignee
+	ActionSearchByLabel
 	ActionComment
 	ActionEscape
 	ActionOpen
@@ -50,6 +53,7 @@ func CreateSearchIssuesBottomBar() *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	actionBar.AddItem(NewByStatusBarItem())
 	actionBar.AddItem(NewByAssigneeBarItem())
+	actionBar.AddItem(NewByLabelBarItem())
 	return actionBar
 }
 
@@ -61,12 +65,17 @@ func CreateSearchIssuesTopBar(project *jira.JiraProject) *app.ActionBar {
 		TopBarItemDefault, TopBarItemBold,
 	)
 	actionBar.AddItemWithStyles(
-		"Status: ",
+		MessageLabelStatus,
 		MessageAll,
 		TopBarItemDefault, TopBarItemBold,
 	)
 	actionBar.AddItemWithStyles(
-		"Assignee: ",
+		MessageLabelAssignee,
+		MessageAll,
+		TopBarItemDefault, TopBarItemBold,
+	)
+	actionBar.AddItemWithStyles(
+		MessageLabelLabel,
 		MessageAll,
 		TopBarItemDefault, TopBarItemBold,
 	)
@@ -138,7 +147,7 @@ func NewStatusChangeBarItem() *app.ActionBarItem {
 
 func NewByStatusBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:         int(ActionStatusChange),
+		Id:         int(ActionSearchByStatus),
 		Text1:      "by status ",
 		Text2:      "[F1]",
 		Text1Style: BottomBarItemDefaultStyle,
@@ -149,12 +158,23 @@ func NewByStatusBarItem() *app.ActionBarItem {
 
 func NewByAssigneeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:         int(ActionAssigneeChange),
+		Id:         int(ActionSearchByAssignee),
 		Text1:      "by assignee ",
 		Text2:      "[F2]",
 		Text1Style: BottomBarItemDefaultStyle,
 		Text2Style: BottomBarActionBarKeyBold,
 		TriggerKey: tcell.KeyF2,
+	}
+}
+
+func NewByLabelBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:         int(ActionSearchByLabel),
+		Text1:      "by label ",
+		Text2:      "[F3]",
+		Text1Style: BottomBarItemDefaultStyle,
+		Text2Style: BottomBarActionBarKeyBold,
+		TriggerKey: tcell.KeyF3,
 	}
 }
 
