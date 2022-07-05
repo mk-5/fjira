@@ -31,7 +31,7 @@ brews:
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     download_strategy: CurlDownloadStrategy
-    url_template: "https://github.com/mk-5/fjira/releases/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/mk-5/fjira/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     commit_author:
       name: mk-5
       email: mateusz+goreleaser@mk5.pl
