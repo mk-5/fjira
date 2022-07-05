@@ -104,7 +104,7 @@ The projects search is a default view, just run `fjra` in order to open it.
 fjira
 ```
 
-#### Open Jira project from cli
+### Open Jira project from cli
 
 You can open a project directly from cli.
 
@@ -114,7 +114,7 @@ fjira --project=PROJ
 
 The fjira app will skip projects search screen, and it'll go to the next screen with issues search.
 
-#### Open Jira Issue from cli
+### Open Jira Issue from cli
 
 ```shell
 fjira PROJ-123
