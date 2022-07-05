@@ -132,9 +132,8 @@ The app will skip all the screens, and it'll go to the issue view directly.
 #### Motivation
 
 I've created this tool for myself, and the only motivation behind it was laziness (maybe plus fact that I like terminal tools).
-It's really common that from time to time you need to do some Jira action quickly. Something like "issue merged, just
-need to move it to the next status". If you've ever worked with Jira at daily basis, you probably know what I mean.
+It's really common that from time to time you need to do something like: "I'd just need to move issue 123 to the next status".
 Opening Jira, finding ticket inside the board, opening the Jira issue modal... is okay, but it takes some time.
-I found it really handy to do it from terminal, where propably I do something anyway 😝
+I found it really handy to do it from terminal, where probably I do something anyway 😝
 
 Sooo, if you feel it the same way as me - I'd love to get some star from you 🤜🤛
