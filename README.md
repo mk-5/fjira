@@ -129,7 +129,7 @@ The app will skip all the screens, and it'll go to the issue view directly.
 - Support Linux package managers nonsense aka. Snapcraft, Deb, AUR
 - More Jira features ;)
 
-### Motivation disclaimer
+#### Motivation
 
 I've created this tool for myself, and the only motivation behind it was laziness (maybe plus fact that I like terminal tools).
 It's really common that from time to time you need to do some Jira action quickly. Something like "issue merged, just
