@@ -35,7 +35,7 @@ Internal structure looks like this:
 
 It contains application engine, so everything that's needed in order to do "the thing" - whatever the thing is 😅.
 You can notice that it doesn't contain any unit tests. There is a reason behind that. Just imagine that `app` module is
-a vehicle. There is difference if you achieve your goal with ferrari, or old fiat. This is why it's not tested directly
+a vehicle. There is no difference if you achieve your goal with ferrari, or old fiat. This is why it's not tested directly
 here, but by another modules that contains business logic.
 
 #### fjira
