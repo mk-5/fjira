@@ -109,7 +109,7 @@ func (b *ActionBar) Update() {
 
 func (b *ActionBar) HandleKeyEvent(ev *tcell.EventKey) {
 	for _, item := range b.items {
-		if item.TriggerRune > 0 && item.TriggerRune == ev.Rune() {
+		if item.TriggerRune > 0 && (item.TriggerRune == ev.Rune() || item.TriggerRune-32 == ev.Rune()) {
 			b.Action <- ActionBarAction(item.Id)
 			return
 		} else if item.TriggerKey > 0 && item.TriggerKey == ev.Key() {
