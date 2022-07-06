@@ -32,6 +32,7 @@ type App struct {
 	dirty           chan bool
 	loading         bool
 	closed          bool
+	flashTicker     *time.Timer
 	runOnAppRoutine []func()
 	spinner         *SpinnerTCell
 	view            View
@@ -103,6 +104,7 @@ func initAppWithScreen(screen tcell.Screen) {
 		keepAlive:       make(map[interface{}]bool),
 		dirty:           make(chan bool),
 		spinner:         s,
+		flashTicker:     time.NewTimer(1),
 	}
 }
 
@@ -234,19 +236,17 @@ func (a *App) RemoveDrawable(drawable Drawable) {
 }
 
 func (a *App) AddFlash(flash Drawable, duration time.Duration) {
-	// TODO - ... it's causing weird overflow error :/
 	a.changeMutex.Lock()
 	a.flash = append(a.flash, flash)
-	index := len(a.flash) - 1
 	a.changeMutex.Unlock()
 	if resizable, ok := flash.(Resizable); ok {
 		resizable.Resize(a.ScreenX, a.ScreenY)
 	}
-	ticker := time.NewTimer(duration)
+	a.flashTicker.Reset(duration)
 	go func() {
-		<-ticker.C
+		<-a.flashTicker.C
 		a.changeMutex.Lock()
-		a.flash = append(a.flash[:index], a.flash[index+1:]...)
+		a.flash = nil
 		a.changeMutex.Unlock()
 	}()
 }
