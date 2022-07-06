@@ -24,10 +24,11 @@ type App struct {
 	// clear/add/remove is less accurate execution than clear.
 	// so it makes sense to store keep-alive stuff like this, instead of having
 	// separate arrays to iterate through
-	keepAlive   map[interface{}]bool
-	changeMutex sync.Mutex
-	viewMutex   sync.Mutex
-	quit        bool
+	keepAlive    map[interface{}]bool
+	changeMutex  sync.Mutex
+	changeMutex2 sync.Mutex
+	viewMutex    sync.Mutex
+	quit         bool
 	// re-render screen if true
 	dirty           chan bool
 	loading         bool
@@ -263,7 +264,7 @@ func (a *App) RemoveSystem(system System) {
 	}
 	a.changeMutex.Lock()
 	index := -1
-	for i, _ := range a.systems {
+	for i := range a.systems {
 		if a.systems[i] == system {
 			index = i
 			break
@@ -309,8 +310,8 @@ func (a *App) clear() {
 	a.systems = nil
 	a.changeMutex.Unlock()
 	if len(a.keepAlive) > 0 {
-		for s, _ := range a.keepAlive {
-			// TODO - without locking?
+		a.changeMutex2.Lock()
+		for s := range a.keepAlive {
 			if _, ok := s.(System); ok {
 				a.AddSystem(s.(System))
 			}
@@ -318,6 +319,7 @@ func (a *App) clear() {
 				a.AddDrawable(s.(Drawable))
 			}
 		}
+		a.changeMutex2.Unlock()
 	}
 }
 
