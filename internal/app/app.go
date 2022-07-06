@@ -32,7 +32,6 @@ type App struct {
 	dirty           chan bool
 	loading         bool
 	closed          bool
-	flashTicker     *time.Timer
 	runOnAppRoutine []func()
 	spinner         *SpinnerTCell
 	view            View
@@ -104,7 +103,6 @@ func initAppWithScreen(screen tcell.Screen) {
 		keepAlive:       make(map[interface{}]bool),
 		dirty:           make(chan bool),
 		spinner:         s,
-		flashTicker:     time.NewTimer(1),
 	}
 }
 
@@ -242,11 +240,11 @@ func (a *App) AddFlash(flash Drawable, duration time.Duration) {
 	if resizable, ok := flash.(Resizable); ok {
 		resizable.Resize(a.ScreenX, a.ScreenY)
 	}
-	a.flashTicker.Reset(duration)
+	timer := time.NewTimer(duration)
 	go func() {
-		<-a.flashTicker.C
+		<-timer.C
 		a.changeMutex.Lock()
-		a.flash = nil
+		a.flash = nil // it could lead to removing just-added flash message. For now, it's a good-enough solution
 		a.changeMutex.Unlock()
 	}()
 }
