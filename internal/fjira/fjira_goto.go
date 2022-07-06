@@ -32,6 +32,7 @@ func goIntoIssuesSearch(project *jira.JiraProject) {
 }
 
 func goIntoIssueView(issueKey string) {
+	defer app.GetApp().PanicRecover()
 	app.GetApp().Loading(true)
 	api, _ := GetApi()
 	issue, err := api.GetIssueDetailed(issueKey)

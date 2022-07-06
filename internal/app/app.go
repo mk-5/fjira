@@ -110,7 +110,7 @@ func (a *App) Start() {
 	defer a.Close()
 	go a.processTerminalEvents()
 	go a.processOsSignals()
-	defer a.PanicClose()
+	defer a.PanicRecover()
 
 	for {
 		if a.quit {
@@ -234,6 +234,7 @@ func (a *App) RemoveDrawable(drawable Drawable) {
 }
 
 func (a *App) AddFlash(flash Drawable, duration time.Duration) {
+	defer a.PanicRecover()
 	a.changeMutex.Lock()
 	a.flash = append(a.flash, flash)
 	a.changeMutex.Unlock()
@@ -242,6 +243,7 @@ func (a *App) AddFlash(flash Drawable, duration time.Duration) {
 	}
 	timer := time.NewTimer(duration)
 	go func() {
+		defer a.PanicRecover()
 		<-timer.C
 		a.changeMutex.Lock()
 		a.flash = nil // it could lead to removing just-added flash message. For now, it's a good-enough solution
@@ -293,7 +295,7 @@ func (a *App) Quit() {
 	a.quit = true
 }
 
-func (a *App) PanicClose() {
+func (a *App) PanicRecover() {
 	rec := recover()
 	if rec != nil {
 		a.Close()
@@ -320,7 +322,7 @@ func (a *App) clear() {
 }
 
 func (a *App) processTerminalEvents() {
-	defer a.PanicClose()
+	defer a.PanicRecover()
 	for {
 		if a.quit {
 			return
@@ -351,7 +353,7 @@ func (a *App) processTerminalEvents() {
 				if ft, ok := (s).(KeyListener); ok {
 					// TODO - should we really handle every key event in separate go-routine?
 					go func() {
-						defer a.PanicClose()
+						defer a.PanicRecover()
 						ft.HandleKeyEvent(ev)
 					}()
 				}

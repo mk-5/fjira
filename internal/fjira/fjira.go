@@ -131,12 +131,12 @@ func (f *Fjira) Run(args *CliArgs) {
 func (f *Fjira) Close() {
 	f.api.Close()
 	if f.app != nil {
-		f.app.PanicClose()
+		f.app.PanicRecover()
 	}
 }
 
 func (f *Fjira) bootstrap(args *CliArgs) {
-	defer f.app.PanicClose()
+	defer f.app.PanicRecover()
 	if args.ProjectId != "" {
 		goIntoIssuesSearchForProject(args.ProjectId)
 		return

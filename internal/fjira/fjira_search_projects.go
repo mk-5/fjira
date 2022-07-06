@@ -62,6 +62,7 @@ func (view *fjiraSearchProjectsView) findProjects() []jira.JiraProject {
 }
 
 func (view *fjiraSearchProjectsView) runProjectsFuzzyFind() {
+	defer app.GetApp().PanicRecover()
 	projects := view.findProjects()
 	projects = append(projects, jira.JiraProject{Id: MessageAll, Name: MessageAll, Key: MessageAll})
 	formatter, _ := GetFormatter()
