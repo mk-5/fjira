@@ -21,6 +21,7 @@ func Test_buildSearchIssuesJql(t *testing.T) {
 	}{
 		{"should create valid jql", args{project: &jira.JiraProject{Id: "123"}}, "project=123 ORDER BY status"},
 		{"should create valid jql", args{project: &jira.JiraProject{Id: "123"}, query: "abc"}, "project=123 AND summary~\"abc*\" ORDER BY status"},
+		{"should create valid jql", args{project: &jira.JiraProject{Id: MessageAll, Key: MessageAll}, query: "abc"}, "summary~\"abc*\" ORDER BY status"},
 		{"should create valid jql", args{
 			project: &jira.JiraProject{Id: "123"}, query: "abc", status: &jira.JiraIssueStatus{Id: "st1"}},
 			"project=123 AND summary~\"abc*\" AND status=st1 ORDER BY status",

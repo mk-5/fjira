@@ -7,7 +7,10 @@ import (
 )
 
 func buildSearchIssuesJql(project *jira.JiraProject, query string, status *jira.JiraIssueStatus, user *jira.JiraUser, label string) string {
-	jql := fmt.Sprintf("project=%s", project.Id)
+	jql := ""
+	if project != nil && project.Id != MessageAll {
+		jql = jql + fmt.Sprintf("project=%s", project.Id)
+	}
 	orderBy := "ORDER BY status"
 	query = strings.TrimSpace(query)
 	if query != "" {
@@ -25,5 +28,5 @@ func buildSearchIssuesJql(project *jira.JiraProject, query string, status *jira.
 	if query != "" && issueRegExp.MatchString(query) {
 		jql = jql + fmt.Sprintf(" OR issuekey=\"%s\"", query)
 	}
-	return fmt.Sprintf("%s %s", jql, orderBy)
+	return fmt.Sprintf("%s %s", strings.TrimLeft(jql, " AND"), orderBy)
 }

@@ -29,32 +29,24 @@ func (view *fjiraSearchProjectsView) Destroy() {
 }
 
 func (view *fjiraSearchProjectsView) Draw(screen tcell.Screen) {
-	//view.bottomBar.Draw(screen)
-	//view.topBar.Draw(screen)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Draw(screen)
 	}
 }
 
 func (view *fjiraSearchProjectsView) Update() {
-	//view.bottomBar.Update()
-	//view.topBar.Update()
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Update()
 	}
 }
 
 func (view *fjiraSearchProjectsView) Resize(screenX, screenY int) {
-	//view.bottomBar.Resize(screenX, screenY)
-	//view.topBar.Resize(screenX, screenY)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.Resize(screenX, screenY)
 	}
 }
 
 func (view *fjiraSearchProjectsView) HandleKeyEvent(ev *tcell.EventKey) {
-	//view.topBar.HandleKeyEvent(ev)
-	//view.bottomBar.HandleKeyEvent(ev)
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.HandleKeyEvent(ev)
 	}
@@ -71,14 +63,14 @@ func (view *fjiraSearchProjectsView) findProjects() []jira.JiraProject {
 
 func (view *fjiraSearchProjectsView) runProjectsFuzzyFind() {
 	projects := view.findProjects()
+	projects = append(projects, jira.JiraProject{Id: MessageAll, Name: MessageAll, Key: MessageAll})
 	formatter, _ := GetFormatter()
 	projectsString := formatter.formatJiraProjects(projects)
 	view.fuzzyFind = app.NewFuzzyFind(MessageSelectProject, projectsString)
 	view.fuzzyFind.MarginBottom = 0
 	app.GetApp().Loading(false)
 	app.GetApp().ClearNow()
-	select {
-	case chosen := <-view.fuzzyFind.Complete:
+	if chosen := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if chosen.Index < 0 {
 			app.GetApp().Quit()
