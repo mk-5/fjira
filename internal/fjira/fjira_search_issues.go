@@ -46,6 +46,10 @@ func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
 
 func (view *fjiraSearchIssuesView) Init() {
 	app.GetApp().LoadingWithText(true, MessageSearchIssuesLoading)
+	if view.project.Id == MessageAll {
+		view.bottomBar.RemoveItem(int(ActionSearchByStatus))
+		view.bottomBar.RemoveItem(int(ActionSearchByAssignee))
+	}
 	go view.runIssuesFuzzyFind()
 	go view.handleSearchActions()
 }

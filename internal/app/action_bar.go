@@ -82,7 +82,7 @@ func (b *ActionBar) RemoveItem(id int) {
 }
 
 func (b *ActionBar) RemoveItemAtIndex(index int) {
-	if index > 0 {
+	if index >= 0 {
 		b.items = append(b.items[:index], b.items[index+1:]...)
 		b.Resize(b.screenX, b.screenY)
 	}
