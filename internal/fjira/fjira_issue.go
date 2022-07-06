@@ -90,7 +90,7 @@ func (view *fjiraIssueView) Draw(screen tcell.Screen) {
 			view.lastY = view.lastY + 3
 		}
 
-		app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, 5-view.scrollY+view.descriptionLines+4, boxTitleStyle)
+		app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+view.descriptionLines+4, boxTitleStyle)
 		app.DrawText(screen, 2, view.lastY+1, boxTitleStyle, MessageDescription)
 		app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, view.body)
 
@@ -123,13 +123,13 @@ func (view *fjiraIssueView) Resize(screenX, screenY int) {
 	view.descriptionLimitY = 1000
 	view.descriptionLines = app.DrawTextLimited(nil, 0, 0, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, view.body) + 1
 	commentsLines := 0
+	view.comments = parseComments(view.issue, view.descriptionLimitX, view.descriptionLimitY)
 	for _, comment := range view.comments {
 		commentsLines = commentsLines + comment.lines + 3
 	}
 	view.commentsLines = commentsLines + len(view.comments) + 1
 	topAndBottomBarSize := 12
-	view.maxScrollY = app.ClampInt(int(math.Abs(float64(screenY-topAndBottomBarSize-view.descriptionLines-view.commentsLines-10))), 0, 1000)
-	view.comments = parseComments(view.issue, view.descriptionLimitX, view.descriptionLimitY)
+	view.maxScrollY = app.ClampInt(int(math.Abs(float64(screenY-topAndBottomBarSize-view.descriptionLines-view.commentsLines-10))), 0, 2000)
 	view.bottomBar.Resize(screenX, screenY)
 	view.topBar.Resize(screenX, screenY)
 	if view.fuzzyFind != nil {
