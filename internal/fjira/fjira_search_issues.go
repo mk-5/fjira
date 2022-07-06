@@ -199,6 +199,7 @@ func (view *fjiraSearchIssuesView) runSelectLabel() {
 	app.GetApp().ClearNow()
 	app.GetApp().Loading(true)
 	labels := view.fetchLabels()
+	labels = append(labels, MessageAll)
 	view.fuzzyFind = app.NewFuzzyFind(MessageSelectLabel, labels)
 	app.GetApp().Loading(false)
 	if label := <-view.fuzzyFind.Complete; true {
