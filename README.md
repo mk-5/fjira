@@ -42,7 +42,7 @@ cp fjira /usr/local/bin/fjira
 
 ```shell
 make
-cp out/bin/fjira /usr/local/bin/fjira # or ln -s or whatever you like to do with it
+./out/bin/fjira
 ```
 
 ## Usage
