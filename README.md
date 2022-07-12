@@ -33,18 +33,16 @@ Go to [https://github.com/mk-5/fjira/releases/latest](https://github.com/mk-5/fj
 latest release version.
 
 ```shell
-wget https://github.com/mk-5/fjira/releases/download/0.0.1/fjira_0.0.1_Linux_x86_64.tar.gz
-tar -xvzf fjira_0.0.1_Linux_x86_64.tar.gz
+wget https://github.com/mk-5/fjira/releases/download/0.0.3/fjira_0.0.3_Linux_x86_64.tar.gz
+tar -xvzf fjira_0.0.3_Linux_x86_64.tar.gz
 cp fjira /usr/local/bin/fjira
 ```
 
 ### Build from sources
 
 ```shell
-git clone git@github.com:mk-5/fjira.git
-cd fjira
-./scripts/build.sh
-cp fjira /usr/local/bin/fjira # or ln -s or whatever you like to do with it
+make
+cp out/bin/fjira /usr/local/bin/fjira # or ln -s or whatever you like to do with it
 ```
 
 ## Usage
@@ -131,8 +129,10 @@ The app will skip all the screens, and it'll go to the issue view directly.
 
 #### Motivation
 
-I've created this tool for myself, and the only motivation behind it was laziness (maybe plus fact that I like terminal tools).
-It's really common that from time to time you need to do something like: "I'd just need to move issue 123 to the next status".
+I've created this tool for myself, and the only motivation behind it was laziness (maybe plus fact that I like terminal
+tools).
+It's really common that from time to time you need to do something like: "I'd just need to move issue 123 to the next
+status".
 Opening Jira, finding ticket inside the board, opening the Jira issue modal... is okay, but it takes some time.
 I found it really handy to do it from terminal, where probably I do something anyway 😝
 
