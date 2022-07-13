@@ -45,6 +45,22 @@ archives:
       #      windows: Windows
       386: i386
       amd64: x86_64
+nfpms:
+  - id: linux_packages
+    file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    vendor: "mk-5"
+    homepage: "https://github.com/mk-5/fjira"
+    maintainer: "Mateusz <mateusz@mk5.pl>"
+    description: "Fjira - the fuzziest Jira command line tool in the world."
+    license: "AGPL-3.0"
+    formats:
+      - deb
+      - rpm
+      - apk
+    builds:
+      - fjira
+    scripts:
+      postremove: "scripts/postremove.sh"
 checksum:
   name_template: 'checksums.txt'
 snapshot:

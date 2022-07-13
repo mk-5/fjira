@@ -32,9 +32,16 @@ brew install fjira
 Go to [https://github.com/mk-5/fjira/releases/latest](https://github.com/mk-5/fjira/releases/latest), and check the
 latest release version.
 
+#### Deb
+
 ```shell
-wget https://github.com/mk-5/fjira/releases/download/0.0.3/fjira_0.0.3_Linux_x86_64.tar.gz
-tar -xvzf fjira_0.0.3_Linux_x86_64.tar.gz
+sudo dpkg -i fjira_0.4.0_linux_amd64.deb
+```
+
+#### Binary
+
+```shell
+tar -xvzf fjira_0.4.0_Linux_x86_64.tar.gz
 cp fjira /usr/local/bin/fjira
 ```
 
