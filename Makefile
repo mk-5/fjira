@@ -19,5 +19,9 @@ run:
 test:
 	go test ./internal/...
 
+release:
+	goreleaser release --skip-publish --snapshot --rm-dist
+
 clean:
 	rm -rf ${BINARY_DIR}
+	rm -rf dist
