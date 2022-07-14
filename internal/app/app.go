@@ -30,7 +30,7 @@ type App struct {
 	viewMutex    sync.Mutex
 	quit         bool
 	// re-render screen if true
-	dirty           chan bool
+	dirty           bool
 	loading         bool
 	closed          bool
 	runOnAppRoutine []func()
@@ -102,7 +102,7 @@ func initAppWithScreen(screen tcell.Screen) {
 		systems:         make([]System, 0, 128),
 		flash:           make([]Drawable, 0, 5),
 		keepAlive:       make(map[interface{}]bool),
-		dirty:           make(chan bool),
+		dirty:           true,
 		spinner:         s,
 	}
 }
@@ -111,6 +111,7 @@ func (a *App) Start() {
 	defer a.Close()
 	go a.processTerminalEvents()
 	go a.processOsSignals()
+	a.SetDirty()
 	defer a.PanicRecover()
 
 	for {
@@ -119,9 +120,10 @@ func (a *App) Start() {
 		}
 		// TODO - could be added as an potential performance improvement
 		// it will reduce the render cycles
-		//select {
-		//case <-a.dirty:
-		//}
+		if !a.dirty && !a.loading {
+			time.Sleep(FPSMilliseconds)
+			continue
+		}
 		a.screen.Show()
 		for _, system := range a.systems {
 			system.Update()
@@ -189,6 +191,7 @@ func (a *App) SetView(view View) {
 	a.keepAlive[view] = true
 	view.Init()
 	a.viewMutex.Unlock()
+	a.SetDirty()
 }
 
 func (a *App) CurrentView() interface{} {
@@ -249,7 +252,9 @@ func (a *App) AddFlash(flash Drawable, duration time.Duration) {
 		a.changeMutex.Lock()
 		a.flash = nil // it could lead to removing just-added flash message. For now, it's a good-enough solution
 		a.changeMutex.Unlock()
+		a.SetDirty()
 	}()
+	a.SetDirty()
 }
 
 func (a *App) AddSystem(system System) {
@@ -277,7 +282,12 @@ func (a *App) RemoveSystem(system System) {
 }
 
 func (a *App) SetDirty() {
-	a.dirty <- true
+	a.dirty = true
+	// TODO - it's not a good solution .. 3 seconds it's a bit of magic number
+	// what it does is "pls re-render screen for next 3 seconds"
+	// it's a bit better then re-render it all-the-time, but terminal screen could be re-rendered only
+	// when something got change - that would be perfect situation, but it will require more manual work
+	go func() { time.Sleep(time.Second * 3); a.dirty = false }()
 }
 
 func (a *App) ClearNow() {
@@ -341,6 +351,7 @@ func (a *App) processTerminalEvents() {
 					ft.Resize(x, y)
 				}
 			}
+			a.SetDirty()
 			break
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyCtrlC {
@@ -360,6 +371,7 @@ func (a *App) processTerminalEvents() {
 					}()
 				}
 			}
+			a.SetDirty()
 		default:
 			continue
 		}
