@@ -1,4 +1,5 @@
 on: [ push ]
+name: Check Commit
 jobs:
   build:
     name: Check Commit
