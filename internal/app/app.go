@@ -39,7 +39,7 @@ type App struct {
 }
 
 const (
-	FPS             = 30
+	FPS             = 20
 	FPSMilliseconds = time.Second / FPS
 )
 
