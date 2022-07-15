@@ -169,14 +169,15 @@ func (f *FuzzyFind) Resize(screenX, screenY int) {
 }
 
 func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
-	if f.matches.Len() == 0 {
+	matchesLen := f.matches.Len()
+	if matchesLen == 0 {
 		return
 	}
 	var row = f.screenY - ResultsMarginBottom - f.MarginBottom
 	var currentStyleDefault tcell.Style
 	var currentStyleBold tcell.Style
-	indexDelta := ClampInt(f.selected-row+SearchResultsPivot, 0, f.matches.Len()-1)
-	for index := indexDelta; index < f.matches.Len() && row > f.MarginTop; index++ {
+	indexDelta := ClampInt(f.selected-row+SearchResultsPivot, 0, matchesLen-1)
+	for index := indexDelta; index < matchesLen && row > f.MarginTop; index++ {
 		match := f.matches[index]
 		currentStyleDefault = tcell.StyleDefault
 		currentStyleBold = boldMatchStyle
@@ -185,13 +186,14 @@ func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
 			currentStyleDefault = highlightDefault
 			currentStyleBold = highlightBold
 		}
-		// TODO - there is an issue with displaying diacritics characters
+		runeI := 0
 		for i, s := range match.Str {
 			if contains(i, match.MatchedIndexes) {
-				DrawText(screen, i+2, row, currentStyleBold, string(s))
+				DrawText(screen, runeI+2, row, currentStyleBold, string(s))
 			} else {
-				DrawText(screen, i+2, row, currentStyleDefault, string(s))
+				DrawText(screen, runeI+2, row, currentStyleDefault, string(s))
 			}
+			runeI++
 		}
 		row--
 	}

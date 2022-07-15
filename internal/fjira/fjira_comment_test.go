@@ -109,7 +109,7 @@ func Test_fjiraCommentView_HandleKeyEvent(t *testing.T) {
 			}
 
 			// then
-			assert.Equal(t, view.text, tt.expectedComment)
+			assert.Equal(t, tt.expectedComment, view.text)
 		})
 	}
 }

@@ -65,14 +65,14 @@ func (view *fjiraCommentView) Resize(screenX, screenY int) {
 
 func (view *fjiraCommentView) HandleKeyEvent(ev *tcell.EventKey) {
 	view.bottomBar.HandleKeyEvent(ev)
-	if unicode.IsLetter(ev.Rune()) || unicode.IsDigit(ev.Rune()) || unicode.IsSpace(ev.Rune()) ||
-		unicode.IsPunct(ev.Rune()) || unicode.IsSymbol(ev.Rune()) {
+	if (unicode.IsLetter(ev.Rune()) || unicode.IsDigit(ev.Rune()) || unicode.IsSpace(ev.Rune()) ||
+		unicode.IsPunct(ev.Rune()) || unicode.IsSymbol(ev.Rune())) && !isBackspace(ev) {
 		view.buffer.WriteRune(ev.Rune())
 	}
 	if ev.Key() == tcell.KeyEnter {
 		view.buffer.WriteRune('\n')
 	}
-	if ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 {
+	if isBackspace(ev) {
 		if view.buffer.Len() > 0 {
 			view.buffer.Truncate(view.buffer.Len() - 1)
 		}
@@ -98,4 +98,8 @@ func (view fjiraCommentView) doComment(issue *jira.JiraIssue, comment string) {
 		app.Error(fmt.Sprintf(MessageCannotAddComment, issue.Key, err))
 	}
 	app.Success(fmt.Sprintf(MessageCommentSuccess, issue.Key))
+}
+
+func isBackspace(ev *tcell.EventKey) bool {
+	return ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 || ev.Key() == tcell.KeyBS
 }
