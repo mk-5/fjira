@@ -65,7 +65,8 @@ func (view *fjiraCommentView) Resize(screenX, screenY int) {
 
 func (view *fjiraCommentView) HandleKeyEvent(ev *tcell.EventKey) {
 	view.bottomBar.HandleKeyEvent(ev)
-	if unicode.IsLetter(ev.Rune()) || unicode.IsDigit(ev.Rune()) || unicode.IsSpace(ev.Rune()) {
+	if unicode.IsLetter(ev.Rune()) || unicode.IsDigit(ev.Rune()) || unicode.IsSpace(ev.Rune()) ||
+		unicode.IsPunct(ev.Rune()) || unicode.IsSymbol(ev.Rune()) {
 		view.buffer.WriteRune(ev.Rune())
 	}
 	if ev.Key() == tcell.KeyEnter {
