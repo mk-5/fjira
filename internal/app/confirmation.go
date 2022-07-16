@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	QuestionMarkStyle = tcell.StyleDefault.Bold(true).Foreground(tcell.ColorYellowGreen)
+	QuestionMarkStyle = DefaultStyle.Bold(true).Foreground(tcell.ColorYellowGreen)
 )
 
 func Confirm(app *App, message string) bool {
@@ -40,7 +40,7 @@ func newConfirmation(message string) *Confirmation {
 
 func (c *Confirmation) Draw(screen tcell.Screen) {
 	DrawText(screen, 0, c.screenY-2, QuestionMarkStyle, QuestionMark)
-	DrawText(screen, 2, c.screenY-2, tcell.StyleDefault, c.message)
+	DrawText(screen, 2, c.screenY-2, DefaultStyle, c.message)
 }
 
 func (c *Confirmation) Resize(screenX, screenY int) {

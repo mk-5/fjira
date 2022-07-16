@@ -48,7 +48,7 @@ func (view *fjiraCommentView) Destroy() {
 
 func (view *fjiraCommentView) Draw(screen tcell.Screen) {
 	app.DrawText(screen, 1, 2, headerStyle, MessageTypeCommentAndSave)
-	app.DrawTextLimited(screen, 1, 4, MaxCommentLineWidth, 100, tcell.StyleDefault, view.text)
+	app.DrawTextLimited(screen, 1, 4, MaxCommentLineWidth, 100, app.DefaultStyle, view.text)
 	view.topBar.Draw(screen)
 	view.bottomBar.Draw(screen)
 }

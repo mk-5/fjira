@@ -44,12 +44,12 @@ const (
 )
 
 var (
-	boldMatchStyle   = tcell.StyleDefault.Foreground(tcell.ColorLightGreen).Background(tcell.ColorDefault).Underline(true).Bold(true)
-	boldRedStyle     = tcell.StyleDefault.Foreground(tcell.ColorDarkRed).Background(tcell.ColorDefault).Bold(true)
-	highlightDefault = tcell.StyleDefault.Foreground(tcell.ColorDefault).Background(tcell.ColorLightSlateGray)
-	highlightBold    = tcell.StyleDefault.Foreground(tcell.ColorLightCyan).Background(tcell.ColorLightSlateGray).Bold(true)
-	boldStyle        = tcell.StyleDefault.Bold(true)
-	titleStyle       = tcell.StyleDefault.Italic(true).Foreground(tcell.ColorOlive)
+	boldMatchStyle   = DefaultStyle.Foreground(tcell.ColorLightGreen).Underline(true).Bold(true)
+	boldRedStyle     = DefaultStyle.Foreground(tcell.ColorDarkRed).Bold(true)
+	highlightDefault = DefaultStyle.Foreground(tcell.ColorWhite).Background(tcell.NewRGBColor(58, 58, 58))
+	highlightBold    = highlightDefault.Foreground(tcell.ColorLightCyan).Bold(true)
+	boldStyle        = DefaultStyle.Bold(true)
+	titleStyle       = DefaultStyle.Italic(true).Foreground(tcell.NewRGBColor(236, 206, 88))
 )
 
 func NewFuzzyFind(title string, records []string) *FuzzyFind {
@@ -107,7 +107,7 @@ func (f *FuzzyFind) Draw(screen tcell.Screen) {
 	}
 	DrawText(screen, f.screenX-len(f.fuzzyStatus)-2, f.screenY-ResultsMarginBottom-f.MarginBottom+1, titleStyle, f.fuzzyStatus)
 	DrawText(screen, 0, f.screenY-1-f.MarginBottom, boldStyle, WriteIndicator)
-	DrawText(screen, 2, f.screenY-1-f.MarginBottom, tcell.StyleDefault, f.query)
+	DrawText(screen, 2, f.screenY-1-f.MarginBottom, DefaultStyle, f.query)
 	screen.ShowCursor(2+len(f.query), f.screenY-1-f.MarginBottom)
 }
 
@@ -179,7 +179,7 @@ func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
 	indexDelta := ClampInt(f.selected-row+SearchResultsPivot, 0, matchesLen-1)
 	for index := indexDelta; index < matchesLen && row > f.MarginTop; index++ {
 		match := f.matches[index]
-		currentStyleDefault = tcell.StyleDefault
+		currentStyleDefault = DefaultStyle
 		currentStyleBold = boldMatchStyle
 		if index == f.selected {
 			DrawText(screen, 0, row, boldRedStyle, WriteIndicator)

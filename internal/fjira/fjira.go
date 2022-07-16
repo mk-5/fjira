@@ -2,7 +2,6 @@ package fjira
 
 import (
 	"errors"
-	"github.com/gdamore/tcell/v2"
 	"github.com/mk5/fjira/internal/app"
 	"github.com/mk5/fjira/internal/jira"
 	"strings"
@@ -122,7 +121,7 @@ func (f *Fjira) SetApi(api jira.JiraApi) {
 func (f *Fjira) Run(args *CliArgs) {
 	x := app.ClampInt(f.app.ScreenX/2-18, 0, f.app.ScreenX)
 	y := app.ClampInt(f.app.ScreenY/2-4, 0, f.app.ScreenY)
-	welcomeText := app.NewText(x, y, tcell.StyleDefault, WelcomeMessage)
+	welcomeText := app.NewText(x, y, app.DefaultStyle, WelcomeMessage)
 	f.app.AddDrawable(welcomeText)
 	go f.bootstrap(args)
 	f.app.Start()

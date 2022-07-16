@@ -45,7 +45,7 @@ const (
 
 var (
 	AppBackground = tcell.NewRGBColor(22, 22, 22)
-	DefaultStyle  = tcell.StyleDefault.Background(AppBackground).Foreground(tcell.ColorDefault)
+	DefaultStyle  = tcell.StyleDefault.Background(AppBackground).Foreground(tcell.NewRGBColor(199, 199, 199))
 	appInstance   *App
 	once          sync.Once
 )

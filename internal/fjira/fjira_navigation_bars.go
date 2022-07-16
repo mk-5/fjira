@@ -20,13 +20,11 @@ const (
 )
 
 var (
-	BottomBarItemDefaultStyle  = app.DefaultStyle.Background(tcell.ColorSteelBlue)
+	BottomBarItemDefaultStyle  = app.DefaultStyle.Background(tcell.NewRGBColor(95, 135, 175)).Foreground(tcell.ColorWhite)
 	BottomBarActionBarItemBold = app.DefaultStyle.Bold(true).Foreground(tcell.ColorDarkKhaki)
-	BottomBarActionBarKeyBold  = BottomBarItemDefaultStyle.Bold(true).Foreground(app.AppBackground).Underline(true)
-	TopBarItemDefault          = app.DefaultStyle.Background(tcell.ColorDarkOliveGreen)
-	TopBarItemBold             = TopBarItemDefault.Bold(true).Foreground(tcell.ColorDarkKhaki) // DarkOrange looks good here as well
-	BarItemHighlightDefault    = app.DefaultStyle.Background(tcell.ColorGreenYellow)
-	BarItemHighlightBold       = BarItemHighlightDefault.Foreground(tcell.ColorDarkOrange)
+	BottomBarActionBarKeyBold  = BottomBarItemDefaultStyle.Foreground(tcell.NewRGBColor(21, 21, 21))
+	TopBarItemDefault          = app.DefaultStyle.Background(tcell.NewRGBColor(95, 135, 95)).Foreground(tcell.ColorWhite)
+	TopBarItemBold             = TopBarItemDefault.Foreground(app.AppBackground) // DarkOrange looks good here as well
 )
 
 func CreateProjectBottomBar() *app.ActionBar {
