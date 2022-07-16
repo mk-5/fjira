@@ -40,4 +40,13 @@ const (
 	MessageSummary                = "Summary"
 	MessageDescription            = "Description"
 	MessageLabels                 = "Labels"
+	MessageChangeStatus           = "Change status "
+	MessageByStatus               = "by status "
+	MessageByAssignee             = "by assignee "
+	MessageByLabel                = "by label "
+	MessageAssignUser             = "Assign user "
+	MessageComment                = "Comment "
+	MessageYes                    = "Yes "
+	MessageOpen                   = "Open "
+	MessageSave                   = "Save "
 )

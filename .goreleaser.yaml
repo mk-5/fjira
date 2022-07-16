@@ -77,3 +77,4 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^refactor:'

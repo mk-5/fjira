@@ -136,7 +136,7 @@ func NewCancelBarItem() *app.ActionBarItem {
 func NewStatusChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionStatusChange),
-		Text1:       "Change status ",
+		Text1:       MessageChangeStatus,
 		Text2:       "[s]",
 		Text1Style:  BottomBarItemDefaultStyle,
 		Text2Style:  BottomBarActionBarKeyBold,
@@ -148,7 +148,7 @@ func NewStatusChangeBarItem() *app.ActionBarItem {
 func NewByStatusBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionSearchByStatus),
-		Text1:      "by status ",
+		Text1:      MessageByStatus,
 		Text2:      "[F1]",
 		Text1Style: BottomBarItemDefaultStyle,
 		Text2Style: BottomBarActionBarKeyBold,
@@ -159,7 +159,7 @@ func NewByStatusBarItem() *app.ActionBarItem {
 func NewByAssigneeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionSearchByAssignee),
-		Text1:      "by assignee ",
+		Text1:      MessageByAssignee,
 		Text2:      "[F2]",
 		Text1Style: BottomBarItemDefaultStyle,
 		Text2Style: BottomBarActionBarKeyBold,
@@ -170,7 +170,7 @@ func NewByAssigneeBarItem() *app.ActionBarItem {
 func NewByLabelBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionSearchByLabel),
-		Text1:      "by label ",
+		Text1:      MessageByLabel,
 		Text2:      "[F3]",
 		Text1Style: BottomBarItemDefaultStyle,
 		Text2Style: BottomBarActionBarKeyBold,
@@ -181,7 +181,7 @@ func NewByLabelBarItem() *app.ActionBarItem {
 func NewAssigneeChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionAssigneeChange),
-		Text1:       "Assign user ",
+		Text1:       MessageAssignUser,
 		Text2:       "[a]",
 		Text1Style:  BottomBarItemDefaultStyle,
 		Text2Style:  BottomBarActionBarKeyBold,
@@ -193,7 +193,7 @@ func NewAssigneeChangeBarItem() *app.ActionBarItem {
 func CreateCommentBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionComment),
-		Text1:       "Comment ",
+		Text1:       MessageComment,
 		Text2:       "[c]",
 		Text1Style:  BottomBarItemDefaultStyle,
 		Text2Style:  BottomBarActionBarKeyBold,
@@ -205,7 +205,7 @@ func CreateCommentBarItem() *app.ActionBarItem {
 func NewYesBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionYes),
-		Text1:       "Yes ",
+		Text1:       MessageYes,
 		Text2:       "[y]",
 		Text1Style:  BottomBarItemDefaultStyle,
 		Text2Style:  BottomBarActionBarKeyBold,
@@ -216,7 +216,7 @@ func NewYesBarItem() *app.ActionBarItem {
 func NewOpenBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionOpen),
-		Text1:       "Open ",
+		Text1:       MessageOpen,
 		Text2:       "[o]",
 		Text1Style:  BottomBarItemDefaultStyle,
 		Text2Style:  BottomBarActionBarKeyBold,
@@ -227,7 +227,7 @@ func NewOpenBarItem() *app.ActionBarItem {
 func NewSaveBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:         int(ActionYes),
-		Text1:      "Save ",
+		Text1:      MessageSave,
 		Text2:      "[F1]",
 		Text1Style: BottomBarItemDefaultStyle,
 		Text2Style: BottomBarActionBarKeyBold,
