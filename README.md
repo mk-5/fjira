@@ -87,14 +87,14 @@ Fjira will ask you about Jira API url, and token if you run fjira for the very f
 
 ![Fjira First Run](demo_first_run.gif)
 
-Fjira workspace is a set of jira configuration data, and it's store in simple json file under `~/.fjira` directory.
+Fjira workspace is a set of jira configuration data, and it's kept in simple json file under `~/.fjira` directory.
 You can switch within multiple workspaces using `fjira workspace` command.
 
 ```shell
 fjira workspace
 ```
 
-It will open a fuzzy finder with all already configured workspaces.
+It will open a fuzzy finder with all available workspaces.
 In order to create a new workspace you need to use following command:
 
 ```shell
@@ -109,7 +109,7 @@ The projects search is a default view, just run `fjra` in order to open it.
 fjira
 ```
 
-### Open Jira project from cli
+### Open Jira project directly from cli
 
 You can open a project directly from cli.
 
@@ -119,7 +119,7 @@ fjira --project=PROJ
 
 The fjira app will skip projects search screen, and it'll go to the next screen with issues search.
 
-### Open Jira Issue from cli
+### Open Jira issue directly from cli
 
 ```shell
 fjira PROJ-123
@@ -131,7 +131,7 @@ The app will skip all the screens, and it'll go to the issue view directly.
 
 - More docs
 - Windows support
-- Support Linux package managers nonsense aka. Snapcraft, Deb, AUR
+- Support Linux packages managers nonsense aka. Snapcraft, Deb, AUR
 - More Jira features ;)
 
 #### Motivation
