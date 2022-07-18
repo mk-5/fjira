@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	EnvironmentsMissingErr    = errors.New("Cannot find " + JiraTokenEnv + " or " + JiraUsernameEnv + " or " + JiraRestUrlEnv + " environments. Please add them in order to use Jira REST API.")
+	EnvironmentsMissingErr    = errors.New("cannot find " + JiraTokenEnv + " or " + JiraUsernameEnv + " or " + JiraRestUrlEnv + " environments. Please add them in order to use Jira REST API")
 	WorkspaceFormatInvalidErr = errors.New("workspace name needs to match pattern [a-z0-9]{2,50}")
 	workspaceRegExp           = regexp.MustCompile("^[a-z0-9]{2,50}$")
 )
@@ -102,5 +102,7 @@ func readFromUserInputAndStore(workspace string) (*fjiraSettings, error) {
 	if err != nil {
 		return nil, err
 	}
+	workspaces := &userHomeWorkspaces{}
+	_ = workspaces.setCurrentWorkspace(workspace)
 	return settings, err
 }
