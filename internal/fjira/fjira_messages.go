@@ -1,7 +1,8 @@
 package fjira
 
 const (
-	MessageCreatingNewWorkspace   = "Preparing new workspace "
+	MessageCreateNewWorkspace     = "Create new workspace "
+	MessageEditWorkspace          = "Edit workspace "
 	MessageEnterUsername          = "Enter Jira username/email: "
 	MessageEnterJiraUrl           = "Enter Jira URL "
 	MessageEnterJiraUrlExample    = "[ex. https://my-jira.atlassian.net]: "

@@ -98,7 +98,13 @@ It will open a fuzzy finder with all available workspaces.
 In order to create a new workspace you need to use following command:
 
 ```shell
-fjira --new-workspace=otherworkspace
+fjira --new-workspace abc
+```
+
+You can edit existing workspace using `--edit-workspace` flag.
+
+```shell
+fjira --edit-workspace abc
 ```
 
 ### Projects search

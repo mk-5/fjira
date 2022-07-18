@@ -60,7 +60,7 @@ func readFromUserSettings(workspace string) (*fjiraSettings, error) {
 	return settings, err
 }
 
-func readFromUserInputAndStore(workspace string) (*fjiraSettings, error) {
+func readFromUserInputAndStore(workspace string, existingSettings *fjiraSettings) (*fjiraSettings, error) {
 	workspaceName := workspace
 	if workspace == EmptyWorkspace {
 		workspaceName = DefaultWorkspaceName
@@ -69,25 +69,39 @@ func readFromUserInputAndStore(workspace string) (*fjiraSettings, error) {
 	defer func() {
 		fmt.Print("\033[?1049l")
 	}()
-	fmt.Print(MessageCreatingNewWorkspace)
+	if existingSettings == nil {
+		fmt.Print(MessageCreateNewWorkspace)
+	} else {
+		fmt.Print(MessageEditWorkspace)
+	}
 	fmt.Println(color.CyanString(workspaceName))
 	fmt.Println("")
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print(color.HiYellowString(MessageQuestionMark))
 	fmt.Print(MessageEnterUsername)
+	if existingSettings != nil {
+		fmt.Print(color.BlueString("[%s] ", existingSettings.JiraUsername))
+	}
 	username, err := reader.ReadString('\n')
 	if err != nil {
 		return nil, err
 	}
 	fmt.Print(color.HiYellowString(MessageQuestionMark))
 	fmt.Print(MessageEnterJiraUrl)
-	fmt.Print(color.BlueString(MessageEnterJiraUrlExample))
+	if existingSettings != nil {
+		fmt.Print(color.BlueString("[%s] ", existingSettings.JiraRestUrl))
+	} else {
+		fmt.Print(color.BlueString(MessageEnterJiraUrlExample))
+	}
 	url, err := reader.ReadString('\n')
 	if err != nil {
 		return nil, err
 	}
 	fmt.Print(color.HiYellowString(MessageQuestionMark))
 	fmt.Print(MessageEnterJiraApiToken)
+	if existingSettings != nil {
+		fmt.Print(color.BlueString("[%s] ", existingSettings.JiraToken))
+	}
 	token, err := reader.ReadString('\n')
 	if err != nil {
 		return nil, err
@@ -97,6 +111,15 @@ func readFromUserInputAndStore(workspace string) (*fjiraSettings, error) {
 		JiraUsername: strings.TrimSuffix(username, "\n"),
 		JiraRestUrl:  strings.TrimSuffix(url, "\n"),
 	}
+	if existingSettings != nil && settings.JiraUsername == "" {
+		settings.JiraUsername = existingSettings.JiraUsername
+	}
+	if existingSettings != nil && settings.JiraToken == "" {
+		settings.JiraToken = existingSettings.JiraToken
+	}
+	if existingSettings != nil && settings.JiraRestUrl == "" {
+		settings.JiraRestUrl = existingSettings.JiraRestUrl
+	}
 	var settingsStorage = &userHomeSettingsStorage{}
 	err = settingsStorage.write(workspace, settings)
 	if err != nil {
@@ -105,4 +128,21 @@ func readFromUserInputAndStore(workspace string) (*fjiraSettings, error) {
 	workspaces := &userHomeWorkspaces{}
 	_ = workspaces.setCurrentWorkspace(workspace)
 	return settings, err
+}
+
+func readFromWorkspaceEdit(workspace string) (*fjiraSettings, error) {
+	var settingsStorage = &userHomeSettingsStorage{}
+	settings, err := settingsStorage.read(workspace)
+	if err != nil {
+		return nil, err
+	}
+	editedSettings, err := readFromUserInputAndStore(workspace, settings)
+	if err != nil {
+		return nil, err
+	}
+	err = settingsStorage.write(workspace, editedSettings)
+	if err != nil {
+		return nil, err
+	}
+	return editedSettings, nil
 }

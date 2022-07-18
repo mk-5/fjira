@@ -35,7 +35,8 @@ type CliArgs struct {
 	ProjectId       string
 	IssueKey        string
 	Workspace       string
-	SwitchWorkspace bool
+	WorkspaceSwitch bool
+	WorkspaceEdit   bool
 }
 
 var (
@@ -92,10 +93,17 @@ func GetJiraUrl() (string, error) {
 	return fjiraInstance.jiraUrl, nil
 }
 
-func Install(workspace string) (*fjiraSettings, error) {
-	err := validateWorkspaceName(workspace)
+func Install(args CliArgs) (*fjiraSettings, error) {
+	err := validateWorkspaceName(args.Workspace)
 	if err != nil {
 		return nil, err
+	}
+	if args.WorkspaceEdit {
+		settings, err := readFromWorkspaceEdit(args.Workspace)
+		if err != nil {
+			panic(err)
+		}
+		return settings, nil
 	}
 	settings, err := readFromEnvironments()
 	if err == nil {
@@ -104,9 +112,9 @@ func Install(workspace string) (*fjiraSettings, error) {
 	if err != EnvironmentsMissingErr {
 		return nil, err
 	}
-	settings2, err := readFromUserSettings(workspace)
+	settings2, err := readFromUserSettings(args.Workspace)
 	if err == WorkspaceNotFoundErr {
-		return readFromUserInputAndStore(workspace)
+		return readFromUserInputAndStore(args.Workspace, nil)
 	}
 	if err != nil {
 		return nil, err
@@ -136,6 +144,10 @@ func (f *Fjira) Close() {
 
 func (f *Fjira) bootstrap(args *CliArgs) {
 	defer f.app.PanicRecover()
+	if args.WorkspaceSwitch {
+		goIntoSwitchWorkspaceView()
+		return
+	}
 	if args.ProjectId != "" {
 		goIntoIssuesSearchForProject(args.ProjectId)
 		return
@@ -144,11 +156,7 @@ func (f *Fjira) bootstrap(args *CliArgs) {
 		goIntoIssueView(args.IssueKey)
 		return
 	}
-	if args.SwitchWorkspace {
-		goIntoSwitchWorkspaceView()
-		return
-	}
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(350 * time.Millisecond)
 	f.app.RunOnAppRoutine(func() {
 		goIntoProjectsSearch()
 	})
