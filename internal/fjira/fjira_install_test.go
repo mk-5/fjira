@@ -77,9 +77,11 @@ func Test_fjira_Close(t *testing.T) {
 func Test_readFromUserSettings(t *testing.T) {
 	// TODO - not working on windows
 	tempDir := t.TempDir()
-	os.Setenv("HOME", tempDir)
-	os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
-	defer os.Remove(tempDir + "/.fjira")
+	_ = os.Setenv("HOME", tempDir)
+	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
+	defer func(name string) {
+		_ = os.Remove(name)
+	}(tempDir + "/.fjira")
 
 	type args struct {
 		workspace               string
@@ -92,22 +94,23 @@ func Test_readFromUserSettings(t *testing.T) {
 		want *fjiraSettings
 	}{
 		{"should read user settings from current workspace",
-			args{workspace: "xyz", storedWorkspaceFilename: "_xyz.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test.atlassian.net\",\"jiraToken\":\"123\",\"jiraUsername\":\"test@test.pl\"}"},
+			args{workspace: "xyz", storedWorkspaceFilename: "xyz.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test.atlassian.net\",\"jiraToken\":\"123\",\"jiraUsername\":\"test@test.pl\"}"},
 			&fjiraSettings{JiraToken: "123", JiraUsername: "test@test.pl", JiraRestUrl: "https://test.atlassian.net"},
 		},
 		{"should read user settings from another workspace",
-			args{workspace: "abc", storedWorkspaceFilename: "_abc.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test\",\"jiraToken\":\"111\",\"jiraUsername\":\"test_user\"}"},
+			args{workspace: "abc", storedWorkspaceFilename: "abc.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test\",\"jiraToken\":\"111\",\"jiraUsername\":\"test_user\"}"},
 			&fjiraSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test"},
 		},
 		{"should read user settings from default workspace",
-			args{workspace: "", storedWorkspaceFilename: "_default.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test\",\"jiraToken\":\"111\",\"jiraUsername\":\"test_user\"}"},
+			args{workspace: "", storedWorkspaceFilename: "default.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test\",\"jiraToken\":\"111\",\"jiraUsername\":\"test_user\"}"},
 			&fjiraSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			file, _ := os.Create(tempDir + "/.fjira/" + tt.args.storedWorkspaceFilename) //nolint:errcheck
-			file.WriteString(tt.args.storedWorkspaceJson)                                //nolint:errcheck
+			_, _ = file.WriteString(tt.args.storedWorkspaceJson)                         //nolint:errcheck
+			_ = os.Symlink(tempDir+"/.fjira/_current.json", file.Name())                 //nolint:errcheck
 
 			got, _ := readFromUserSettings(tt.args.workspace)
 			assert2.Equalf(t, tt.want, got, "readFromUserSettings(%v)", tt.args.workspace)

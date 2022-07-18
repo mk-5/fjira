@@ -65,7 +65,7 @@ func (s *userHomeSettingsStorage) settingsFilePath(workspace string) (string, er
 	if workspace == EmptyWorkspace {
 		workspace = DefaultWorkspaceName
 	}
-	settingsFilename := fmt.Sprintf("_%s.json", workspace)
+	settingsFilename := fmt.Sprintf("%s.json", workspace)
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

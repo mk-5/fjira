@@ -1,6 +1,7 @@
 package fjira
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -22,7 +23,6 @@ func Test_userHomeWorkspaces_getWorkspaceFilepath(t *testing.T) {
 		want string
 	}{
 		{"should convert filename into filepath, not current", args{workspace: "test", current: false}, tempDir + "/.fjira/test.json"},
-		{"should convert filename into filepath, current", args{workspace: "test", current: true}, tempDir + "/.fjira/_test.json"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -80,10 +80,13 @@ func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 	// TODO - not working on windows
 	tempDir := t.TempDir()
-	os.Setenv("HOME", tempDir)
-	os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
-	os.Create(tempDir + "/.fjira/_xyz.json") //nolint:errcheck
-	defer os.Remove(tempDir + "/.fjira")
+	_ = os.Setenv("HOME", tempDir)
+	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm)                                //nolint:errcheck
+	_, _ = os.Create(tempDir + "/.fjira/xyz.json")                              //nolint:errcheck
+	_ = os.Symlink(tempDir+"/.fjira/xyz.json", tempDir+"/.fjira/_current.json") //nolint:errcheck
+	defer func(name string) {
+		_ = os.Remove(name)
+	}(tempDir + "/.fjira")
 
 	tests := []struct {
 		name    string
@@ -107,11 +110,14 @@ func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 func Test_userHomeWorkspaces_setCurrentWorkspace(t *testing.T) {
 	tempDir := t.TempDir()
 	// TODO - not working on windows
-	os.Setenv("HOME", tempDir)
-	os.Mkdir(tempDir+"/.fjira", os.ModePerm)     //nolint:errcheck
-	os.Create(tempDir + "/.fjira/_default.json") //nolint:errcheck
-	os.Create(tempDir + "/.fjira/yyy.json")      //nolint:errcheck
-	defer os.Remove(tempDir + "/.fjira")
+	_ = os.Setenv("HOME", tempDir)
+	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm)       //nolint:errcheck
+	_, _ = os.Create(tempDir + "/.fjira/default.json") //nolint:errcheck
+	_, _ = os.Create(tempDir + "/.fjira/yyy.json")     //nolint:errcheck
+	_ = os.Symlink(tempDir+"/.fjira/default.json", tempDir+"/.fjira/_current.json")
+	defer func(name string) {
+		_ = os.Remove(name)
+	}(tempDir + "/.fjira")
 
 	type args struct {
 		workspace string
@@ -126,12 +132,11 @@ func Test_userHomeWorkspaces_setCurrentWorkspace(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &userHomeWorkspaces{}
 			err := u.setCurrentWorkspace(tt.args.workspace)
-			_, err2 := os.Stat(tempDir + "/.fjira/_yyy.json")
-			_, err3 := os.Stat(tempDir + "/.fjira/_default.json")
+			path, err3 := os.Readlink(tempDir + "/.fjira/_current.json")
 
 			assert.Nil(t, err)
-			assert.Nil(t, err2)
-			assert.ErrorIs(t, err3, os.ErrNotExist)
+			assert.Nil(t, err3)
+			assert.Equal(t, fmt.Sprintf("%s/.fjira/%s.json", tempDir, tt.args.workspace), path)
 		})
 	}
 }
