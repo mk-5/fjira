@@ -44,10 +44,10 @@ func Test_shouldInstallWithoutErrorWhenInstallEnvironmentProps(t *testing.T) {
 	os.Setenv(JiraRestUrlEnv, "http://test.test")
 
 	// when
-	_, error := Install("abc")
+	_, err := Install(CliArgs{Workspace: "abc"})
 
 	// then
-	assert.NoError(error, "Should Install app without error when EnvironmentProps")
+	assert.NoError(err, "Should Install app without error when EnvironmentProps")
 }
 
 func Test_fjira_Close(t *testing.T) {
