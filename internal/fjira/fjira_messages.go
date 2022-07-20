@@ -50,4 +50,5 @@ const (
 	MessageYes                    = "Yes "
 	MessageOpen                   = "Open "
 	MessageSave                   = "Save "
+	MessageScroll                 = "Scroll "
 )
