@@ -11,9 +11,9 @@ import (
 	"time"
 )
 
-func TestNewAssignChangeView(t *testing.T) {
+func TestNewAddLabelView(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
-	screen.Init() //nolint:errcheck
+	_ = screen.Init()
 	defer screen.Fini()
 
 	type args struct {
@@ -23,7 +23,7 @@ func TestNewAssignChangeView(t *testing.T) {
 		name string
 		args args
 	}{
-		{"should initialize & draw assign user view", args{issue: &jira.JiraIssue{}}},
+		{"should initialize & draw add label view", args{issue: &jira.JiraIssue{Key: "ABC-123"}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -32,16 +32,26 @@ func TestNewAssignChangeView(t *testing.T) {
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				_, err := w.Write([]byte(`[{"id": "U1", "displayName": "Bob"}, {"id": "U2", "displayName": "John"}]`))
-				println(err)
+				body := `
+{
+    "maxResults": 1000,
+    "startAt": 0,
+    "total": 3,
+    "isLast": true,
+    "values": [
+        "TestLabel1", "TestLabel2"
+    ]
+}
+`
+				_, _ = w.Write([]byte(body))
 			})
 			_ = SetApi(api)
-			view := NewAssignChangeView(tt.args.issue)
+			view := NewAddLabelView(tt.args.issue)
 
 			// when
 			view.Init()
 			<-time.NewTimer(100 * time.Millisecond).C
-			query := "bob"
+			query := "label1"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
@@ -53,7 +63,7 @@ func TestNewAssignChangeView(t *testing.T) {
 			<-time.NewTimer(100 * time.Millisecond).C
 
 			var buffer bytes.Buffer
-			contents, x, y := screen.(tcell.SimulationScreen).GetContents()
+			contents, x, y := screen.GetContents()
 			screen.Show()
 			for i := 0; i < x*y; i++ {
 				buffer.Write(contents[i].Bytes)
@@ -61,49 +71,49 @@ func TestNewAssignChangeView(t *testing.T) {
 			result := buffer.String()
 
 			// then
-			assert.Contains(t, result, "Bob")
-			assert.NotContains(t, result, "John")
+			assert.Contains(t, result, "TestLabel1")
+			assert.NotContains(t, result, "TestLabel2")
 		})
 	}
 }
 
-func Test_fjiraAssignChangeView_doAssignmentChange(t *testing.T) {
+func Test_fjiraAddLabelView_doAddLabel(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
-	screen.Init() //nolint:errcheck
+	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 
 	type args struct {
 		issue *jira.JiraIssue
-		user  *jira.JiraUser
+		label string
 	}
 
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should send assign user request", args{issue: &jira.JiraIssue{Key: "ABC", Id: "123"}, user: &jira.JiraUser{DisplayName: "Bob", AccountId: "333"}}},
+		{"should send add label request", args{issue: &jira.JiraIssue{Key: "ABC", Id: "123"}, label: "testlabel1"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
-			view := NewAssignChangeView(tt.args.issue)
+			view := NewAddLabelView(tt.args.issue)
 
 			// when
-			assignUserRequestSent := make(chan bool)
+			addLabelRequestSent := make(chan bool)
 			_ = SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				_, _ = w.Write([]byte(`{}`))
+				_, _ = w.Write([]byte(``))
 
 				assert.Contains(t, r.RequestURI, tt.args.issue.Key)
-				assignUserRequestSent <- true
+				addLabelRequestSent <- true
 			}))
-			go view.doAssignmentChange(tt.args.issue, tt.args.user)
+			go view.doAddLabel(tt.args.issue, tt.args.label)
 
 			// then
 			select {
-			case <-assignUserRequestSent:
+			case <-addLabelRequestSent:
 			case <-time.After(3 * time.Second):
 				t.Fail()
 			}

@@ -14,6 +14,7 @@ type JiraApi interface {
 	FindUsers(project string) ([]JiraUser, error)
 	FindProjects() ([]JiraProject, error)
 	FindLabels() ([]string, error)
+	AddLabel(issueId string, label string) error
 	FindProject(projectKey string) (*JiraProject, error)
 	FindTransitions(issueId string) ([]JiraIssueTransition, error)
 	FindProjectStatuses(projectId string) ([]JiraIssueStatus, error)

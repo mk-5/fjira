@@ -1,6 +1,7 @@
 package jira
 
 import (
+	assert2 "github.com/stretchr/testify/assert"
 	"net/http"
 	"reflect"
 	"testing"
@@ -34,7 +35,7 @@ func Test_httpJiraApi_FindLabels(t *testing.T) {
     ]
 }
 `
-				w.Write([]byte(body)) //nolint:errcheck
+				_, _ = w.Write([]byte(body))
 			})
 			got, err := api.FindLabels()
 			if (err != nil) != tt.wantErr {
@@ -44,6 +45,30 @@ func Test_httpJiraApi_FindLabels(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("FindLabels() got = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func Test_httpJiraApi_AddLabel(t *testing.T) {
+	tests := []struct {
+		name     string
+		issueKey string
+		label    string
+		wantErr  bool
+	}{
+		{"should add label without error",
+			"PROJ-123", "Test", false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				body := ""
+				w.Write([]byte(body)) //nolint:errcheck
+			})
+			err := api.AddLabel(tt.issueKey, tt.label)
+			assert2.Nil(t, err)
 		})
 	}
 }

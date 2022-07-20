@@ -168,6 +168,10 @@ func (f *FuzzyFind) Resize(screenX, screenY int) {
 	f.screenY = screenY
 }
 
+func (f *FuzzyFind) GetQuery() string {
+	return f.query
+}
+
 func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
 	matchesLen := f.matches.Len()
 	if matchesLen == 0 {

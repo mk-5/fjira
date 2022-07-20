@@ -15,10 +15,13 @@ const (
 )
 
 func (api *httpJiraApi) DoComment(issueId string, commentBody string) error {
-	jsonBody, _ := json.Marshal(&commentRequestBody{
+	jsonBody, err := json.Marshal(&commentRequestBody{
 		Body: commentBody,
 	})
-	_, err := api.jiraRequest("POST", fmt.Sprintf(DoCommentIssueRestPath, issueId), &nilParams{}, strings.NewReader(string(jsonBody)))
+	if err != nil {
+		return err
+	}
+	_, err = api.jiraRequest("POST", fmt.Sprintf(DoCommentIssueRestPath, issueId), &nilParams{}, strings.NewReader(string(jsonBody)))
 	if err != nil {
 		return err
 	}

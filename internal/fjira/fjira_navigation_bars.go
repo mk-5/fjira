@@ -17,6 +17,7 @@ const (
 	ActionEscape
 	ActionOpen
 	ActionYes
+	ActionAddLabel
 )
 
 var (
@@ -183,7 +184,7 @@ func NewAssigneeChangeBarItem() *app.ActionBarItem {
 		Text2:       "[a]",
 		Text1Style:  BottomBarItemDefaultStyle,
 		Text2Style:  BottomBarActionBarKeyBold,
-		TriggerKey:  tcell.KeyF2,
+		TriggerKey:  -1,
 		TriggerRune: 'a',
 	}
 }
@@ -195,8 +196,20 @@ func CreateCommentBarItem() *app.ActionBarItem {
 		Text2:       "[c]",
 		Text1Style:  BottomBarItemDefaultStyle,
 		Text2Style:  BottomBarActionBarKeyBold,
-		TriggerKey:  tcell.KeyF2,
+		TriggerKey:  -1,
 		TriggerRune: 'c',
+	}
+}
+
+func CreateAddLabelBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(ActionAddLabel),
+		Text1:       MessageLabel,
+		Text2:       "[l]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
+		TriggerKey:  tcell.KeyF2,
+		TriggerRune: 'l',
 	}
 }
 
