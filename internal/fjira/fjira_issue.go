@@ -47,6 +47,7 @@ func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
 	bottomBar.AddItem(NewStatusChangeBarItem())
 	bottomBar.AddItem(NewAssigneeChangeBarItem())
 	bottomBar.AddItem(CreateCommentBarItem())
+	bottomBar.AddItem(CreateAddLabelBarItem())
 	bottomBar.AddItem(NewOpenBarItem())
 	bottomBar.AddItem(CreateScrollBarItem())
 	bottomBar.AddItem(NewCancelBarItem())
@@ -166,6 +167,9 @@ func (view *fjiraIssueView) handleIssueAction() {
 			return
 		case ActionComment:
 			goIntoCommentView(view.issue)
+			return
+		case ActionAddLabel:
+			goIntoAddLabelView(view.issue)
 			return
 		case ActionOpen:
 			jiraUrl, _ := GetJiraUrl()

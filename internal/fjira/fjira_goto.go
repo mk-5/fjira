@@ -59,6 +59,11 @@ func goIntoCommentView(issue *jira.JiraIssue) {
 	app.GetApp().SetView(commentView)
 }
 
+func goIntoAddLabelView(issue *jira.JiraIssue) {
+	commentView := NewAddLabelView(issue)
+	app.GetApp().SetView(commentView)
+}
+
 func goIntoSwitchWorkspaceView() {
 	switchWorkspaceView := NewSwitchWorkspaceView()
 	app.GetApp().SetView(switchWorkspaceView)

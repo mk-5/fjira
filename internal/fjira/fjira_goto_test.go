@@ -83,6 +83,13 @@ func Test_goIntoValidScreen(t *testing.T) {
 				return ok
 			},
 		}},
+		{"should switch view into add label view", args{
+			gotoMethod: func() { goIntoAddLabelView(&jira.JiraIssue{}) },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraAddLabelView)
+				return ok
+			},
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
