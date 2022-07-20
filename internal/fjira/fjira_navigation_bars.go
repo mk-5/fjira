@@ -80,7 +80,7 @@ func CreateSearchIssuesTopBar(project *jira.JiraProject) *app.ActionBar {
 	return actionBar
 }
 
-func CreateIssueBottomBar(issue *jira.JiraIssue) *app.ActionBar {
+func CreateIssueBottomBar() *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	return actionBar
 }
@@ -197,6 +197,17 @@ func CreateCommentBarItem() *app.ActionBarItem {
 		Text2Style:  BottomBarActionBarKeyBold,
 		TriggerKey:  tcell.KeyF2,
 		TriggerRune: 'c',
+	}
+}
+
+func CreateScrollBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Text1:       MessageScroll,
+		Text2:       "[↑↓]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
+		TriggerKey:  -1,
+		TriggerRune: -1,
 	}
 }
 

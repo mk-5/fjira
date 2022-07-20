@@ -43,11 +43,12 @@ const (
 )
 
 func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
-	bottomBar := CreateIssueBottomBar(issue)
+	bottomBar := CreateIssueBottomBar()
 	bottomBar.AddItem(NewStatusChangeBarItem())
 	bottomBar.AddItem(NewAssigneeChangeBarItem())
 	bottomBar.AddItem(CreateCommentBarItem())
 	bottomBar.AddItem(NewOpenBarItem())
+	bottomBar.AddItem(CreateScrollBarItem())
 	bottomBar.AddItem(NewCancelBarItem())
 
 	issueActionBar := CreateIssueTopBar(issue)
