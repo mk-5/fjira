@@ -13,13 +13,13 @@ import (
 
 func TestNewCommentView(t *testing.T) {
 	type args struct {
-		issue *jira.JiraIssue
+		issue *jira.Issue
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should create new comment view", args{issue: &jira.JiraIssue{}}},
+		{"should create new comment view", args{issue: &jira.Issue{}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -36,7 +36,7 @@ func Test_fjiraCommentView_Destroy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := NewCommentView(&jira.JiraIssue{})
+			view := NewCommentView(&jira.Issue{})
 			view.Destroy()
 		})
 	}
@@ -57,7 +57,7 @@ func Test_fjiraCommentView_Draw(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := NewCommentView(&jira.JiraIssue{})
+			view := NewCommentView(&jira.Issue{})
 			view.text = "Comment text"
 
 			// when
@@ -101,7 +101,7 @@ func Test_fjiraCommentView_HandleKeyEvent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := NewCommentView(&jira.JiraIssue{})
+			view := NewCommentView(&jira.Issue{})
 
 			// when
 			for _, key := range tt.args.ev {
@@ -136,7 +136,7 @@ func Test_fjiraCommentView_Init(t *testing.T) {
 				done <- true
 			})
 			SetApi(api) //nolint:errcheck
-			view := NewCommentView(&jira.JiraIssue{})
+			view := NewCommentView(&jira.Issue{})
 
 			// when
 			view.Init()
@@ -165,7 +165,7 @@ func Test_fjiraCommentView_Resize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := NewCommentView(&jira.JiraIssue{})
+			view := NewCommentView(&jira.Issue{})
 			view.Resize(tt.args.screenX, tt.args.screenY)
 		})
 	}
@@ -179,7 +179,7 @@ func Test_fjiraCommentView_Update(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := NewCommentView(&jira.JiraIssue{})
+			view := NewCommentView(&jira.Issue{})
 			view.Update()
 		})
 	}

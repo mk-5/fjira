@@ -26,7 +26,7 @@ var FjiraNotInitalizedErr = errors.New("Cannot use fjira. You need to call Creat
 
 type Fjira struct {
 	app       *app.App
-	api       jira.JiraApi
+	api       jira.Api
 	formatter FjiraFormatter
 	jiraUrl   string
 }
@@ -50,7 +50,7 @@ func CreateNewFjira(settings *fjiraSettings) *Fjira {
 	}
 	fjiraOnce.Do(func() {
 		url := strings.TrimSuffix(settings.JiraRestUrl, "/")
-		api, err := jira.NewJiraApi(url, settings.JiraUsername, settings.JiraToken)
+		api, err := jira.NewApi(url, settings.JiraUsername, settings.JiraToken)
 		if err != nil {
 			app.Error(err.Error())
 		}
@@ -64,14 +64,14 @@ func CreateNewFjira(settings *fjiraSettings) *Fjira {
 	return fjiraInstance
 }
 
-func GetApi() (jira.JiraApi, error) {
+func GetApi() (jira.Api, error) {
 	if fjiraInstance == nil {
 		return nil, FjiraNotInitalizedErr
 	}
 	return fjiraInstance.api, nil
 }
 
-func SetApi(api jira.JiraApi) error {
+func SetApi(api jira.Api) error {
 	if fjiraInstance == nil {
 		return FjiraNotInitalizedErr
 	}
@@ -122,7 +122,7 @@ func Install(args CliArgs) (*fjiraSettings, error) {
 	return settings2, nil
 }
 
-func (f *Fjira) SetApi(api jira.JiraApi) {
+func (f *Fjira) SetApi(api jira.Api) {
 	f.api = api
 }
 

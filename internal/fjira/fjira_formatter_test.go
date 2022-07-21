@@ -10,10 +10,10 @@ func Test_shouldFormatProjects(t *testing.T) {
 	assert := assert.New(t)
 	// given
 	formatter := defaultFormatter{}
-	issues := []jira.JiraIssue{
-		jira.JiraIssue{
+	issues := []jira.Issue{
+		jira.Issue{
 			Key: "TEST-123",
-			Fields: jira.JiraIssueFields{
+			Fields: jira.IssueFields{
 				Summary: "Test issue",
 				Status: struct {
 					Name string `json:"name"`

@@ -26,12 +26,12 @@ const (
 	DoLabelRestPath = "/rest/api/2/issue/%s"
 )
 
-func (api *httpJiraApi) FindLabels(issue *JiraIssue, query string) ([]string, error) {
+func (api *httpApi) FindLabels(issue *Issue, query string) ([]string, error) {
 	response, err := api.jiraRequest("GET", fmt.Sprintf(LabelsJira, url.QueryEscape(issue.Id)), &findLabelsQueryParams{Query: query}, nil)
 	if err != nil {
 		return nil, err
 	}
-	var responseBody JiraLabelsSuggestionsResponseBody
+	var responseBody LabelsSuggestionsResponseBody
 	if err := json.Unmarshal(response, &responseBody); err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (api *httpJiraApi) FindLabels(issue *JiraIssue, query string) ([]string, er
 	return labels, nil
 }
 
-func (api *httpJiraApi) AddLabel(issueId string, label string) error {
+func (api *httpApi) AddLabel(issueId string, label string) error {
 	request := &labelRequestBody{}
 	request.Update.Labels = make([]labelAdd, 0, 1)
 	request.Update.Labels = append(request.Update.Labels, labelAdd{Add: label})

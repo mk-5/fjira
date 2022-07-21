@@ -14,7 +14,7 @@ const (
 	DoCommentIssueRestPath = "/rest/api/2/issue/%s/comment"
 )
 
-func (api *httpJiraApi) DoComment(issueId string, commentBody string) error {
+func (api *httpApi) DoComment(issueId string, commentBody string) error {
 	jsonBody, err := json.Marshal(&commentRequestBody{
 		Body: commentBody,
 	})

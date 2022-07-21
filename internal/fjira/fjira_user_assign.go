@@ -12,10 +12,10 @@ type fjiraAssignChangeView struct {
 	bottomBar *app.ActionBar
 	topBar    *app.ActionBar
 	fuzzyFind *app.FuzzyFind
-	issue     *jira.JiraIssue
+	issue     *jira.Issue
 }
 
-func NewAssignChangeView(issue *jira.JiraIssue) *fjiraAssignChangeView {
+func NewAssignChangeView(issue *jira.Issue) *fjiraAssignChangeView {
 	return &fjiraAssignChangeView{
 		issue:     issue,
 		topBar:    CreateIssueTopBar(issue),
@@ -81,7 +81,7 @@ func (view *fjiraAssignChangeView) startUsersSearching() {
 	}
 }
 
-func (view *fjiraAssignChangeView) findUser(project string) []jira.JiraUser {
+func (view *fjiraAssignChangeView) findUser(project string) []jira.User {
 	api, _ := GetApi()
 	users, err := api.FindUsers(project)
 	if err != nil {
@@ -90,7 +90,7 @@ func (view *fjiraAssignChangeView) findUser(project string) []jira.JiraUser {
 	return users
 }
 
-func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.JiraIssue, user *jira.JiraUser) {
+func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.Issue, user *jira.User) {
 	if user == nil {
 		app.GetApp().SetView(NewIssueView(view.issue))
 		return
@@ -110,7 +110,7 @@ func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.JiraIssue, use
 	}
 }
 
-func (view fjiraAssignChangeView) doAssignmentChange(issue *jira.JiraIssue, user *jira.JiraUser) {
+func (view fjiraAssignChangeView) doAssignmentChange(issue *jira.Issue, user *jira.User) {
 	app.GetApp().LoadingWithText(true, MessageAssigningUser)
 	api, _ := GetApi()
 	err := api.DoAssignee(issue.Key, user.AccountId)

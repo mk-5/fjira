@@ -15,7 +15,7 @@ type fjiraIssueView struct {
 	bottomBar         *app.ActionBar
 	topBar            *app.ActionBar
 	fuzzyFind         *app.FuzzyFind
-	issue             *jira.JiraIssue
+	issue             *jira.Issue
 	descriptionLimitX int
 	descriptionLimitY int
 	scrollY           int
@@ -42,7 +42,7 @@ const (
 	labelsDelimiter = " | "
 )
 
-func NewIssueView(issue *jira.JiraIssue) *fjiraIssueView {
+func NewIssueView(issue *jira.Issue) *fjiraIssueView {
 	bottomBar := CreateIssueBottomBar()
 	bottomBar.AddItem(NewStatusChangeBarItem())
 	bottomBar.AddItem(NewAssigneeChangeBarItem())
@@ -181,7 +181,7 @@ func (view *fjiraIssueView) handleIssueAction() {
 }
 
 // TODO - could be optimized a bit
-func parseComments(issue *jira.JiraIssue, limitX, limitY int) []struct {
+func parseComments(issue *jira.Issue, limitX, limitY int) []struct {
 	body  string
 	title string
 	lines int

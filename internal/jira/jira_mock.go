@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 )
 
-func NewJiraApiMock(handler func(w http.ResponseWriter, r *http.Request)) JiraApi {
+func NewJiraApiMock(handler func(w http.ResponseWriter, r *http.Request)) Api {
 	stubServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if handler != nil {
 			handler(w, r)
@@ -14,7 +14,7 @@ func NewJiraApiMock(handler func(w http.ResponseWriter, r *http.Request)) JiraAp
 		w.WriteHeader(200)
 		w.Write([]byte("")) //nolint:errcheck
 	}))
-	api, err := NewJiraApi(stubServer.URL, "test", "test")
+	api, err := NewApi(stubServer.URL, "test", "test")
 	if err != nil {
 		panic(err)
 	}

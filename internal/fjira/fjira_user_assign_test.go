@@ -17,13 +17,13 @@ func TestNewAssignChangeView(t *testing.T) {
 	defer screen.Fini()
 
 	type args struct {
-		issue *jira.JiraIssue
+		issue *jira.Issue
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should initialize & draw assign user view", args{issue: &jira.JiraIssue{}}},
+		{"should initialize & draw assign user view", args{issue: &jira.Issue{}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -73,15 +73,15 @@ func Test_fjiraAssignChangeView_doAssignmentChange(t *testing.T) {
 	defer screen.Fini()
 
 	type args struct {
-		issue *jira.JiraIssue
-		user  *jira.JiraUser
+		issue *jira.Issue
+		user  *jira.User
 	}
 
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should send assign user request", args{issue: &jira.JiraIssue{Key: "ABC", Id: "123"}, user: &jira.JiraUser{DisplayName: "Bob", AccountId: "333"}}},
+		{"should send assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, user: &jira.User{DisplayName: "Bob", AccountId: "333"}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

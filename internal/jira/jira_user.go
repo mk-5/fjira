@@ -17,7 +17,7 @@ type findUserQueryParams struct {
 	MaxResults int    `url:"maxResults"`
 }
 
-func (api httpJiraApi) FindUsers(project string) ([]JiraUser, error) {
+func (api httpApi) FindUsers(project string) ([]User, error) {
 	queryParams := &findUserQueryParams{
 		Project:    project,
 		MaxResults: 10000,
@@ -26,7 +26,7 @@ func (api httpJiraApi) FindUsers(project string) ([]JiraUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	var users []JiraUser
+	var users []User
 	if err := json.Unmarshal(response, &users); err != nil {
 		app.Error(err.Error())
 		return nil, UserSearchDeserializeErr

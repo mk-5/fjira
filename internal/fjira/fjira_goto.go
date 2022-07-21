@@ -26,7 +26,7 @@ func goIntoIssuesSearchForProject(projectKey string) {
 	app.GetApp().SetView(projectsView)
 }
 
-func goIntoIssuesSearch(project *jira.JiraProject) {
+func goIntoIssuesSearch(project *jira.Project) {
 	issuesSearchView := NewIssuesSearchView(project)
 	app.GetApp().SetView(issuesSearchView)
 }
@@ -44,22 +44,22 @@ func goIntoIssueView(issueKey string) {
 	app.GetApp().SetView(issueView)
 }
 
-func goIntoChangeStatus(issue *jira.JiraIssue) {
+func goIntoChangeStatus(issue *jira.Issue) {
 	statusChangeView := NewStatusChangeView(issue)
 	app.GetApp().SetView(statusChangeView)
 }
 
-func goIntoChangeAssignment(issue *jira.JiraIssue) {
+func goIntoChangeAssignment(issue *jira.Issue) {
 	assignChangeView := NewAssignChangeView(issue)
 	app.GetApp().SetView(assignChangeView)
 }
 
-func goIntoCommentView(issue *jira.JiraIssue) {
+func goIntoCommentView(issue *jira.Issue) {
 	commentView := NewCommentView(issue)
 	app.GetApp().SetView(commentView)
 }
 
-func goIntoAddLabelView(issue *jira.JiraIssue) {
+func goIntoAddLabelView(issue *jira.Issue) {
 	commentView := NewAddLabelView(issue)
 	app.GetApp().SetView(commentView)
 }

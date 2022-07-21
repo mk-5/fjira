@@ -17,13 +17,13 @@ func TestNewAddLabelView(t *testing.T) {
 	defer screen.Fini()
 
 	type args struct {
-		issue *jira.JiraIssue
+		issue *jira.Issue
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should initialize & draw add label view", args{issue: &jira.JiraIssue{Key: "ABC-123"}}},
+		{"should initialize & draw add label view", args{issue: &jira.Issue{Key: "ABC-123"}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -87,7 +87,7 @@ func Test_fjiraAddLabelView_doAddLabel(t *testing.T) {
 	defer screen.Fini()
 
 	type args struct {
-		issue *jira.JiraIssue
+		issue *jira.Issue
 		label string
 	}
 
@@ -95,7 +95,7 @@ func Test_fjiraAddLabelView_doAddLabel(t *testing.T) {
 		name string
 		args args
 	}{
-		{"should send add label request", args{issue: &jira.JiraIssue{Key: "ABC", Id: "123"}, label: "testlabel1"}},
+		{"should send add label request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, label: "testlabel1"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

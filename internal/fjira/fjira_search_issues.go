@@ -12,11 +12,11 @@ type fjiraSearchIssuesView struct {
 	bottomBar    *app.ActionBar
 	topBar       *app.ActionBar
 	fuzzyFind    *app.FuzzyFind
-	project      *jira.JiraProject
+	project      *jira.Project
 	currentQuery string
 	screenX      int
 	screenY      int
-	issues       []jira.JiraIssue
+	issues       []jira.Issue
 	labels       []string
 	queryDirty   bool
 }
@@ -30,12 +30,12 @@ const (
 
 var (
 	issueRegExp     = regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
-	searchForStatus *jira.JiraIssueStatus // global in order to keep status&user between views
-	searchForUser   *jira.JiraUser
+	searchForStatus *jira.IssueStatus // global in order to keep status&user between views
+	searchForUser   *jira.User
 	searchForLabel  string
 )
 
-func NewIssuesSearchView(project *jira.JiraProject) *fjiraSearchIssuesView {
+func NewIssuesSearchView(project *jira.Project) *fjiraSearchIssuesView {
 	bottomBar := CreateSearchIssuesBottomBar()
 	topBar := CreateSearchIssuesTopBar(project)
 	return &fjiraSearchIssuesView{
@@ -161,7 +161,7 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 	app.GetApp().Loading(true)
 	formatter, _ := GetFormatter()
 	statuses := view.fetchStatuses(view.project.Id)
-	statuses = append(statuses, jira.JiraIssueStatus{Name: MessageAll})
+	statuses = append(statuses, jira.IssueStatus{Name: MessageAll})
 	statusesStrings := formatter.formatJiraStatuses(statuses)
 	view.fuzzyFind = app.NewFuzzyFind(MessageStatusFuzzyFind, statusesStrings)
 	app.GetApp().Loading(false)
@@ -181,7 +181,7 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 	app.GetApp().Loading(true)
 	formatter, _ := GetFormatter()
 	users := view.fetchUsers(view.project.Id)
-	users = append(users, jira.JiraUser{DisplayName: MessageAll})
+	users = append(users, jira.User{DisplayName: MessageAll})
 	usersStrings := formatter.formatJiraUsers(users)
 	view.fuzzyFind = app.NewFuzzyFind(MessageSelectUser, usersStrings)
 	app.GetApp().Loading(false)
@@ -212,7 +212,7 @@ func (view *fjiraSearchIssuesView) runSelectLabel() {
 	}
 }
 
-func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.JiraIssue {
+func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.Issue {
 	q := strings.TrimSpace(query)
 	api, _ := GetApi()
 	jql := buildSearchIssuesJql(view.project, q, searchForStatus, searchForUser, searchForLabel)
@@ -223,7 +223,7 @@ func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.JiraIssu
 	return issues
 }
 
-func (view *fjiraSearchIssuesView) fetchStatuses(projectId string) []jira.JiraIssueStatus {
+func (view *fjiraSearchIssuesView) fetchStatuses(projectId string) []jira.IssueStatus {
 	api, _ := GetApi()
 	app.GetApp().Loading(true)
 	statuses, err := api.FindProjectStatuses(projectId)
@@ -234,7 +234,7 @@ func (view *fjiraSearchIssuesView) fetchStatuses(projectId string) []jira.JiraIs
 	return statuses
 }
 
-func (view *fjiraSearchIssuesView) fetchUsers(projectId string) []jira.JiraUser {
+func (view *fjiraSearchIssuesView) fetchUsers(projectId string) []jira.User {
 	api, _ := GetApi()
 	users, err := api.FindUsers(projectId)
 	if err != nil {

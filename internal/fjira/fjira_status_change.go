@@ -12,10 +12,10 @@ type fjiraStatusChangeView struct {
 	topBar    *app.ActionBar
 	bottomBar *app.ActionBar
 	fuzzyFind *app.FuzzyFind
-	issue     *jira.JiraIssue
+	issue     *jira.Issue
 }
 
-func NewStatusChangeView(issue *jira.JiraIssue) *fjiraStatusChangeView {
+func NewStatusChangeView(issue *jira.Issue) *fjiraStatusChangeView {
 	return &fjiraStatusChangeView{
 		issue:     issue,
 		topBar:    CreateIssueTopBar(issue),
@@ -82,7 +82,7 @@ func (view *fjiraStatusChangeView) startStatusSearching() {
 	}
 }
 
-func (view *fjiraStatusChangeView) changeStatusTo(status *jira.JiraIssueTransition) {
+func (view *fjiraStatusChangeView) changeStatusTo(status *jira.IssueTransition) {
 	message := fmt.Sprintf(MessageChangingStatusTo, view.issue.Key, status.Name)
 	app.GetApp().ClearNow()
 	//view.bottomBar.AddItem(NewNewStatusBarItem(status.Name))
@@ -98,13 +98,13 @@ func (view *fjiraStatusChangeView) changeStatusTo(status *jira.JiraIssueTransiti
 	}
 }
 
-func (view *fjiraStatusChangeView) transitions(issueId string) []jira.JiraIssueTransition {
+func (view *fjiraStatusChangeView) transitions(issueId string) []jira.IssueTransition {
 	api, _ := GetApi()
 	transitions, _ := api.FindTransitions(issueId)
 	return transitions
 }
 
-func (view *fjiraStatusChangeView) changeStatusForTicket(issue *jira.JiraIssue, status *jira.JiraIssueTransition) {
+func (view *fjiraStatusChangeView) changeStatusForTicket(issue *jira.Issue, status *jira.IssueTransition) {
 	app.GetApp().ClearNow()
 	app.GetApp().LoadingWithText(true, MessageChangingStatus)
 	api, _ := GetApi()

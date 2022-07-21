@@ -13,17 +13,17 @@ func Test_httpJiraApi_GetIssueDetailed(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *JiraIssue
+		want    *Issue
 		wantErr bool
 	}{
 		{"should get detailed jira issue",
 			args{id: "10011"},
-			&JiraIssue{
+			&Issue{
 				Key: "JWC-3", Id: "10011",
-				Fields: JiraIssueFields{
+				Fields: IssueFields{
 					Summary:     "Tutorial - create tutorial",
 					Description: "Lorem ipsum",
-					Project:     JiraProject{Id: "10003", Name: "JIRA WORK CHART", Key: "JWC"},
+					Project:     Project{Id: "10003", Name: "JIRA WORK CHART", Key: "JWC"},
 					Reporter: struct {
 						AccountId   string `json:"accountId"`
 						DisplayName string `json:"displayName"`
@@ -38,24 +38,24 @@ func Test_httpJiraApi_GetIssueDetailed(t *testing.T) {
 						AccountId   string
 						DisplayName string
 					}{"", ""}),
-					Type:   JiraIssueType{Name: "Task"},
+					Type:   IssueType{Name: "Task"},
 					Labels: []string{"TestLabel"},
 					Status: struct {
 						Name string `json:"name"`
 					}(struct{ Name string }{"Done"}),
 					Comment: struct {
-						Comments   []JiraComment `json:"comments"`
-						MaxResults int32         `json:"maxResults"`
-						Total      int32         `json:"total"`
-						StartAt    int32         `json:"startAt"`
+						Comments   []Comment `json:"comments"`
+						MaxResults int32     `json:"maxResults"`
+						Total      int32     `json:"total"`
+						StartAt    int32     `json:"startAt"`
 					}(struct {
-						Comments   []JiraComment
+						Comments   []Comment
 						MaxResults int32
 						Total      int32
 						StartAt    int32
 					}{
-						Comments: []JiraComment{
-							{Body: "Comment 123-ABC", Created: "2022-06-09T22:53:42.057+0200", Author: JiraUser{DisplayName: "Mateusz Kulawik"}},
+						Comments: []Comment{
+							{Body: "Comment 123-ABC", Created: "2022-06-09T22:53:42.057+0200", Author: User{DisplayName: "Mateusz Kulawik"}},
 						},
 						MaxResults: 1, Total: 1, StartAt: 0},
 					),
