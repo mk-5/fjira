@@ -17,6 +17,7 @@ type fjiraSearchIssuesView struct {
 	screenX      int
 	screenY      int
 	issues       []jira.JiraIssue
+	labels       []string
 	queryDirty   bool
 }
 
@@ -105,7 +106,7 @@ func (view *fjiraSearchIssuesView) HandleKeyEvent(ev *tcell.EventKey) {
 
 func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 	a := app.GetApp()
-	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageSelectIssue, view.provideIssue)
+	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageSelectIssue, view.findIssues)
 	view.fuzzyFind.MarginBottom = 1
 	a.Loading(false)
 	a.ClearNow()
@@ -122,7 +123,7 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 	}
 }
 
-func (view *fjiraSearchIssuesView) provideIssue(query string) []string {
+func (view *fjiraSearchIssuesView) findIssues(query string) []string {
 	formatter, _ := GetFormatter()
 	a := app.GetApp()
 
@@ -198,14 +199,12 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 func (view *fjiraSearchIssuesView) runSelectLabel() {
 	app.GetApp().ClearNow()
 	app.GetApp().Loading(true)
-	labels := view.fetchLabels()
-	labels = append(labels, MessageAll)
-	view.fuzzyFind = app.NewFuzzyFind(MessageSelectLabel, labels)
+	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageSelectLabel, view.findLabels)
 	app.GetApp().Loading(false)
 	if label := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if label.Index >= 0 {
-			searchForLabel = labels[label.Index]
+			searchForLabel = view.labels[label.Index]
 			view.queryDirty = true
 		}
 		go view.runIssuesFuzzyFind()
@@ -244,9 +243,12 @@ func (view *fjiraSearchIssuesView) fetchUsers(projectId string) []jira.JiraUser 
 	return users
 }
 
-func (view *fjiraSearchIssuesView) fetchLabels() []string {
+func (view *fjiraSearchIssuesView) findLabels(query string) []string {
 	api, _ := GetApi()
-	labels, err := api.FindLabels()
+	app.GetApp().LoadingWithText(true, MessageSearchLabelsLoading)
+	labels, err := api.FindLabels(&view.issues[0], query)
+	labels = append(labels, MessageAll)
+	app.GetApp().Loading(false)
 	if err != nil {
 		app.Error(err.Error())
 	}

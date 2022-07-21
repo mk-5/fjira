@@ -18,6 +18,7 @@ const (
 	MessageLabelLabel             = "Label: "
 	MessageLabelReporter          = "Reporter: "
 	MessageSearchIssuesLoading    = "Fetching"
+	MessageSearchLabelsLoading    = "Fetching"
 	MessageSelectIssue            = "Select issue or ESC to cancel"
 	MessageSelectUser             = "Select user or ESC to cancel"
 	MessageSelectLabel            = "Select label or ESC to cancel"

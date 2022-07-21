@@ -17,21 +17,29 @@ type labelAdd struct {
 	Add string `json:"add"`
 }
 
+type findLabelsQueryParams struct {
+	Query string `url:"query"`
+}
+
 const (
-	LabelsJira      = "/rest/api/2/label"
+	LabelsJira      = "/rest/api/1.0/labels/%s/suggest"
 	DoLabelRestPath = "/rest/api/2/issue/%s"
 )
 
-func (api *httpJiraApi) FindLabels() ([]string, error) {
-	response, err := api.jiraRequest("GET", LabelsJira, nil, nil)
+func (api *httpJiraApi) FindLabels(issue *JiraIssue, query string) ([]string, error) {
+	response, err := api.jiraRequest("GET", fmt.Sprintf(LabelsJira, url.QueryEscape(issue.Id)), &findLabelsQueryParams{Query: query}, nil)
 	if err != nil {
 		return nil, err
 	}
-	var labels JiraLabelsResponse
-	if err := json.Unmarshal(response, &labels); err != nil {
+	var responseBody JiraLabelsSuggestionsResponseBody
+	if err := json.Unmarshal(response, &responseBody); err != nil {
 		return nil, err
 	}
-	return labels.Values, nil
+	labels := make([]string, 0, len(responseBody.Suggestions))
+	for _, label := range responseBody.Suggestions {
+		labels = append(labels, label.Label)
+	}
+	return labels, nil
 }
 
 func (api *httpJiraApi) AddLabel(issueId string, label string) error {
