@@ -22,12 +22,17 @@ type findLabelsQueryParams struct {
 }
 
 const (
-	LabelsJira      = "/rest/api/1.0/labels/%s/suggest"
-	DoLabelRestPath = "/rest/api/2/issue/%s"
+	LabelsForIssuePath   = "/rest/api/1.0/labels/%s/suggest"
+	LabelsForProjectPath = "/rest/api/1.0/labels/suggest"
+	DoLabelPath          = "/rest/api/2/issue/%s"
 )
 
 func (api *httpApi) FindLabels(issue *Issue, query string) ([]string, error) {
-	response, err := api.jiraRequest("GET", fmt.Sprintf(LabelsJira, url.QueryEscape(issue.Id)), &findLabelsQueryParams{Query: query}, nil)
+	path := LabelsForProjectPath
+	if issue != nil {
+		path = fmt.Sprintf(LabelsForIssuePath, url.QueryEscape(issue.Id))
+	}
+	response, err := api.jiraRequest("GET", path, &findLabelsQueryParams{Query: query}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +52,7 @@ func (api *httpApi) AddLabel(issueId string, label string) error {
 	request.Update.Labels = make([]labelAdd, 0, 1)
 	request.Update.Labels = append(request.Update.Labels, labelAdd{Add: label})
 	jsonBody, _ := json.Marshal(request)
-	_, err := api.jiraRequest("PUT", fmt.Sprintf(DoLabelRestPath, url.QueryEscape(issueId)), &nilParams{}, strings.NewReader(string(jsonBody)))
+	_, err := api.jiraRequest("PUT", fmt.Sprintf(DoLabelPath, url.QueryEscape(issueId)), &nilParams{}, strings.NewReader(string(jsonBody)))
 	if err != nil {
 		return err
 	}
