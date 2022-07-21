@@ -246,7 +246,7 @@ func (view *fjiraSearchIssuesView) fetchUsers(projectId string) []jira.User {
 func (view *fjiraSearchIssuesView) findLabels(query string) []string {
 	api, _ := GetApi()
 	app.GetApp().LoadingWithText(true, MessageSearchLabelsLoading)
-	labels, err := api.FindLabels(&view.issues[0], query)
+	labels, err := api.FindLabels(nil, query)
 	labels = append(labels, MessageAll)
 	app.GetApp().Loading(false)
 	if err != nil {
