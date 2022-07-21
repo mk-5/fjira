@@ -34,12 +34,16 @@ func TestNewAddLabelView(t *testing.T) {
 				w.WriteHeader(200)
 				body := `
 {
-    "maxResults": 1000,
-    "startAt": 0,
-    "total": 3,
-    "isLast": true,
-    "values": [
-        "TestLabel1", "TestLabel2"
+    "token": "",
+    "suggestions": [
+        {
+            "label": "TestLabel1",
+            "html": "<b></b>TestLabel1"
+        },
+        {
+            "label": "TestLabel2",
+            "html": "<b></b>TestLabel2"
+        }
     ]
 }
 `

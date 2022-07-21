@@ -13,6 +13,7 @@ type fjiraAddLabelView struct {
 	topBar    *app.ActionBar
 	fuzzyFind *app.FuzzyFind
 	issue     *jira.JiraIssue
+	labels    []string
 }
 
 func NewAddLabelView(issue *jira.JiraIssue) *fjiraAddLabelView {
@@ -62,27 +63,29 @@ func (view *fjiraAddLabelView) HandleKeyEvent(ev *tcell.EventKey) {
 func (view *fjiraAddLabelView) startLabelSearching() {
 	app.GetApp().ClearNow()
 	app.GetApp().Loading(true)
-	labels := view.findLabels()
-	view.fuzzyFind = app.NewFuzzyFind(MessageLabelFuzzyFind, labels)
+	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageLabelFuzzyFind, view.findLabels)
 	view.fuzzyFind.MarginBottom = 0
 	app.GetApp().Loading(false)
 	if match := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		label := view.fuzzyFind.GetQuery()
 		if match.Index >= 0 {
-			label = labels[match.Index]
+			label = view.labels[match.Index]
 		}
 		view.fuzzyFind = nil
 		view.addLabelToIssue(view.issue, label)
 	}
 }
 
-func (view *fjiraAddLabelView) findLabels() []string {
+func (view *fjiraAddLabelView) findLabels(query string) []string {
 	api, _ := GetApi()
-	labels, err := api.FindLabels()
+	app.GetApp().LoadingWithText(true, MessageSearchLabelsLoading)
+	labels, err := api.FindLabels(view.issue, query)
 	if err != nil {
 		app.Error(err.Error())
 	}
+	app.GetApp().Loading(false)
+	view.labels = labels
 	return labels
 }
 

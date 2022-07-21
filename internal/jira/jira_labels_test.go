@@ -24,20 +24,26 @@ func Test_httpJiraApi_FindLabels(t *testing.T) {
 				w.WriteHeader(200)
 				body := `
 {
-    "maxResults": 1000,
-    "startAt": 0,
-    "total": 3,
-    "isLast": true,
-    "values": [
-        "Design",
-        "TestLabel",
-        "Windows"
+    "token": "",
+    "suggestions": [
+        {
+            "label": "Design",
+            "html": "<b></b>Design"
+        },
+        {
+            "label": "TestLabel",
+            "html": "<b></b>TestLabel"
+        },
+        {
+            "label": "Windows",
+            "html": "<b></b>Windows"
+        }
     ]
 }
 `
 				_, _ = w.Write([]byte(body))
 			})
-			got, err := api.FindLabels()
+			got, err := api.FindLabels(&JiraIssue{}, "")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("FindLabels() error = %v, wantErr %v", err, tt.wantErr)
 				return
