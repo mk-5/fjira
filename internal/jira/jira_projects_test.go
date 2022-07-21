@@ -9,11 +9,11 @@ import (
 func Test_httpJiraApi_FindProjects(t *testing.T) {
 	tests := []struct {
 		name    string
-		want    []JiraProject
+		want    []Project
 		wantErr bool
 	}{
 		{"should do assignment without error",
-			[]JiraProject{{"1", "FJIRA", "FJIR"}, {"2", "General", "GEN"}},
+			[]Project{{"1", "FJIRA", "FJIR"}, {"2", "General", "GEN"}},
 			false,
 		},
 	}
@@ -66,11 +66,11 @@ func Test_httpJiraApi_FindProjects(t *testing.T) {
 func Test_httpJiraApi_FindProject(t *testing.T) {
 	tests := []struct {
 		name    string
-		want    *JiraProject
+		want    *Project
 		wantErr bool
 	}{
 		{"should do assignment without error",
-			&JiraProject{"1", "FJIRA", "FJIR"},
+			&Project{"1", "FJIRA", "FJIR"},
 			false,
 		},
 	}

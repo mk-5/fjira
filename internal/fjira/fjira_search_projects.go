@@ -52,7 +52,7 @@ func (view *fjiraSearchProjectsView) HandleKeyEvent(ev *tcell.EventKey) {
 	}
 }
 
-func (view *fjiraSearchProjectsView) findProjects() []jira.JiraProject {
+func (view *fjiraSearchProjectsView) findProjects() []jira.Project {
 	api, _ := GetApi()
 	projects, err := api.FindProjects()
 	if err != nil {
@@ -64,7 +64,7 @@ func (view *fjiraSearchProjectsView) findProjects() []jira.JiraProject {
 func (view *fjiraSearchProjectsView) runProjectsFuzzyFind() {
 	defer app.GetApp().PanicRecover()
 	projects := view.findProjects()
-	projects = append(projects, jira.JiraProject{Id: MessageAll, Name: MessageAll, Key: MessageAll})
+	projects = append(projects, jira.Project{Id: MessageAll, Name: MessageAll, Key: MessageAll})
 	formatter, _ := GetFormatter()
 	projectsString := formatter.formatJiraProjects(projects)
 	view.fuzzyFind = app.NewFuzzyFind(MessageSelectProject, projectsString)

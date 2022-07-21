@@ -43,7 +43,7 @@ func Test_httpJiraApi_FindLabels(t *testing.T) {
 `
 				_, _ = w.Write([]byte(body))
 			})
-			got, err := api.FindLabels(&JiraIssue{}, "")
+			got, err := api.FindLabels(&Issue{}, "")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("FindLabels() error = %v, wantErr %v", err, tt.wantErr)
 				return

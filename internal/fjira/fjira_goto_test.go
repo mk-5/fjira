@@ -35,7 +35,7 @@ func Test_goIntoValidScreen(t *testing.T) {
 		args args
 	}{
 		{"should switch view into assignment change view", args{
-			gotoMethod: func() { goIntoChangeAssignment(&jira.JiraIssue{}) },
+			gotoMethod: func() { goIntoChangeAssignment(&jira.Issue{}) },
 			viewPredicate: func() bool {
 				_, ok := app.GetApp().CurrentView().(*fjiraAssignChangeView)
 				return ok
@@ -49,7 +49,7 @@ func Test_goIntoValidScreen(t *testing.T) {
 			},
 		}},
 		{"should switch view into search issues view", args{
-			gotoMethod: func() { goIntoIssuesSearch(&jira.JiraProject{}) },
+			gotoMethod: func() { goIntoIssuesSearch(&jira.Project{}) },
 			viewPredicate: func() bool {
 				_, ok := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
 				return ok
@@ -63,7 +63,7 @@ func Test_goIntoValidScreen(t *testing.T) {
 			},
 		}},
 		{"should switch view into change status view", args{
-			gotoMethod: func() { goIntoChangeStatus(&jira.JiraIssue{}) },
+			gotoMethod: func() { goIntoChangeStatus(&jira.Issue{}) },
 			viewPredicate: func() bool {
 				_, ok := app.GetApp().CurrentView().(*fjiraStatusChangeView)
 				return ok
@@ -77,14 +77,14 @@ func Test_goIntoValidScreen(t *testing.T) {
 			},
 		}},
 		{"should switch view into comment view", args{
-			gotoMethod: func() { goIntoCommentView(&jira.JiraIssue{}) },
+			gotoMethod: func() { goIntoCommentView(&jira.Issue{}) },
 			viewPredicate: func() bool {
 				_, ok := app.GetApp().CurrentView().(*fjiraCommentView)
 				return ok
 			},
 		}},
 		{"should switch view into add label view", args{
-			gotoMethod: func() { goIntoAddLabelView(&jira.JiraIssue{}) },
+			gotoMethod: func() { goIntoAddLabelView(&jira.Issue{}) },
 			viewPredicate: func() bool {
 				_, ok := app.GetApp().CurrentView().(*fjiraAddLabelView)
 				return ok

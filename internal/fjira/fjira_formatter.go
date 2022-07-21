@@ -10,14 +10,14 @@ import (
 
 // TODO - change to static?
 type FjiraFormatter interface {
-	formatJiraProject(project *jira.JiraProject) string
-	formatJiraProjects(projects []jira.JiraProject) []string
-	formatJiraIssue(issue *jira.JiraIssue) string
-	formatJiraIssues(issues []jira.JiraIssue) []string
-	formatJiraUser(user *jira.JiraUser) string
-	formatJiraUsers(user []jira.JiraUser) []string
-	formatJiraTransitions(transitions []jira.JiraIssueTransition) []string
-	formatJiraStatuses(statuses []jira.JiraIssueStatus) []string
+	formatJiraProject(project *jira.Project) string
+	formatJiraProjects(projects []jira.Project) []string
+	formatJiraIssue(issue *jira.Issue) string
+	formatJiraIssues(issues []jira.Issue) []string
+	formatJiraUser(user *jira.User) string
+	formatJiraUsers(user []jira.User) []string
+	formatJiraTransitions(transitions []jira.IssueTransition) []string
+	formatJiraStatuses(statuses []jira.IssueStatus) []string
 }
 
 type defaultFormatter struct{}
@@ -28,7 +28,7 @@ const (
 	MaxStatusColWidth  = 12
 )
 
-func (f *defaultFormatter) formatJiraIssue(issue *jira.JiraIssue) string {
+func (f *defaultFormatter) formatJiraIssue(issue *jira.Issue) string {
 	return fmt.Sprintf("%s %s [%s] - %s",
 		issue.Key,
 		issue.Fields.Summary,
@@ -36,7 +36,7 @@ func (f *defaultFormatter) formatJiraIssue(issue *jira.JiraIssue) string {
 		f.formatAssignee(issue))
 }
 
-func (*defaultFormatter) formatJiraIssueTable(issue *jira.JiraIssue, summaryColWidth int, statusColWidth int) string {
+func (*defaultFormatter) formatJiraIssueTable(issue *jira.Issue, summaryColWidth int, statusColWidth int) string {
 	assignee := issue.Fields.Assignee.DisplayName
 	if assignee == "" {
 		assignee = MessageUnassigned
@@ -52,12 +52,12 @@ func (*defaultFormatter) formatJiraIssueTable(issue *jira.JiraIssue, summaryColW
 		fmt.Sprintf("- %s", assignee))
 }
 
-func (f *defaultFormatter) formatJiraIssues(issues []jira.JiraIssue) []string {
+func (f *defaultFormatter) formatJiraIssues(issues []jira.Issue) []string {
 	formatted := make([]string, 0, len(issues))
-	summaryColWidth := f.findIssueColumnSize(&issues, func(i jira.JiraIssue) string {
+	summaryColWidth := f.findIssueColumnSize(&issues, func(i jira.Issue) string {
 		return i.Fields.Summary
 	})
-	statusColWidth := f.findIssueColumnSize(&issues, func(i jira.JiraIssue) string {
+	statusColWidth := f.findIssueColumnSize(&issues, func(i jira.Issue) string {
 		return i.Fields.Status.Name
 	})
 	for _, issue := range issues {
@@ -66,11 +66,11 @@ func (f *defaultFormatter) formatJiraIssues(issues []jira.JiraIssue) []string {
 	return formatted
 }
 
-func (*defaultFormatter) formatJiraUser(user *jira.JiraUser) string {
+func (*defaultFormatter) formatJiraUser(user *jira.User) string {
 	return fmt.Sprintf("%s <%s>", user.DisplayName, user.EmailAddress)
 }
 
-func (f *defaultFormatter) formatJiraUsers(users []jira.JiraUser) []string {
+func (f *defaultFormatter) formatJiraUsers(users []jira.User) []string {
 	formatted := make([]string, 0, len(users))
 	for _, user := range users {
 		formatted = append(formatted, f.formatJiraUser(&user))
@@ -78,11 +78,11 @@ func (f *defaultFormatter) formatJiraUsers(users []jira.JiraUser) []string {
 	return formatted
 }
 
-func (*defaultFormatter) formatJiraProject(project *jira.JiraProject) string {
+func (*defaultFormatter) formatJiraProject(project *jira.Project) string {
 	return fmt.Sprintf("[%s] %s", project.Key, project.Name)
 }
 
-func (f *defaultFormatter) formatJiraProjects(projects []jira.JiraProject) []string {
+func (f *defaultFormatter) formatJiraProjects(projects []jira.Project) []string {
 	formatted := make([]string, 0, len(projects))
 	for _, project := range projects {
 		formatted = append(formatted, f.formatJiraProject(&project))
@@ -90,7 +90,7 @@ func (f *defaultFormatter) formatJiraProjects(projects []jira.JiraProject) []str
 	return formatted
 }
 
-func (f *defaultFormatter) formatJiraTransitions(statuses []jira.JiraIssueTransition) []string {
+func (f *defaultFormatter) formatJiraTransitions(statuses []jira.IssueTransition) []string {
 	formatted := make([]string, 0, len(statuses))
 	for _, status := range statuses {
 		formatted = append(formatted, status.Name)
@@ -98,7 +98,7 @@ func (f *defaultFormatter) formatJiraTransitions(statuses []jira.JiraIssueTransi
 	return formatted
 }
 
-func (f *defaultFormatter) formatJiraStatuses(statuses []jira.JiraIssueStatus) []string {
+func (f *defaultFormatter) formatJiraStatuses(statuses []jira.IssueStatus) []string {
 	formatted := make([]string, 0, len(statuses))
 	for _, status := range statuses {
 		formatted = append(formatted, status.Name)
@@ -106,7 +106,7 @@ func (f *defaultFormatter) formatJiraStatuses(statuses []jira.JiraIssueStatus) [
 	return formatted
 }
 
-func (f *defaultFormatter) findIssueColumnSize(items *[]jira.JiraIssue, colSupplier func(issue jira.JiraIssue) string) int {
+func (f *defaultFormatter) findIssueColumnSize(items *[]jira.Issue, colSupplier func(issue jira.Issue) string) int {
 	max := 0
 	for _, item := range *items {
 		current := colSupplier(item)
@@ -117,7 +117,7 @@ func (f *defaultFormatter) findIssueColumnSize(items *[]jira.JiraIssue, colSuppl
 	return max
 }
 
-func (f *defaultFormatter) formatAssignee(issue *jira.JiraIssue) string {
+func (f *defaultFormatter) formatAssignee(issue *jira.Issue) string {
 	assignee := issue.Fields.Assignee.DisplayName
 	if assignee == "" {
 		assignee = MessageUnassigned

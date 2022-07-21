@@ -7,50 +7,50 @@ import (
 	"net/url"
 )
 
-type JiraApi interface {
-	Search(query string) ([]JiraIssue, int32, error)
-	SearchJql(query string) ([]JiraIssue, error)
-	SearchJqlPageable(query string, page int32, pageSize int32) ([]JiraIssue, int32, int32, error)
-	FindUsers(project string) ([]JiraUser, error)
-	FindProjects() ([]JiraProject, error)
-	FindLabels(issue *JiraIssue, query string) ([]string, error)
+type Api interface {
+	Search(query string) ([]Issue, int32, error)
+	SearchJql(query string) ([]Issue, error)
+	SearchJqlPageable(query string, page int32, pageSize int32) ([]Issue, int32, int32, error)
+	FindUsers(project string) ([]User, error)
+	FindProjects() ([]Project, error)
+	FindLabels(issue *Issue, query string) ([]string, error)
 	AddLabel(issueId string, label string) error
-	FindProject(projectKey string) (*JiraProject, error)
-	FindTransitions(issueId string) ([]JiraIssueTransition, error)
-	FindProjectStatuses(projectId string) ([]JiraIssueStatus, error)
-	DoTransition(issueId string, transition *JiraIssueTransition) error
+	FindProject(projectKey string) (*Project, error)
+	FindTransitions(issueId string) ([]IssueTransition, error)
+	FindProjectStatuses(projectId string) ([]IssueStatus, error)
+	DoTransition(issueId string, transition *IssueTransition) error
 	DoAssignee(issueId string, accountId string) error
-	GetIssueDetailed(issueId string) (*JiraIssue, error)
+	GetIssueDetailed(issueId string) (*Issue, error)
 	DoComment(issueId string, commentBody string) error
 	Close()
 }
 
-type JiraProject struct {
+type Project struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
 
-type JiraIssueType struct {
+type IssueType struct {
 	Name string `json:"name"`
 }
 
-type JiraIssue struct {
-	Key    string          `json:"key"`
-	Fields JiraIssueFields `json:"Fields"`
-	Id     string          `json:"id"`
+type Issue struct {
+	Key    string      `json:"key"`
+	Fields IssueFields `json:"Fields"`
+	Id     string      `json:"id"`
 }
 
-type JiraComment struct {
-	Author  JiraUser `json:"author"`
-	Body    string   `json:"body"`
-	Created string   `json:"created"`
+type Comment struct {
+	Author  User   `json:"author"`
+	Body    string `json:"body"`
+	Created string `json:"created"`
 }
 
-type JiraIssueFields struct {
-	Summary     string      `json:"summary"`
-	Project     JiraProject `json:"project"`
-	Description string      `json:"description,omitempty"`
+type IssueFields struct {
+	Summary     string  `json:"summary"`
+	Project     Project `json:"project"`
+	Description string  `json:"description,omitempty"`
 	Reporter    struct {
 		AccountId   string `json:"accountId"`
 		DisplayName string `json:"displayName"`
@@ -66,15 +66,15 @@ type JiraIssueFields struct {
 		Name string `json:"name"`
 	} `json:"status"`
 	Comment struct {
-		Comments   []JiraComment `json:"comments"`
-		MaxResults int32         `json:"maxResults"`
-		Total      int32         `json:"total"`
-		StartAt    int32         `json:"startAt"`
+		Comments   []Comment `json:"comments"`
+		MaxResults int32     `json:"maxResults"`
+		Total      int32     `json:"total"`
+		StartAt    int32     `json:"startAt"`
 	} `json:"comment"`
 	Labels []string `json:"labels"`
 }
 
-type JiraUser struct {
+type User struct {
 	AccountId    string            `json:"accountId"`
 	Active       bool              `json:"active"`
 	AvatarUrls   map[string]string `json:"avatarUrls"`
@@ -85,7 +85,7 @@ type JiraUser struct {
 	TimeZone     string            `json:"timeZone"`
 }
 
-type JiraIssueTransition struct {
+type IssueTransition struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
 	To   struct {
@@ -95,13 +95,13 @@ type JiraIssueTransition struct {
 	} `json:"to"`
 }
 
-type JiraIssueStatus struct {
+type IssueStatus struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-type JiraLabelsSuggestionsResponseBody struct {
+type LabelsSuggestionsResponseBody struct {
 	Token       string `json:"token"`
 	Suggestions []struct {
 		Label string `json:"label"`
@@ -109,23 +109,23 @@ type JiraLabelsSuggestionsResponseBody struct {
 	} `json:"suggestions"`
 }
 
-type JiraApiCredentials struct {
+type ApiCredentials struct {
 	Host   string
 	ApiKey string
 }
 
-type httpJiraApi struct {
+type httpApi struct {
 	client  *http.Client
 	restUrl *url.URL
 }
 
-func NewJiraApi(apiUrl string, username string, token string) (JiraApi, error) {
+func NewApi(apiUrl string, username string, token string) (Api, error) {
 	baseUrl, err := url.Parse(apiUrl)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	basicToken := base64.StdEncoding.EncodeToString([]byte(username + ":" + token))
-	return &httpJiraApi{
+	return &httpApi{
 		client: &http.Client{
 			Transport: &authInterceptor{core: http.DefaultTransport, token: basicToken},
 		},
@@ -133,6 +133,6 @@ func NewJiraApi(apiUrl string, username string, token string) (JiraApi, error) {
 	}, nil
 }
 
-func (api *httpJiraApi) Close() {
+func (api *httpApi) Close() {
 	api.client.CloseIdleConnections()
 }

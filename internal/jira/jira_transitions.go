@@ -18,14 +18,14 @@ const (
 type nilParams struct{}
 
 type transitionsResponse struct {
-	Transitions []JiraIssueTransition `json:"transitions"`
+	Transitions []IssueTransition `json:"transitions"`
 }
 
 type doTransitionRequest struct {
 	Transition string `json:"transition"`
 }
 
-func (a *httpJiraApi) DoTransition(issueId string, transition *JiraIssueTransition) error {
+func (a *httpApi) DoTransition(issueId string, transition *IssueTransition) error {
 	request := doTransitionRequest{Transition: transition.Id}
 	requestBody, _ := json.Marshal(request)
 	_, err := a.jiraRequest("POST", strings.Replace(GetTransitions, "{issue}", issueId, 1), &nilParams{}, strings.NewReader(string(requestBody)))
@@ -35,14 +35,14 @@ func (a *httpJiraApi) DoTransition(issueId string, transition *JiraIssueTransiti
 	return nil
 }
 
-func (a *httpJiraApi) FindTransitions(issueId string) ([]JiraIssueTransition, error) {
+func (a *httpApi) FindTransitions(issueId string) ([]IssueTransition, error) {
 	responseBody, _ := a.jiraRequest("GET", strings.Replace(GetTransitions, "{issue}", issueId, 1), &nilParams{}, nil)
 	var sResponse transitionsResponse
 	if err := json.Unmarshal(responseBody, &sResponse); err != nil {
 		app.Error(err.Error())
 		return nil, SearchDeserializeErr
 	}
-	var transitions = make([]JiraIssueTransition, 0, 1000)
+	var transitions = make([]IssueTransition, 0, 1000)
 	for _, tr := range sResponse.Transitions {
 		transitions = append(transitions, tr)
 	}

@@ -23,12 +23,12 @@ type searchQueryParams struct {
 }
 
 type searchResponse struct {
-	Total      int32       `json:"total"`
-	MaxResults int32       `json:"maxResults"`
-	Issues     []JiraIssue `json:"issues"`
+	Total      int32   `json:"total"`
+	MaxResults int32   `json:"maxResults"`
+	Issues     []Issue `json:"issues"`
 }
 
-func (api *httpJiraApi) Search(query string) ([]JiraIssue, int32, error) {
+func (api *httpApi) Search(query string) ([]Issue, int32, error) {
 	isJqlAboutIssue, _ := regexp.Match(JiraIssueRegexp, []byte(query))
 	jql := fmt.Sprintf("summary~\"%s*\"", query)
 	if isJqlAboutIssue {
@@ -38,12 +38,12 @@ func (api *httpJiraApi) Search(query string) ([]JiraIssue, int32, error) {
 	return issues, total, err
 }
 
-func (api *httpJiraApi) SearchJql(jql string) ([]JiraIssue, error) {
+func (api *httpApi) SearchJql(jql string) ([]Issue, error) {
 	issues, _, _, err := api.SearchJqlPageable(jql, 0, 100)
 	return issues, err
 }
 
-func (api *httpJiraApi) SearchJqlPageable(jql string, page int32, pageSize int32) ([]JiraIssue, int32, int32, error) {
+func (api *httpApi) SearchJqlPageable(jql string, page int32, pageSize int32) ([]Issue, int32, int32, error) {
 	queryParams := searchQueryParams{
 		Jql:        jql,
 		MaxResults: pageSize,

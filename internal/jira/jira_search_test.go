@@ -12,20 +12,20 @@ func Test_httpJiraApi_Search(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []JiraIssue
+		want    []Issue
 		want1   int32
 		wantErr bool
 	}{
 		{"should do search without error",
 			args{query: "test"},
-			[]JiraIssue{
-				{"ISSUE-1", JiraIssueFields{Description: "Desc1", Status: struct {
+			[]Issue{
+				{"ISSUE-1", IssueFields{Description: "Desc1", Status: struct {
 					Name string `json:"name"`
 				}(struct{ Name string }{"Status1"})}, ""},
-				{"ISSUE-2", JiraIssueFields{Description: "Desc2", Status: struct {
+				{"ISSUE-2", IssueFields{Description: "Desc2", Status: struct {
 					Name string `json:"name"`
 				}(struct{ Name string }{"Status2"})}, ""},
-				{"ISSUE-3", JiraIssueFields{Description: "Desc3", Status: struct {
+				{"ISSUE-3", IssueFields{Description: "Desc3", Status: struct {
 					Name string `json:"name"`
 				}(struct{ Name string }{"Status3"})}, ""},
 			},
@@ -103,19 +103,19 @@ func Test_httpJiraApi_SearchJql(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []JiraIssue
+		want    []Issue
 		wantErr bool
 	}{
 		{"should do search-jql without error",
 			args{query: "test"},
-			[]JiraIssue{
-				{"ISSUE-1", JiraIssueFields{Description: "Desc1", Status: struct {
+			[]Issue{
+				{"ISSUE-1", IssueFields{Description: "Desc1", Status: struct {
 					Name string `json:"name"`
 				}(struct{ Name string }{"Status1"})}, ""},
-				{"ISSUE-2", JiraIssueFields{Description: "Desc2", Status: struct {
+				{"ISSUE-2", IssueFields{Description: "Desc2", Status: struct {
 					Name string `json:"name"`
 				}(struct{ Name string }{"Status2"})}, ""},
-				{"ISSUE-3", JiraIssueFields{Description: "Desc3", Status: struct {
+				{"ISSUE-3", IssueFields{Description: "Desc3", Status: struct {
 					Name string `json:"name"`
 				}(struct{ Name string }{"Status3"})}, ""},
 			},

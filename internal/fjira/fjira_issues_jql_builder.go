@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func buildSearchIssuesJql(project *jira.JiraProject, query string, status *jira.JiraIssueStatus, user *jira.JiraUser, label string) string {
+func buildSearchIssuesJql(project *jira.Project, query string, status *jira.IssueStatus, user *jira.User, label string) string {
 	jql := ""
 	if project != nil && project.Id != MessageAll {
 		jql = jql + fmt.Sprintf("project=%s", project.Id)

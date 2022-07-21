@@ -13,7 +13,7 @@ type fjiraCommentView struct {
 	app.View
 	bottomBar *app.ActionBar
 	topBar    *app.ActionBar
-	issue     *jira.JiraIssue
+	issue     *jira.Issue
 	buffer    bytes.Buffer
 	text      string
 }
@@ -26,7 +26,7 @@ var (
 	headerStyle = app.DefaultStyle.Foreground(tcell.ColorWhite).Underline(true)
 )
 
-func NewCommentView(issue *jira.JiraIssue) *fjiraCommentView {
+func NewCommentView(issue *jira.Issue) *fjiraCommentView {
 	bottomBar := CreateIssueBottomBar()
 	bottomBar.AddItem(NewSaveBarItem())
 	bottomBar.AddItem(NewCancelBarItem())
@@ -89,7 +89,7 @@ func (view *fjiraCommentView) handleBottomBarActions() {
 	go goIntoIssueView(view.issue.Key)
 }
 
-func (view fjiraCommentView) doComment(issue *jira.JiraIssue, comment string) {
+func (view fjiraCommentView) doComment(issue *jira.Issue, comment string) {
 	app.GetApp().LoadingWithText(true, MessageAddingComment)
 	api, _ := GetApi()
 	err := api.DoComment(issue.Key, comment)

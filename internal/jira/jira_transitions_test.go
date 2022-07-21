@@ -9,7 +9,7 @@ import (
 func Test_httpJiraApi_DoTransition(t *testing.T) {
 	type args struct {
 		issueId    string
-		transition *JiraIssueTransition
+		transition *IssueTransition
 	}
 	tests := []struct {
 		name    string
@@ -17,7 +17,7 @@ func Test_httpJiraApi_DoTransition(t *testing.T) {
 		wantErr bool
 	}{
 		{"should do transition without error",
-			args{transition: &JiraIssueTransition{
+			args{transition: &IssueTransition{
 				Id:   "test",
 				Name: "test",
 				To: struct {
@@ -53,12 +53,12 @@ func Test_httpJiraApi_FindTransitions(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []JiraIssueTransition
+		want    []IssueTransition
 		wantErr bool
 	}{
 		{"should find transitions without error",
 			args{issueId: "ABC-123"},
-			[]JiraIssueTransition{{Id: "11", Name: "To Do"}, {Id: "21", Name: "In Progress"}},
+			[]IssueTransition{{Id: "11", Name: "To Do"}, {Id: "21", Name: "In Progress"}},
 			false,
 		},
 	}

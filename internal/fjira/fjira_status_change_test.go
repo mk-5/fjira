@@ -17,13 +17,13 @@ func TestNewStatusChangeView(t *testing.T) {
 	defer screen.Fini()
 
 	type args struct {
-		issue *jira.JiraIssue
+		issue *jira.Issue
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should initialize & draw status change view", args{issue: &jira.JiraIssue{}}},
+		{"should initialize & draw status change view", args{issue: &jira.Issue{}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -83,15 +83,15 @@ func Test_fjiraStatusChangeView_changeStatusForTicket(t *testing.T) {
 	defer screen.Fini()
 
 	type args struct {
-		issue  *jira.JiraIssue
-		status *jira.JiraIssueTransition
+		issue  *jira.Issue
+		status *jira.IssueTransition
 	}
 
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should send change status request", args{issue: &jira.JiraIssue{Key: "ABC", Id: "123"}, status: &jira.JiraIssueTransition{Name: "In Progress", Id: "333"}}},
+		{"should send change status request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, status: &jira.IssueTransition{Name: "In Progress", Id: "333"}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

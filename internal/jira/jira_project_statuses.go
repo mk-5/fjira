@@ -11,14 +11,14 @@ import (
 //
 
 type statusesResponse struct {
-	Statuses []JiraIssueStatus `json:"statuses"`
+	Statuses []IssueStatus `json:"statuses"`
 }
 
 const (
 	GetProjectStatuses = "/rest/api/2/project/{project}/statuses"
 )
 
-func (a *httpJiraApi) FindProjectStatuses(projectId string) ([]JiraIssueStatus, error) {
+func (a *httpApi) FindProjectStatuses(projectId string) ([]IssueStatus, error) {
 	responseBody, _ := a.jiraRequest("GET", strings.Replace(GetProjectStatuses, "{project}", projectId, 1), &nilParams{}, nil)
 	var sResponse []statusesResponse
 	distinct := make(map[string]bool)
@@ -26,7 +26,7 @@ func (a *httpJiraApi) FindProjectStatuses(projectId string) ([]JiraIssueStatus, 
 		app.Error(err.Error())
 		return nil, SearchDeserializeErr
 	}
-	var statuses = make([]JiraIssueStatus, 0, 100)
+	var statuses = make([]IssueStatus, 0, 100)
 	for _, row := range sResponse {
 		for _, status := range row.Statuses {
 			if distinct[status.Name] == true {

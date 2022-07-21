@@ -13,12 +13,12 @@ func Test_httpJiraApi_FindUsers(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []JiraUser
+		want    []User
 		wantErr bool
 	}{
 		{"should find users without error",
 			args{project: "FJIR"},
-			[]JiraUser{
+			[]User{
 				{AccountId: "456", EmailAddress: "test@test.pl", DisplayName: "Mateusz Kulawik", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_GB", AvatarUrls: nil},
 				{AccountId: "123", EmailAddress: "", DisplayName: "mateusz.test", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_US", AvatarUrls: nil},
 			},

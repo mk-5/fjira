@@ -56,7 +56,7 @@ func CreateSearchIssuesBottomBar() *app.ActionBar {
 	return actionBar
 }
 
-func CreateSearchIssuesTopBar(project *jira.JiraProject) *app.ActionBar {
+func CreateSearchIssuesTopBar(project *jira.Project) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Top, app.Left)
 	actionBar.AddItemWithStyles(
 		MessageProjectLabel,
@@ -86,7 +86,7 @@ func CreateIssueBottomBar() *app.ActionBar {
 	return actionBar
 }
 
-func CreateIssueTopBar(issue *jira.JiraIssue) *app.ActionBar {
+func CreateIssueTopBar(issue *jira.Issue) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Top, app.Left)
 	actionBar.AddItemWithStyles(
 		MessageIssueLabel,

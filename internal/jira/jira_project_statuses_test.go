@@ -13,12 +13,12 @@ func Test_httpJiraApi_FindProjectStatuses(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []JiraIssueStatus
+		want    []IssueStatus
 		wantErr bool
 	}{
 		{"should get project statuses",
 			args{projectId: "123"},
-			[]JiraIssueStatus{{"10011", "To Do", ""}, {"10012", "In Progress", "ABC"}, {"10013", "Done", ""}, {"10016", "Verification", "XXX"}},
+			[]IssueStatus{{"10011", "To Do", ""}, {"10012", "In Progress", "ABC"}, {"10013", "Done", ""}, {"10016", "Verification", "XXX"}},
 			false,
 		},
 	}

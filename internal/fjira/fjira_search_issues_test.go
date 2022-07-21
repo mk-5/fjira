@@ -13,13 +13,13 @@ import (
 
 func TestNewIssuesSearchView(t *testing.T) {
 	type args struct {
-		project *jira.JiraProject
+		project *jira.Project
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should create new search issues view", args{project: &jira.JiraProject{}}},
+		{"should create new search issues view", args{project: &jira.Project{}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -36,7 +36,7 @@ func Test_fjiraSearchIssuesView_Destroy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := NewIssuesSearchView(&jira.JiraProject{})
+			view := NewIssuesSearchView(&jira.Project{})
 			view.Destroy()
 		})
 	}
@@ -163,7 +163,7 @@ func Test_fjiraSearchIssuesView_Init(t *testing.T) {
 }`)) //nolint:errcheck
 			})
 			_ = SetApi(api)
-			view := NewIssuesSearchView(&jira.JiraProject{Key: "TEST", Name: "TEST"})
+			view := NewIssuesSearchView(&jira.Project{Key: "TEST", Name: "TEST"})
 
 			// when
 			view.Init()
@@ -212,7 +212,7 @@ func Test_fjiraSearchIssuesView_queryHasIssueFormat(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			view := NewIssuesSearchView(&jira.JiraProject{Key: "TEST", Name: "TEST"})
+			view := NewIssuesSearchView(&jira.Project{Key: "TEST", Name: "TEST"})
 
 			// when
 			view.currentQuery = tt.query
@@ -240,7 +240,7 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 				println(err)
 			})
 			_ = SetApi(api)
-			view := NewIssuesSearchView(&jira.JiraProject{Id: "TEST", Key: "TEST", Name: "TEST"})
+			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
 			go view.runSelectStatus()
@@ -278,7 +278,7 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 				println(err)
 			})
 			_ = SetApi(api)
-			view := NewIssuesSearchView(&jira.JiraProject{Id: "TEST", Key: "TEST", Name: "TEST"})
+			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
 			go view.runSelectUser()

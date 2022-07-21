@@ -21,13 +21,13 @@ func TestCreateNavigationBars(t *testing.T) {
 			return CreateIssueBottomBar()
 		}},
 		{"should create issue top bar", func() interface{} {
-			return CreateIssueTopBar(&jira.JiraIssue{})
+			return CreateIssueTopBar(&jira.Issue{})
 		}},
 		{"should create search issues bottom bar", func() interface{} {
 			return CreateSearchIssuesBottomBar()
 		}},
 		{"should create search issues top bar", func() interface{} {
-			return CreateSearchIssuesTopBar(&jira.JiraProject{})
+			return CreateSearchIssuesTopBar(&jira.Project{})
 		}},
 		{"should create assignee change bar item", func() interface{} {
 			return NewAssigneeChangeBarItem()

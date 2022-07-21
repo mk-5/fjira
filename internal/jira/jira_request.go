@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func (api *httpJiraApi) jiraRequest(method string, restPath string, queryParams interface{}, reqBody io.Reader) ([]byte, error) {
+func (api *httpApi) jiraRequest(method string, restPath string, queryParams interface{}, reqBody io.Reader) ([]byte, error) {
 	queryParamsValues, err := query.Values(queryParams)
 	if err != nil {
 		return nil, err

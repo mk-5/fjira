@@ -12,11 +12,11 @@ type fjiraAddLabelView struct {
 	bottomBar *app.ActionBar
 	topBar    *app.ActionBar
 	fuzzyFind *app.FuzzyFind
-	issue     *jira.JiraIssue
+	issue     *jira.Issue
 	labels    []string
 }
 
-func NewAddLabelView(issue *jira.JiraIssue) *fjiraAddLabelView {
+func NewAddLabelView(issue *jira.Issue) *fjiraAddLabelView {
 	return &fjiraAddLabelView{
 		issue:     issue,
 		topBar:    CreateIssueTopBar(issue),
@@ -89,7 +89,7 @@ func (view *fjiraAddLabelView) findLabels(query string) []string {
 	return labels
 }
 
-func (view *fjiraAddLabelView) addLabelToIssue(issue *jira.JiraIssue, label string) {
+func (view *fjiraAddLabelView) addLabelToIssue(issue *jira.Issue, label string) {
 	if label == "" {
 		app.GetApp().SetView(NewIssueView(view.issue))
 		return
@@ -98,7 +98,7 @@ func (view *fjiraAddLabelView) addLabelToIssue(issue *jira.JiraIssue, label stri
 	goIntoIssueView(view.issue.Key)
 }
 
-func (view fjiraAddLabelView) doAddLabel(issue *jira.JiraIssue, label string) {
+func (view fjiraAddLabelView) doAddLabel(issue *jira.Issue, label string) {
 	app.GetApp().LoadingWithText(true, MessageAddingLabel)
 	api, _ := GetApi()
 	err := api.AddLabel(issue.Key, label)
