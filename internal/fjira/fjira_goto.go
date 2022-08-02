@@ -37,7 +37,9 @@ func goIntoIssueView(issueKey string) {
 	api, _ := GetApi()
 	issue, err := api.GetIssueDetailed(issueKey)
 	if err != nil {
+		app.GetApp().Loading(false)
 		app.Error(err.Error())
+		return
 	}
 	app.GetApp().Loading(false)
 	issueView := NewIssueView(issue)
