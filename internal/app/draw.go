@@ -11,7 +11,7 @@ const (
 func DrawText(screen tcell.Screen, x, y int, style tcell.Style, text string) {
 	row := y
 	col := x
-	for _, r := range []rune(text) {
+	for _, r := range text {
 		if r == '\n' {
 			row++
 			col = x
@@ -25,7 +25,7 @@ func DrawText(screen tcell.Screen, x, y int, style tcell.Style, text string) {
 func DrawTextLimited(s tcell.Screen, x1, y1, x2, y2 int, style tcell.Style, text string) int {
 	row := y1
 	col := x1
-	for _, r := range []rune(text) {
+	for _, r := range text {
 		if r == '\n' {
 			row++
 			col = x1

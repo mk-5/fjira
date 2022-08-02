@@ -53,7 +53,7 @@ func TestNewAssignChangeView(t *testing.T) {
 			<-time.NewTimer(100 * time.Millisecond).C
 
 			var buffer bytes.Buffer
-			contents, x, y := screen.(tcell.SimulationScreen).GetContents()
+			contents, x, y := screen.GetContents()
 			screen.Show()
 			for i := 0; i < x*y; i++ {
 				buffer.Write(contents[i].Bytes)

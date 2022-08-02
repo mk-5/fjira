@@ -26,8 +26,7 @@ func (s *fjiraSwitchWorkspaceView) Init() {
 	s.fuzzyFind = app.NewFuzzyFind(MessageSelectWorkspace, records)
 	s.fuzzyFind.MarginBottom = 0
 	go func() {
-		select {
-		case workspace := <-s.fuzzyFind.Complete:
+		if workspace := <-s.fuzzyFind.Complete; true {
 			if workspace.Index < 0 {
 				app.GetApp().Quit()
 				return

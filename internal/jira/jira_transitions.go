@@ -43,8 +43,6 @@ func (a *httpApi) FindTransitions(issueId string) ([]IssueTransition, error) {
 		return nil, SearchDeserializeErr
 	}
 	var transitions = make([]IssueTransition, 0, 1000)
-	for _, tr := range sResponse.Transitions {
-		transitions = append(transitions, tr)
-	}
+	transitions = append(transitions, sResponse.Transitions...)
 	return transitions, nil
 }

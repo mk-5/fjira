@@ -69,8 +69,7 @@ func (view *fjiraAssignChangeView) startUsersSearching() {
 	view.fuzzyFind = app.NewFuzzyFind(MessageUsersFuzzyFind, usersStrings)
 	view.fuzzyFind.MarginBottom = 0
 	app.GetApp().Loading(false)
-	select {
-	case user := <-view.fuzzyFind.Complete:
+	if user := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if user.Index < 0 {
 			app.GetApp().SetView(NewIssueView(view.issue))

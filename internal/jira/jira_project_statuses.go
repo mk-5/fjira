@@ -29,7 +29,7 @@ func (a *httpApi) FindProjectStatuses(projectId string) ([]IssueStatus, error) {
 	var statuses = make([]IssueStatus, 0, 100)
 	for _, row := range sResponse {
 		for _, status := range row.Statuses {
-			if distinct[status.Name] == true {
+			if distinct[status.Name] {
 				continue
 			}
 			statuses = append(statuses, status)
