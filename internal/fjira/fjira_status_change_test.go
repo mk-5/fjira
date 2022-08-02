@@ -63,7 +63,7 @@ func TestNewStatusChangeView(t *testing.T) {
 			<-time.After(1 * time.Second)
 
 			var buffer bytes.Buffer
-			contents, x, y := screen.(tcell.SimulationScreen).GetContents()
+			contents, x, y := screen.GetContents()
 			screen.Show()
 			for i := 0; i < x*y; i++ {
 				buffer.Write(contents[i].Bytes)

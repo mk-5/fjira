@@ -22,7 +22,3 @@ type System interface {
 type KeyListener interface {
 	HandleKeyEvent(keyEvent *tcell.EventKey)
 }
-
-type Dirtyable struct {
-	dirty bool
-}

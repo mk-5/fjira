@@ -25,10 +25,10 @@ func Confirm(app *App, message string) bool {
 	confirmation := newConfirmation(message)
 	app.AddDrawable(confirmation)
 	app.AddSystem(confirmation)
-	select {
-	case yesNo := <-confirmation.Complete:
+	if yesNo := <-confirmation.Complete; true {
 		return yesNo
 	}
+	return false
 }
 
 func newConfirmation(message string) *Confirmation {

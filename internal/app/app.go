@@ -341,7 +341,6 @@ func (a *App) processTerminalEvents() {
 					ft.Resize(x, y)
 				}
 			}
-			break
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyCtrlC {
 				a.Quit()

@@ -18,7 +18,7 @@ func NewText(x, y int, style tcell.Style, text string) *Text {
 func (t *Text) Draw(screen tcell.Screen) {
 	row := t.y
 	col := t.x
-	for _, r := range []rune(t.text) {
+	for _, r := range t.text {
 		if r == '\n' {
 			row++
 			col = t.x

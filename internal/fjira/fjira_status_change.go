@@ -70,8 +70,7 @@ func (view *fjiraStatusChangeView) startStatusSearching() {
 	view.fuzzyFind = app.NewFuzzyFind(MessageStatusFuzzyFind, statusesStrings)
 	view.fuzzyFind.MarginBottom = 0
 	app.GetApp().Loading(false)
-	select {
-	case status := <-view.fuzzyFind.Complete:
+	if status := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if status.Index < 0 {
 			app.GetApp().SetView(NewIssueView(view.issue))
