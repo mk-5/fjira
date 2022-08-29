@@ -167,7 +167,7 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 	app.GetApp().Loading(false)
 	if status := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
-		if status.Index >= 0 {
+		if status.Index >= 0 && len(statuses) > 0 {
 			searchForStatus = &statuses[status.Index]
 			view.queryDirty = true
 		}
@@ -187,7 +187,7 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 	app.GetApp().Loading(false)
 	if user := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
-		if user.Index >= 0 {
+		if user.Index >= 0 && len(users) > 0 {
 			searchForUser = &users[user.Index]
 			view.queryDirty = true
 		}
@@ -203,7 +203,7 @@ func (view *fjiraSearchIssuesView) runSelectLabel() {
 	app.GetApp().Loading(false)
 	if label := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
-		if label.Index >= 0 {
+		if label.Index >= 0 && len(view.labels) > 0 {
 			searchForLabel = view.labels[label.Index]
 			view.queryDirty = true
 		}
@@ -252,6 +252,7 @@ func (view *fjiraSearchIssuesView) findLabels(query string) []string {
 	if err != nil {
 		app.Error(err.Error())
 	}
+	view.labels = labels
 	return labels
 }
 
