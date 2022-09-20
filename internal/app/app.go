@@ -352,11 +352,7 @@ func (a *App) processTerminalEvents() {
 			// TODO - should keep only one array with components?
 			for _, s := range a.systems {
 				if ft, ok := (s).(KeyListener); ok {
-					// TODO - should we really handle every key event in separate go-routine?
-					go func() {
-						defer a.PanicRecover()
-						ft.HandleKeyEvent(ev)
-					}()
+					ft.HandleKeyEvent(ev)
 				}
 			}
 		default:
