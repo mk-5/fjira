@@ -90,6 +90,13 @@ func Test_goIntoValidScreen(t *testing.T) {
 				return ok
 			},
 		}},
+		{"should switch view into board view", args{
+			gotoMethod: func() { goIntoBoardView(&jira.Project{}, &jira.BoardItem{Id: 1}) },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*boardView)
+				return ok
+			},
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

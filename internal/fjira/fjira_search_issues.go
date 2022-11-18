@@ -152,6 +152,8 @@ func (view *fjiraSearchIssuesView) handleSearchActions() {
 			view.runSelectUser()
 		case ActionSearchByLabel:
 			view.runSelectLabel()
+		case ActionBoards:
+			view.runSelectBoard()
 		}
 	}
 }
@@ -212,6 +214,25 @@ func (view *fjiraSearchIssuesView) runSelectLabel() {
 	}
 }
 
+func (view *fjiraSearchIssuesView) runSelectBoard() {
+	app.GetApp().ClearNow()
+	app.GetApp().Loading(true)
+	formatter, _ := GetFormatter()
+	boards := view.findBoards()
+	boardsString := formatter.formatJiraBoards(boards)
+	view.fuzzyFind = app.NewFuzzyFind(MessageSelectBoard, boardsString)
+	app.GetApp().Loading(false)
+	if board := <-view.fuzzyFind.Complete; true {
+		app.GetApp().ClearNow()
+		if board.Index >= 0 && len(boardsString) > 0 {
+			goIntoBoardView(view.project, boards[board.Index])
+			return
+		}
+		go view.runIssuesFuzzyFind()
+		go view.handleSearchActions()
+	}
+}
+
 func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.Issue {
 	q := strings.TrimSpace(query)
 	api, _ := GetApi()
@@ -254,6 +275,17 @@ func (view *fjiraSearchIssuesView) findLabels(query string) []string {
 	}
 	view.labels = labels
 	return labels
+}
+
+func (view *fjiraSearchIssuesView) findBoards() []*jira.BoardItem {
+	api, _ := GetApi()
+	app.GetApp().LoadingWithText(true, MessageSearchBoardsLoading)
+	boards, err := api.FindBoards(view.project.Id)
+	app.GetApp().Loading(false)
+	if err != nil {
+		app.Error(err.Error())
+	}
+	return boards
 }
 
 func (view *fjiraSearchIssuesView) queryHasIssueFormat() bool {

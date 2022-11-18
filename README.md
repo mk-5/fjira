@@ -81,7 +81,7 @@ The CLI Jira interface is pretty straightforward. Just run `fjira` in your termi
 fjira
 ```
 
-### Workspaces
+## Workspaces
 
 Fjira will ask you about Jira API url, and token if you run fjira for the very first time.
 
@@ -107,7 +107,7 @@ You can edit existing workspace using `--edit-workspace` flag.
 fjira --edit-workspace abc
 ```
 
-### Projects search
+## Projects search
 
 The projects search is a default view, just run `fjra` in order to open it.
 
@@ -115,7 +115,7 @@ The projects search is a default view, just run `fjra` in order to open it.
 fjira
 ```
 
-### Open Jira project directly from cli
+## Open project directly from cli
 
 You can open a project directly from cli.
 
@@ -125,13 +125,20 @@ fjira --project=PROJ
 
 The fjira app will skip projects search screen, and it'll go to the next screen with issues search.
 
-### Open Jira issue directly from cli
+## Open issue directly from cli
 
 ```shell
 fjira PROJ-123
 ```
 
 The app will skip all the screens, and it'll go to the issue view directly.
+
+## Board View
+
+![Fjira Board View](demo_board_view.png)
+
+You can open board-like view using the navigation buttons from the project menu.
+First open the project, and then press F4.
 
 ## The Future (TODO)
 

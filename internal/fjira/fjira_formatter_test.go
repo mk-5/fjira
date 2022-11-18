@@ -15,9 +15,7 @@ func Test_shouldFormatProjects(t *testing.T) {
 			Key: "TEST-123",
 			Fields: jira.IssueFields{
 				Summary: "Test issue",
-				Status: struct {
-					Name string `json:"name"`
-				}(struct{ Name string }{Name: "DONE"}),
+				Status:  jira.Status{Name: "DONE"},
 				Assignee: struct {
 					AccountId   string `json:"accountId"`
 					DisplayName string `json:"displayName"`

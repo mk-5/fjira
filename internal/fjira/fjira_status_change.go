@@ -19,7 +19,7 @@ func NewStatusChangeView(issue *jira.Issue) *fjiraStatusChangeView {
 	return &fjiraStatusChangeView{
 		issue:     issue,
 		topBar:    CreateIssueTopBar(issue),
-		bottomBar: CreateIssueBottomBar(),
+		bottomBar: CreateBottomLeftBar(),
 	}
 }
 

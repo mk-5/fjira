@@ -19,15 +19,9 @@ func Test_httpJiraApi_Search(t *testing.T) {
 		{"should do search without error",
 			args{query: "test"},
 			[]Issue{
-				{"ISSUE-1", IssueFields{Description: "Desc1", Status: struct {
-					Name string `json:"name"`
-				}(struct{ Name string }{"Status1"})}, ""},
-				{"ISSUE-2", IssueFields{Description: "Desc2", Status: struct {
-					Name string `json:"name"`
-				}(struct{ Name string }{"Status2"})}, ""},
-				{"ISSUE-3", IssueFields{Description: "Desc3", Status: struct {
-					Name string `json:"name"`
-				}(struct{ Name string }{"Status3"})}, ""},
+				{"ISSUE-1", IssueFields{Description: "Desc1", Status: Status{Name: "Status1"}}, ""},
+				{"ISSUE-2", IssueFields{Description: "Desc2", Status: Status{Name: "Status2"}}, ""},
+				{"ISSUE-3", IssueFields{Description: "Desc3", Status: Status{Name: "Status3"}}, ""},
 			},
 			3,
 			false,
@@ -109,15 +103,9 @@ func Test_httpJiraApi_SearchJql(t *testing.T) {
 		{"should do search-jql without error",
 			args{query: "test"},
 			[]Issue{
-				{"ISSUE-1", IssueFields{Description: "Desc1", Status: struct {
-					Name string `json:"name"`
-				}(struct{ Name string }{"Status1"})}, ""},
-				{"ISSUE-2", IssueFields{Description: "Desc2", Status: struct {
-					Name string `json:"name"`
-				}(struct{ Name string }{"Status2"})}, ""},
-				{"ISSUE-3", IssueFields{Description: "Desc3", Status: struct {
-					Name string `json:"name"`
-				}(struct{ Name string }{"Status3"})}, ""},
+				{"ISSUE-1", IssueFields{Description: "Desc1", Status: Status{Name: "Status1"}}, ""},
+				{"ISSUE-2", IssueFields{Description: "Desc2", Status: Status{Name: "Status2"}}, ""},
+				{"ISSUE-3", IssueFields{Description: "Desc3", Status: Status{Name: "Status3"}}, ""},
 			},
 			false,
 		},

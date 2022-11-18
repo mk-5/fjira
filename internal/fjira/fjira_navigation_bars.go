@@ -13,11 +13,14 @@ const (
 	ActionSearchByStatus
 	ActionSearchByAssignee
 	ActionSearchByLabel
+	ActionBoards
 	ActionComment
-	ActionEscape
+	ActionCancel
 	ActionOpen
 	ActionYes
 	ActionAddLabel
+	ActionSelect
+	ActionUnselect
 )
 
 var (
@@ -53,6 +56,7 @@ func CreateSearchIssuesBottomBar() *app.ActionBar {
 	actionBar.AddItem(NewByStatusBarItem())
 	actionBar.AddItem(NewByAssigneeBarItem())
 	actionBar.AddItem(NewByLabelBarItem())
+	actionBar.AddItem(NewBoardsViewItem())
 	return actionBar
 }
 
@@ -81,7 +85,7 @@ func CreateSearchIssuesTopBar(project *jira.Project) *app.ActionBar {
 	return actionBar
 }
 
-func CreateIssueBottomBar() *app.ActionBar {
+func CreateBottomLeftBar() *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	return actionBar
 }
@@ -123,7 +127,7 @@ func CreateIssueTopBar(issue *jira.Issue) *app.ActionBar {
 
 func NewCancelBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
-		Id:         int(ActionEscape),
+		Id:         int(ActionCancel),
 		Text1:      "Cancel ",
 		Text2:      "[ESC]",
 		Text1Style: BottomBarItemDefaultStyle,
@@ -177,6 +181,17 @@ func NewByLabelBarItem() *app.ActionBarItem {
 	}
 }
 
+func NewBoardsViewItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:         int(ActionBoards),
+		Text1:      MessageBoards,
+		Text2:      "[F4]",
+		Text1Style: BottomBarItemDefaultStyle,
+		Text2Style: BottomBarActionBarKeyBold,
+		TriggerKey: tcell.KeyF4,
+	}
+}
+
 func NewAssigneeChangeBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Id:          int(ActionAssigneeChange),
@@ -220,6 +235,52 @@ func CreateScrollBarItem() *app.ActionBarItem {
 		Text1Style:  BottomBarItemDefaultStyle,
 		Text2Style:  BottomBarActionBarKeyBold,
 		TriggerKey:  -1,
+		TriggerRune: -1,
+	}
+}
+
+func CreateArrowsNavigateItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Text1:       MessageNavigate,
+		Text2:       "[←→↑↓]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
+		TriggerKey:  -1,
+		TriggerRune: -1,
+	}
+}
+
+func CreateMoveArrowsItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Text1:       MessageMoveIssue,
+		Text2:       "[←→]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
+		TriggerKey:  -1,
+		TriggerRune: -1,
+	}
+}
+
+func CreateSelectItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(ActionSelect),
+		Text1:       MessageSelect,
+		Text2:       "[enter]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
+		TriggerKey:  tcell.KeyEnter,
+		TriggerRune: -1,
+	}
+}
+
+func CreateUnSelectItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(ActionUnselect),
+		Text1:       MessageUnselect,
+		Text2:       "[enter]",
+		Text1Style:  BottomBarItemDefaultStyle,
+		Text2Style:  BottomBarActionBarKeyBold,
+		TriggerKey:  tcell.KeyEnter,
 		TriggerRune: -1,
 	}
 }
