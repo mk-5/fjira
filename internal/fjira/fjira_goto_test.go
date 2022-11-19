@@ -23,6 +23,9 @@ func Test_goIntoValidScreen(t *testing.T) {
 		} else if strings.Contains(r.URL.String(), "project") {
 			w.WriteHeader(200)
 			w.Write([]byte("[]")) //nolint:errcheck
+		} else if strings.Contains(r.URL.String(), "board") {
+			w.WriteHeader(200)
+			w.Write([]byte("{}")) //nolint:errcheck
 		}
 	}))
 
@@ -87,6 +90,13 @@ func Test_goIntoValidScreen(t *testing.T) {
 			gotoMethod: func() { goIntoAddLabelView(&jira.Issue{}) },
 			viewPredicate: func() bool {
 				_, ok := app.GetApp().CurrentView().(*fjiraAddLabelView)
+				return ok
+			},
+		}},
+		{"should switch view into board view", args{
+			gotoMethod: func() { goIntoBoardView(&jira.Project{}, &jira.BoardItem{Id: 1}) },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*boardView)
 				return ok
 			},
 		}},

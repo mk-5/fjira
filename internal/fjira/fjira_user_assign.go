@@ -19,7 +19,7 @@ func NewAssignChangeView(issue *jira.Issue) *fjiraAssignChangeView {
 	return &fjiraAssignChangeView{
 		issue:     issue,
 		topBar:    CreateIssueTopBar(issue),
-		bottomBar: CreateIssueBottomBar(),
+		bottomBar: CreateBottomLeftBar(),
 	}
 }
 

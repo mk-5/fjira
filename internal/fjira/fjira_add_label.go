@@ -20,7 +20,7 @@ func NewAddLabelView(issue *jira.Issue) *fjiraAddLabelView {
 	return &fjiraAddLabelView{
 		issue:     issue,
 		topBar:    CreateIssueTopBar(issue),
-		bottomBar: CreateIssueBottomBar(),
+		bottomBar: CreateBottomLeftBar(),
 	}
 }
 

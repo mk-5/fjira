@@ -40,3 +40,8 @@ func (b *ActionBarItem) ChangeText(text1 string, text2 string) {
 	b.Text1 = text1
 	b.text = fmt.Sprintf("%s%s", b.Text1, b.Text2)
 }
+
+func (b *ActionBarItem) ChangeText2(text2 string) {
+	b.Text2 = text2
+	b.text = fmt.Sprintf("%s%s", b.Text1, b.Text2)
+}

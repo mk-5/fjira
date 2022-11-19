@@ -43,7 +43,7 @@ const (
 )
 
 func NewIssueView(issue *jira.Issue) *fjiraIssueView {
-	bottomBar := CreateIssueBottomBar()
+	bottomBar := CreateBottomLeftBar()
 	bottomBar.AddItem(NewStatusChangeBarItem())
 	bottomBar.AddItem(NewAssigneeChangeBarItem())
 	bottomBar.AddItem(CreateCommentBarItem())
@@ -156,7 +156,7 @@ func (view *fjiraIssueView) HandleKeyEvent(ev *tcell.EventKey) {
 func (view *fjiraIssueView) handleIssueAction() {
 	if selectedAction := <-view.bottomBar.Action; true {
 		switch selectedAction {
-		case ActionEscape:
+		case ActionCancel:
 			app.GetApp().SetView(NewIssuesSearchView(&view.issue.Fields.Project))
 			return
 		case ActionStatusChange:

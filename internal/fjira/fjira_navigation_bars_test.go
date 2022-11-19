@@ -18,7 +18,7 @@ func TestCreateNavigationBars(t *testing.T) {
 			return CreateProjectBottomBar()
 		}},
 		{"should create issue bottom bar", func() interface{} {
-			return CreateIssueBottomBar()
+			return CreateBottomLeftBar()
 		}},
 		{"should create issue top bar", func() interface{} {
 			return CreateIssueTopBar(&jira.Issue{})

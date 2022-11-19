@@ -40,9 +40,7 @@ func Test_httpJiraApi_GetIssueDetailed(t *testing.T) {
 					}{"", ""}),
 					Type:   IssueType{Name: "Task"},
 					Labels: []string{"TestLabel"},
-					Status: struct {
-						Name string `json:"name"`
-					}(struct{ Name string }{"Done"}),
+					Status: Status{Id: "10013", Name: "Done"},
 					Comment: struct {
 						Comments   []Comment `json:"comments"`
 						MaxResults int32     `json:"maxResults"`

@@ -70,3 +70,18 @@ func goIntoSwitchWorkspaceView() {
 	switchWorkspaceView := NewSwitchWorkspaceView()
 	app.GetApp().SetView(switchWorkspaceView)
 }
+
+func goIntoBoardView(project *jira.Project, board *jira.BoardItem) {
+	defer app.GetApp().PanicRecover()
+	app.GetApp().Loading(true)
+	api, _ := GetApi()
+	boardConfig, err := api.GetBoardConfiguration(board.Id)
+	if err != nil {
+		app.GetApp().Loading(false)
+		app.Error(err.Error())
+		return
+	}
+	app.GetApp().Loading(false)
+	boardView := NewBoardView(project, boardConfig)
+	app.GetApp().SetView(boardView)
+}

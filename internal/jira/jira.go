@@ -22,6 +22,8 @@ type Api interface {
 	DoAssignee(issueId string, accountId string) error
 	GetIssueDetailed(issueId string) (*Issue, error)
 	DoComment(issueId string, commentBody string) error
+	FindBoards(projectKeyOrId string) ([]*BoardItem, error)
+	GetBoardConfiguration(boardId int) (*BoardConfiguration, error)
 	Close()
 }
 
@@ -47,6 +49,11 @@ type Comment struct {
 	Created string `json:"created"`
 }
 
+type Status struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type IssueFields struct {
 	Summary     string  `json:"summary"`
 	Project     Project `json:"project"`
@@ -62,9 +69,7 @@ type IssueFields struct {
 	Type struct {
 		Name string `json:"name"`
 	} `json:"issuetype"`
-	Status struct {
-		Name string `json:"name"`
-	} `json:"status"`
+	Status  Status
 	Comment struct {
 		Comments   []Comment `json:"comments"`
 		MaxResults int32     `json:"maxResults"`
@@ -107,6 +112,55 @@ type LabelsSuggestionsResponseBody struct {
 		Label string `json:"label"`
 		Html  string `json:"html"`
 	} `json:"suggestions"`
+}
+
+type BoardItem struct {
+	Id   int    `json:"id"`
+	Self string `json:"self"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+type BoardsResponse struct {
+	MaxResults int          `json:"maxResults"`
+	StartAt    int          `json:"startAt"`
+	Total      int          `json:"total"`
+	IsLast     bool         `json:"isLast"`
+	Values     []*BoardItem `json:"values"`
+}
+
+type BoardConfiguration struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	Self     string `json:"self"`
+	Location struct {
+		Type string `json:"type"`
+		Key  string `json:"key"`
+		Id   string `json:"id"`
+		Self string `json:"self"`
+		Name string `json:"name"`
+	} `json:"location"`
+	Filter struct {
+		Id   string `json:"id"`
+		Self string `json:"self"`
+	} `json:"filter"`
+	SubQuery struct {
+		Query string `json:"query"`
+	} `json:"subQuery"`
+	ColumnConfig struct {
+		Columns []struct {
+			Name     string `json:"name"`
+			Statuses []struct {
+				Id   string `json:"id"`
+				Self string `json:"self"`
+			} `json:"statuses"`
+		} `json:"columns"`
+		ConstraintType string `json:"constraintType"`
+	} `json:"columnConfig"`
+	Ranking struct {
+		RankCustomFieldId int `json:"rankCustomFieldId"`
+	} `json:"ranking"`
 }
 
 type ApiCredentials struct {

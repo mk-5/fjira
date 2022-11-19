@@ -12,7 +12,7 @@ func Test_httpJiraApi_FindProjects(t *testing.T) {
 		want    []Project
 		wantErr bool
 	}{
-		{"should do assignment without error",
+		{"should find projects without error",
 			[]Project{{"1", "FJIRA", "FJIR"}, {"2", "General", "GEN"}},
 			false,
 		},
@@ -69,7 +69,7 @@ func Test_httpJiraApi_FindProject(t *testing.T) {
 		want    *Project
 		wantErr bool
 	}{
-		{"should do assignment without error",
+		{"should find project without error",
 			&Project{"1", "FJIRA", "FJIR"},
 			false,
 		},

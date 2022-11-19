@@ -169,6 +169,10 @@ func (a *App) Loading(flag bool) {
 	a.loading = flag
 }
 
+func (a *App) IsLoading() bool {
+	return a.loading
+}
+
 func (a *App) LoadingWithText(flag bool, text string) {
 	a.spinner.text = text
 	a.loading = flag
