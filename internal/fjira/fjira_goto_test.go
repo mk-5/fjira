@@ -23,6 +23,9 @@ func Test_goIntoValidScreen(t *testing.T) {
 		} else if strings.Contains(r.URL.String(), "project") {
 			w.WriteHeader(200)
 			w.Write([]byte("[]")) //nolint:errcheck
+		} else if strings.Contains(r.URL.String(), "board") {
+			w.WriteHeader(200)
+			w.Write([]byte("{}")) //nolint:errcheck
 		}
 	}))
 
