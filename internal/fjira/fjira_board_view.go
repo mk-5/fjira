@@ -310,8 +310,7 @@ func (b *boardView) moveIssue(issue *jira.Issue, direction int) {
 		inc = -1
 	}
 	column := b.statusesColumnsMap[issue.Fields.Status.Id] + inc
-	columnStatuses := b.columnStatusesMap[column]
-	targetStatus := columnStatuses[0]
+	targetColumnStatuses := b.columnStatusesMap[column]
 	api, _ := GetApi()
 	transitions, err := api.FindTransitions(issue.Id)
 	if err != nil {
@@ -321,8 +320,11 @@ func (b *boardView) moveIssue(issue *jira.Issue, direction int) {
 	}
 	var targetTransition *jira.IssueTransition
 	for i, transition := range transitions {
-		if transition.To.StatusId == targetStatus {
-			targetTransition = &transitions[i]
+		for _, targetStatus := range targetColumnStatuses {
+			if transition.To.StatusId == targetStatus {
+				targetTransition = &transitions[i]
+				break
+			}
 		}
 	}
 	if targetTransition == nil {
