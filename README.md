@@ -5,6 +5,7 @@
 ![Test](https://github.com/mk-5/fjira/actions/workflows/tests.yml/badge.svg)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://github.com/mk-5/fjira/blob/master/LICENSE)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/mk-5/fjira)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mk-5/fjira)](https://goreportcard.com/report/github.com/mk-5/fjira)
 
 ## Demo
 
