@@ -104,7 +104,7 @@ func Test_fjiraAssignChangeView_doAssignmentChange(t *testing.T) {
 			// then
 			select {
 			case <-assignUserRequestSent:
-			case <-time.After(3 * time.Second):
+			case <-time.After(5 * time.Second):
 				t.Fail()
 			}
 		})
