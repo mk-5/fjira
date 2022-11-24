@@ -3,8 +3,8 @@ package fjira
 import (
 	"bytes"
 	"github.com/gdamore/tcell/v2"
-	"github.com/mk5/fjira/internal/app"
-	"github.com/mk5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/jira"
 	assert2 "github.com/stretchr/testify/assert"
 	"net/http"
 	"strings"
@@ -92,19 +92,19 @@ const jiraIssueJson = `
 
 func Test_shouldDisplayIssueView(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
-	screen.Init() //nolint:errcheck
+	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 
 	fjira := CreateNewFjira(&fjiraSettings{})
 	fjira.SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.String(), "issue") {
 			w.WriteHeader(200)
-			w.Write([]byte(jiraIssueJson)) //nolint:errcheck
+			_, _ = w.Write([]byte(jiraIssueJson)) //nolint:errcheck
 			return
 		}
 		if strings.Contains(r.URL.String(), "project") {
 			w.WriteHeader(200)
-			w.Write([]byte("[]")) //nolint:errcheck
+			_, _ = w.Write([]byte("[]")) //nolint:errcheck
 		}
 	}))
 

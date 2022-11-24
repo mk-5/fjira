@@ -3,8 +3,8 @@ package fjira
 import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
-	"github.com/mk5/fjira/internal/app"
-	"github.com/mk5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/jira"
 )
 
 type fjiraStatusChangeView struct {

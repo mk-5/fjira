@@ -1,4 +1,4 @@
-module github.com/mk5/fjira
+module github.com/mk-5/fjira
 
 go 1.18
 

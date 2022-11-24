@@ -2,7 +2,7 @@ package jira
 
 import (
 	"encoding/json"
-	"github.com/mk5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/app"
 	"strings"
 )
 
@@ -12,7 +12,6 @@ import (
 
 const (
 	GetTransitions = "/rest/api/2/issue/{issue}/transitions"
-	DoTransition   = "/rest/api/2/transitions"
 )
 
 type nilParams struct{}

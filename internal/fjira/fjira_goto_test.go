@@ -1,8 +1,8 @@
 package fjira
 
 import (
-	"github.com/mk5/fjira/internal/app"
-	"github.com/mk5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/jira"
 	assert2 "github.com/stretchr/testify/assert"
 	"net/http"
 	"strings"
@@ -14,18 +14,18 @@ func Test_goIntoValidScreen(t *testing.T) {
 	fjira.SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.String(), "issue") {
 			w.WriteHeader(200)
-			w.Write([]byte("{}")) //nolint:errcheck
+			_, _ = w.Write([]byte("{}")) //nolint:errcheck
 			return
 		}
 		if strings.Contains(r.URL.String(), "project/ABC") {
 			w.WriteHeader(200)
-			w.Write([]byte("{}")) //nolint:errcheck
+			_, _ = w.Write([]byte("{}")) //nolint:errcheck
 		} else if strings.Contains(r.URL.String(), "project") {
 			w.WriteHeader(200)
-			w.Write([]byte("[]")) //nolint:errcheck
+			_, _ = w.Write([]byte("[]")) //nolint:errcheck
 		} else if strings.Contains(r.URL.String(), "board") {
 			w.WriteHeader(200)
-			w.Write([]byte("{}")) //nolint:errcheck
+			_, _ = w.Write([]byte("{}")) //nolint:errcheck
 		}
 	}))
 

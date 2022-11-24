@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/gdamore/tcell/v2"
-	"github.com/mk5/fjira/internal/app"
-	"github.com/mk5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"regexp"
@@ -46,7 +46,7 @@ func Test_boardView_Destroy(t *testing.T) {
 
 func Test_boardView_Draw(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
-	screen.Init() //nolint:errcheck
+	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 	type args struct {
 		screen tcell.Screen
@@ -133,10 +133,10 @@ func Test_boardView_Draw(t *testing.T) {
 			_ = json.Unmarshal([]byte(boardJson), &board)
 			view := NewBoardView(&jira.Project{}, &board)
 			view.issues = []jira.Issue{
-				jira.Issue{Id: "1", Key: "GEN-1", Fields: jira.IssueFields{Status: jira.Status{Id: "10000"}}},
-				jira.Issue{Id: "2", Key: "GEN-2", Fields: jira.IssueFields{Status: jira.Status{Id: "10001"}}},
-				jira.Issue{Id: "3", Key: "GEN-3", Fields: jira.IssueFields{Status: jira.Status{Id: "10002"}}},
-				jira.Issue{Id: "4", Key: "GEN-4", Fields: jira.IssueFields{Status: jira.Status{Id: "10003"}}},
+				{Id: "1", Key: "GEN-1", Fields: jira.IssueFields{Status: jira.Status{Id: "10000"}}},
+				{Id: "2", Key: "GEN-2", Fields: jira.IssueFields{Status: jira.Status{Id: "10001"}}},
+				{Id: "3", Key: "GEN-3", Fields: jira.IssueFields{Status: jira.Status{Id: "10002"}}},
+				{Id: "4", Key: "GEN-4", Fields: jira.IssueFields{Status: jira.Status{Id: "10003"}}},
 			}
 
 			// when
@@ -170,6 +170,9 @@ func Test_boardView_Draw(t *testing.T) {
 }
 
 func Test_boardView_HandleKeyEvent(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
 	type args struct {
 		ev []*tcell.EventKey
 	}
@@ -191,6 +194,8 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
 			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{})
 			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
 			CreateNewFjira(&fjiraSettings{})
@@ -202,11 +207,12 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 			view.statusesColumnsMap["1"] = 1
 			view.statusesColumnsMap["2"] = 2
 			view.statusesColumnsMap["3"] = 3
-			view.issues = []jira.Issue{jira.Issue{Id: "1", Fields: jira.IssueFields{Status: jira.Status{Id: "1"}}}}
+			view.issues = []jira.Issue{{Id: "1", Fields: jira.IssueFields{Status: jira.Status{Id: "1"}}}}
 			view.highlightedIssue = &view.issues[0]
 			view.columns = []string{"a", "b", "c", "d"}
 
 			// when
+			app.GetApp().Loading(false)
 			for _, key := range tt.args.ev {
 				view.HandleKeyEvent(key)
 			}
@@ -271,7 +277,7 @@ func Test_boardView_Init(t *testing.T) {
     ]
 }
 `
-				w.Write([]byte(body)) //nolint:errcheck
+				_, _ = w.Write([]byte(body)) //nolint:errcheck
 			})
 			_ = SetApi(api)
 
