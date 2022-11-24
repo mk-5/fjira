@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/mk5/fjira/internal/fjira"
+	"github.com/mk-5/fjira/internal/fjira"
 	"log"
 	"os"
 	"regexp"

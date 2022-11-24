@@ -1,7 +1,7 @@
 package fjira
 
 import (
-	"github.com/mk5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

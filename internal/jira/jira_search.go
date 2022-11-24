@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mk5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/app"
 	"regexp"
 )
 

@@ -2,7 +2,7 @@ package fjira
 
 import (
 	"fmt"
-	"github.com/mk5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/jira"
 	"strings"
 )
 

@@ -2,7 +2,7 @@ package jira
 
 import (
 	"encoding/json"
-	"github.com/mk5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/app"
 	"strings"
 )
 

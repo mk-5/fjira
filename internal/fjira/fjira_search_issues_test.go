@@ -3,8 +3,8 @@ package fjira
 import (
 	"bytes"
 	"github.com/gdamore/tcell/v2"
-	"github.com/mk5/fjira/internal/app"
-	"github.com/mk5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -44,7 +44,7 @@ func Test_fjiraSearchIssuesView_Destroy(t *testing.T) {
 
 func Test_fjiraSearchIssuesView_Init(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
-	screen.Init() //nolint:errcheck
+	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 
 	type args struct {

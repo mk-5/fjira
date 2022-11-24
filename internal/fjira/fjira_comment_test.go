@@ -3,8 +3,8 @@ package fjira
 import (
 	"bytes"
 	"github.com/gdamore/tcell/v2"
-	"github.com/mk5/fjira/internal/app"
-	"github.com/mk5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -44,7 +44,7 @@ func Test_fjiraCommentView_Destroy(t *testing.T) {
 
 func Test_fjiraCommentView_Draw(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
-	screen.Init() //nolint:errcheck
+	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 	type args struct {
 		screen tcell.Screen
@@ -116,7 +116,7 @@ func Test_fjiraCommentView_HandleKeyEvent(t *testing.T) {
 
 func Test_fjiraCommentView_Init(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
-	screen.Init() //nolint:errcheck
+	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 
 	tests := []struct {
@@ -132,10 +132,10 @@ func Test_fjiraCommentView_Init(t *testing.T) {
 			done := make(chan bool)
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				w.Write([]byte(``)) //nolint:errcheck
+				_, _ = w.Write([]byte(``)) //nolint:errcheck
 				done <- true
 			})
-			SetApi(api) //nolint:errcheck
+			_ = SetApi(api) //nolint:errcheck
 			view := NewCommentView(&jira.Issue{})
 
 			// when
