@@ -284,6 +284,13 @@ func (a *App) RemoveSystem(system System) {
 	a.changeMutex.Unlock()
 }
 
+func (a *App) LastDrawable() Drawable {
+	if len(a.drawables) == 0 {
+		return nil
+	}
+	return a.drawables[len(a.drawables)-1]
+}
+
 func (a *App) SetDirty() {
 	a.dirty <- true
 }

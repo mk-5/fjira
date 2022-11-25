@@ -67,7 +67,7 @@ func TestNewAssignChangeView(t *testing.T) {
 	}
 }
 
-func Test_fjiraAssignChangeView_doAssignmentChange(t *testing.T) {
+func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
@@ -99,7 +99,13 @@ func Test_fjiraAssignChangeView_doAssignmentChange(t *testing.T) {
 				assert.Contains(t, r.RequestURI, tt.args.issue.Key)
 				assignUserRequestSent <- true
 			}))
-			go view.doAssignmentChange(tt.args.issue, tt.args.user)
+			go view.assignUserToTicket(tt.args.issue, tt.args.user)
+			<-time.NewTimer(100 * time.Millisecond).C
+			confirmation := app.GetApp().LastDrawable()
+			if kl, ok := (confirmation).(app.KeyListener); ok {
+				kl.HandleKeyEvent(tcell.NewEventKey(0, app.Yes, 0))
+			}
+			<-time.NewTimer(100 * time.Millisecond).C
 
 			// then
 			select {

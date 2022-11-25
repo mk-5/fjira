@@ -132,7 +132,6 @@ func Test_shouldDisplayIssueView(t *testing.T) {
 			result := buffer.String()
 
 			// then
-
 			assert.True(ok, "Invalid view has been set")
 			assert.Equal("JWC-3", view.issue.Key, "Invalid issue key")
 			assert.Equal("Lorem ipsum", view.issue.Fields.Description, "Invalid issue description")
@@ -141,6 +140,9 @@ func Test_shouldDisplayIssueView(t *testing.T) {
 			assert.Contains(result, "Mateusz Kulawik", "should contain comment")
 			assert.Contains(result, "Comment 123-ABC", "should contain comment author")
 			assert.Contains(result, "TestLabel", "should contain labels")
+
+			// and then
+			view.Destroy()
 		}},
 	}
 	for _, tt := range tests {
