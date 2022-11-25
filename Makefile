@@ -22,6 +22,7 @@ test:
 test_coverage:
 	go test -coverpkg=./... -covermode=count -coverprofile=coverage.out ./internal/...
 	go tool cover -html=coverage.out -o=coverage.html
+	go tool cover -func coverage.out
 
 release:
 	goreleaser release --skip-publish --snapshot --rm-dist

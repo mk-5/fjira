@@ -40,17 +40,17 @@ func TestNewAssignChangeView(t *testing.T) {
 
 			// when
 			view.Init()
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 			query := "bob"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
 			view.Update()
 			view.Resize(screen.Size())
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 			view.Update()
 			view.Draw(screen)
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 
 			var buffer bytes.Buffer
 			contents, x, y := screen.GetContents()
