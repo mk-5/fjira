@@ -122,20 +122,7 @@ func (a *App) Start() {
 		//select {
 		//case <-a.dirty:
 		//}
-		a.screen.Show()
-		for _, system := range a.systems {
-			system.Update()
-		}
-		a.screen.Fill(' ', DefaultStyle)
-		if a.loading {
-			a.spinner.Draw(a.screen)
-		}
-		for _, drawable := range a.drawables {
-			drawable.Draw(a.screen)
-		}
-		for _, flash := range a.flash {
-			flash.Draw(a.screen)
-		}
+		a.Render()
 		if len(a.runOnAppRoutine) == 0 {
 			time.Sleep(FPSMilliseconds)
 			continue
@@ -149,6 +136,23 @@ func (a *App) Start() {
 			continue
 		}
 		a.runOnAppRoutine = nil
+	}
+}
+
+func (a *App) Render() {
+	a.screen.Show()
+	for _, system := range a.systems {
+		system.Update()
+	}
+	a.screen.Fill(' ', DefaultStyle)
+	if a.loading {
+		a.spinner.Draw(a.screen)
+	}
+	for _, drawable := range a.drawables {
+		drawable.Draw(a.screen)
+	}
+	for _, flash := range a.flash {
+		flash.Draw(a.screen)
 	}
 }
 

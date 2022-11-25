@@ -8,35 +8,28 @@ import (
 	"testing"
 )
 
-func TestFuzzyFind_Draw(t *testing.T) {
+func TestFlush(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
+	app := CreateNewAppWithScreen(screen)
 
 	type args struct {
-		records []string
-		query   string
+		message string
 	}
+
 	tests := []struct {
 		name string
 		args args
-		want string
 	}{
-		{"should show valid results", args{records: []string{"abc"}, query: "abc"}, "abc"},
-		{"should show valid results", args{records: []string{"Brzęczyszczykiewicz"}, query: "c"}, "Brzęczyszczykiewicz"},
+		{"should render flush messages", args{message: "Flush message!"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// given
-			fuzzyFind := NewFuzzyFind("test", tt.args.records)
-
 			// when
-			for _, key := range tt.args.query {
-				fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
-			}
-			fuzzyFind.Update()
-			fuzzyFind.Resize(screen.Size())
-			fuzzyFind.Draw(screen)
+			Success(tt.args.message)
+			app.flash[0].Draw(screen)
+
 			var buffer bytes.Buffer
 			contents, x, y := screen.GetContents()
 			screen.Show()
@@ -48,7 +41,24 @@ func TestFuzzyFind_Draw(t *testing.T) {
 			result := strings.TrimSpace(buffer.String())
 
 			// then
-			assert.Contains(t, result, tt.want)
+			assert.Contains(t, result, tt.args.message)
+
+			// and when
+			Error(tt.args.message)
+			app.flash[0].Draw(screen)
+
+			buffer.Reset()
+			contents, x, y = screen.GetContents()
+			screen.Show()
+			for i := 0; i < x*y; i++ {
+				if string(contents[i].Bytes) != "" {
+					buffer.Write(contents[i].Bytes)
+				}
+			}
+			result = strings.TrimSpace(buffer.String())
+
+			// then
+			assert.Contains(t, result, tt.args.message)
 		})
 	}
 }

@@ -9,6 +9,7 @@ gopath
 out
 node_modules/
 coverage.out
+coverage.html
 coverage.txt
 
 dist/

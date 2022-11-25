@@ -8,35 +8,28 @@ import (
 	"testing"
 )
 
-func TestFuzzyFind_Draw(t *testing.T) {
+func TestNewText(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 
 	type args struct {
-		records []string
-		query   string
+		text string
 	}
 	tests := []struct {
 		name string
 		args args
-		want string
 	}{
-		{"should show valid results", args{records: []string{"abc"}, query: "abc"}, "abc"},
-		{"should show valid results", args{records: []string{"Brzęczyszczykiewicz"}, query: "c"}, "Brzęczyszczykiewicz"},
+		{"should render text", args{text: "abcde"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			fuzzyFind := NewFuzzyFind("test", tt.args.records)
+			text := NewText(0, 0, tcell.StyleDefault, tt.args.text)
+			text.ChangeText(tt.args.text)
 
 			// when
-			for _, key := range tt.args.query {
-				fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
-			}
-			fuzzyFind.Update()
-			fuzzyFind.Resize(screen.Size())
-			fuzzyFind.Draw(screen)
+			text.Draw(screen)
 			var buffer bytes.Buffer
 			contents, x, y := screen.GetContents()
 			screen.Show()
@@ -48,7 +41,7 @@ func TestFuzzyFind_Draw(t *testing.T) {
 			result := strings.TrimSpace(buffer.String())
 
 			// then
-			assert.Contains(t, result, tt.want)
+			assert.Contains(t, result, tt.args.text)
 		})
 	}
 }

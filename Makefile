@@ -19,6 +19,10 @@ run:
 test:
 	go test ./internal/...
 
+test_coverage:
+	go test -coverpkg=./... -covermode=count -coverprofile=coverage.out ./internal/...
+	go tool cover -html=coverage.out -o=coverage.html
+
 release:
 	goreleaser release --skip-publish --snapshot --rm-dist
 
