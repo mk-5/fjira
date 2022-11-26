@@ -25,7 +25,7 @@ func TestNewBoardView(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.NotNil(t, NewBoardView(tt.args.project, tt.args.boardConfiguration), "NewBoardView(%v, %v)", tt.args.project, tt.args.boardConfiguration)
+			assert.NotNil(t, newBoardView(tt.args.project, tt.args.boardConfiguration), "newBoardView(%v, %v)", tt.args.project, tt.args.boardConfiguration)
 		})
 	}
 }
@@ -38,7 +38,7 @@ func Test_boardView_Destroy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := NewBoardView(&jira.Project{}, &jira.BoardConfiguration{})
+			b := newBoardView(&jira.Project{}, &jira.BoardConfiguration{})
 			b.Destroy()
 		})
 	}
@@ -131,7 +131,7 @@ func Test_boardView_Draw(t *testing.T) {
 `
 			var board jira.BoardConfiguration
 			_ = json.Unmarshal([]byte(boardJson), &board)
-			view := NewBoardView(&jira.Project{}, &board)
+			view := newBoardView(&jira.Project{}, &board)
 			view.issues = []jira.Issue{
 				{Id: "1", Key: "GEN-1", Fields: jira.IssueFields{Status: jira.Status{Id: "10000"}}},
 				{Id: "2", Key: "GEN-2", Fields: jira.IssueFields{Status: jira.Status{Id: "10001"}}},
@@ -196,7 +196,7 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
-			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{})
+			view := newBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{})
 			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
 			CreateNewFjira(&fjiraSettings{})
 			view.columnStatusesMap[0] = []string{"0"}
@@ -232,7 +232,7 @@ func Test_boardView_Init(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{})
+			view := newBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{})
 			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {

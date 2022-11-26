@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -27,7 +28,7 @@ var FjiraNotInitalizedErr = errors.New("Cannot use fjira. You need to call Creat
 type Fjira struct {
 	app       *app.App
 	api       jira.Api
-	formatter FjiraFormatter
+	formatter fjiraFormatter
 	jiraUrl   string
 }
 
@@ -79,7 +80,7 @@ func SetApi(api jira.Api) error {
 	return nil
 }
 
-func GetFormatter() (FjiraFormatter, error) {
+func GetFormatter() (fjiraFormatter, error) {
 	if fjiraInstance == nil {
 		return nil, FjiraNotInitalizedErr
 	}
@@ -99,7 +100,7 @@ func Install(args CliArgs) (*fjiraSettings, error) {
 		return nil, err
 	}
 	if args.WorkspaceEdit {
-		settings, err := readFromWorkspaceEdit(args.Workspace)
+		settings, err := readFromWorkspaceEdit(os.Stdin, args.Workspace)
 		if err != nil {
 			panic(err)
 		}
@@ -114,7 +115,7 @@ func Install(args CliArgs) (*fjiraSettings, error) {
 	}
 	settings2, err := readFromUserSettings(args.Workspace)
 	if err == WorkspaceNotFoundErr {
-		return readFromUserInputAndStore(args.Workspace, nil)
+		return readFromUserInputAndStore(os.Stdin, args.Workspace, nil)
 	}
 	if err != nil {
 		return nil, err

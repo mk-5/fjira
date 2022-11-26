@@ -26,7 +26,7 @@ var (
 	headerStyle = app.DefaultStyle.Foreground(tcell.ColorWhite).Underline(true)
 )
 
-func NewCommentView(issue *jira.Issue) *fjiraCommentView {
+func newCommentView(issue *jira.Issue) *fjiraCommentView {
 	bottomBar := CreateBottomLeftBar()
 	bottomBar.AddItem(NewSaveBarItem())
 	bottomBar.AddItem(NewCancelBarItem())

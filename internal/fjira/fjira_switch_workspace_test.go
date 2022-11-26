@@ -15,7 +15,7 @@ func TestNewSwitchWorkspaceView(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.NotNil(t, NewSwitchWorkspaceView(), "NewSwitchWorkspaceView()")
+			assert.NotNil(t, newSwitchWorkspaceView(), "newSwitchWorkspaceView()")
 		})
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
+	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -60,7 +61,7 @@ func readFromUserSettings(workspace string) (*fjiraSettings, error) {
 	return settings, err
 }
 
-func readFromUserInputAndStore(workspace string, existingSettings *fjiraSettings) (*fjiraSettings, error) {
+func readFromUserInputAndStore(input io.Reader, workspace string, existingSettings *fjiraSettings) (*fjiraSettings, error) {
 	workspaceName := workspace
 	if workspace == EmptyWorkspace {
 		workspaceName = DefaultWorkspaceName
@@ -76,7 +77,7 @@ func readFromUserInputAndStore(workspace string, existingSettings *fjiraSettings
 	}
 	fmt.Println(color.CyanString(workspaceName))
 	fmt.Println("")
-	reader := bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(input)
 	fmt.Print(color.HiYellowString(MessageQuestionMark))
 	fmt.Print(MessageEnterUsername)
 	if existingSettings != nil {
@@ -130,13 +131,13 @@ func readFromUserInputAndStore(workspace string, existingSettings *fjiraSettings
 	return settings, err
 }
 
-func readFromWorkspaceEdit(workspace string) (*fjiraSettings, error) {
+func readFromWorkspaceEdit(input io.Reader, workspace string) (*fjiraSettings, error) {
 	var settingsStorage = &userHomeSettingsStorage{}
 	settings, err := settingsStorage.read(workspace)
 	if err != nil {
 		return nil, err
 	}
-	editedSettings, err := readFromUserInputAndStore(workspace, settings)
+	editedSettings, err := readFromUserInputAndStore(input, workspace, settings)
 	if err != nil {
 		return nil, err
 	}

@@ -42,7 +42,7 @@ func goIntoIssueView(issueKey string) {
 		return
 	}
 	app.GetApp().Loading(false)
-	issueView := NewIssueView(issue)
+	issueView := newIssueView(issue)
 	app.GetApp().SetView(issueView)
 }
 
@@ -57,17 +57,17 @@ func goIntoChangeAssignment(issue *jira.Issue) {
 }
 
 func goIntoCommentView(issue *jira.Issue) {
-	commentView := NewCommentView(issue)
+	commentView := newCommentView(issue)
 	app.GetApp().SetView(commentView)
 }
 
 func goIntoAddLabelView(issue *jira.Issue) {
-	commentView := NewAddLabelView(issue)
+	commentView := newAddLabelView(issue)
 	app.GetApp().SetView(commentView)
 }
 
 func goIntoSwitchWorkspaceView() {
-	switchWorkspaceView := NewSwitchWorkspaceView()
+	switchWorkspaceView := newSwitchWorkspaceView()
 	app.GetApp().SetView(switchWorkspaceView)
 }
 
@@ -82,6 +82,6 @@ func goIntoBoardView(project *jira.Project, board *jira.BoardItem) {
 		return
 	}
 	app.GetApp().Loading(false)
-	boardView := NewBoardView(project, boardConfig)
+	boardView := newBoardView(project, boardConfig)
 	app.GetApp().SetView(boardView)
 }

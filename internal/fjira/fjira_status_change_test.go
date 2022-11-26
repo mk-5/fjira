@@ -109,7 +109,13 @@ func Test_fjiraStatusChangeView_changeStatusForTicket(t *testing.T) {
 				assert.Contains(t, r.RequestURI, tt.args.issue.Key)
 				changeStatusRequestSent <- true
 			}))
-			go view.changeStatusForTicket(tt.args.issue, tt.args.status)
+			go view.changeStatusTo(tt.args.status)
+			<-time.NewTimer(100 * time.Millisecond).C
+			confirmation := app.GetApp().LastDrawable()
+			if kl, ok := (confirmation).(app.KeyListener); ok {
+				kl.HandleKeyEvent(tcell.NewEventKey(0, app.Yes, 0))
+			}
+			<-time.NewTimer(100 * time.Millisecond).C
 
 			// then
 			select {

@@ -72,7 +72,7 @@ func (view *fjiraAssignChangeView) startUsersSearching() {
 	if user := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if user.Index < 0 {
-			app.GetApp().SetView(NewIssueView(view.issue))
+			app.GetApp().SetView(newIssueView(view.issue))
 			return
 		}
 		view.fuzzyFind = nil
@@ -91,7 +91,7 @@ func (view *fjiraAssignChangeView) findUser(project string) []jira.User {
 
 func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.Issue, user *jira.User) {
 	if user == nil {
-		app.GetApp().SetView(NewIssueView(view.issue))
+		app.GetApp().SetView(newIssueView(view.issue))
 		return
 	}
 	message := fmt.Sprintf(MessageChangingAssigneeTo, issue.Key, user.DisplayName)
@@ -105,7 +105,7 @@ func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.Issue, user *j
 		view.doAssignmentChange(issue, user)
 		goIntoIssueView(view.issue.Key)
 	case false:
-		app.GetApp().SetView(NewIssueView(view.issue))
+		app.GetApp().SetView(newIssueView(view.issue))
 	}
 }
 
