@@ -40,6 +40,7 @@ func TestNewProjectsSearchView(t *testing.T) {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
 			view.Update()
+			view.Update()
 			view.Resize(screen.Size())
 			<-time.NewTimer(250 * time.Millisecond).C
 			view.Update()

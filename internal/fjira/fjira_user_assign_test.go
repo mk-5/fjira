@@ -7,6 +7,7 @@ import (
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 )
@@ -46,6 +47,7 @@ func TestNewAssignChangeView(t *testing.T) {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
 			view.Update()
+			view.Update()
 			view.Resize(screen.Size())
 			<-time.NewTimer(300 * time.Millisecond).C
 			view.Update()
@@ -62,7 +64,6 @@ func TestNewAssignChangeView(t *testing.T) {
 
 			// then
 			assert.Contains(t, result, "Bob")
-			assert.NotContains(t, result, "John")
 		})
 	}
 }
@@ -74,14 +75,13 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 
 	type args struct {
 		issue *jira.Issue
-		user  *jira.User
 	}
 
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should send assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, user: &jira.User{DisplayName: "Bob", AccountId: "333"}}},
+		{"should send assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -94,18 +94,25 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 			assignUserRequestSent := make(chan bool)
 			_ = SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				_, _ = w.Write([]byte(`{}`))
-
-				assert.Contains(t, r.RequestURI, tt.args.issue.Key)
-				assignUserRequestSent <- true
+				if strings.Contains(r.RequestURI, tt.args.issue.Key) {
+					_, _ = w.Write([]byte(`{}`))
+					assignUserRequestSent <- true
+				} else {
+					_, _ = w.Write([]byte(`[{"id": "U1", "displayName": "Bob"}, {"id": "U2", "displayName": "John"}]`))
+				}
 			}))
-			go view.assignUserToTicket(tt.args.issue, tt.args.user)
-			<-time.NewTimer(100 * time.Millisecond).C
+			go view.startUsersSearching()
+			<-time.NewTimer(500 * time.Millisecond).C
+			view.HandleKeyEvent(tcell.NewEventKey(-1, 'B', tcell.ModNone))
+			view.Update()
+			view.Update()
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, -1, tcell.ModNone))
+			<-time.NewTimer(250 * time.Millisecond).C
 			confirmation := app.GetApp().LastDrawable()
 			if kl, ok := (confirmation).(app.KeyListener); ok {
 				kl.HandleKeyEvent(tcell.NewEventKey(0, app.Yes, 0))
 			}
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(250 * time.Millisecond).C
 
 			// then
 			select {
@@ -113,6 +120,47 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 			case <-time.After(5 * time.Second):
 				t.Fail()
 			}
+		})
+	}
+}
+
+func Test_fjiraAssignChangeView_noUserFound(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	type args struct {
+		issue *jira.Issue
+	}
+
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"should open issue view again when no user found", args{issue: &jira.Issue{Key: "ABC", Id: "123"}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
+			view := NewAssignChangeView(tt.args.issue)
+
+			// when
+			_ = SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				_, _ = w.Write([]byte(`[]`))
+			}))
+			go view.startUsersSearching()
+			<-time.NewTimer(250 * time.Millisecond).C
+			view.Update()
+			view.Update()
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, -1, tcell.ModNone))
+			<-time.NewTimer(500 * time.Millisecond).C
+
+			// then
+			_, ok := app.GetApp().CurrentView().(*fjiraIssueView)
+			assert.True(t, ok || app.GetApp().CurrentView() == nil)
 		})
 	}
 }
