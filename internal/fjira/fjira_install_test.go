@@ -1,11 +1,14 @@
 package fjira
 
 import (
+	"bytes"
+	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	assert2 "github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+	"time"
 )
 
 func Test_shouldReturnErrorWhenNoEnvironments(t *testing.T) {
@@ -114,6 +117,85 @@ func Test_readFromUserSettings(t *testing.T) {
 
 			got, _ := readFromUserSettings(tt.args.workspace)
 			assert2.Equalf(t, tt.want, got, "readFromUserSettings(%v)", tt.args.workspace)
+		})
+	}
+}
+
+func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
+	// TODO - not working on windows
+	tempDir := t.TempDir()
+	_ = os.Setenv("HOME", tempDir)
+	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
+	defer func(name string) {
+		_ = os.Remove(name)
+	}(tempDir + "/.fjira")
+
+	type args struct {
+		workspace        string
+		existingSettings *fjiraSettings
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"should read workspace data from user input",
+			args{workspace: "xyz", existingSettings: &fjiraSettings{JiraToken: "123", JiraUsername: "test@test.pl", JiraRestUrl: "https://test.atlassian.net"}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			stdin := bytes.NewBufferString("TestUser\nTestUrl\nTestToken\n")
+
+			// when
+			settings, err := readFromUserInputAndStore(stdin, tt.args.workspace, tt.args.existingSettings)
+			if err != nil {
+				assert2.Fail(t, err.Error())
+			}
+			<-time.NewTimer(100 * time.Millisecond).C
+
+			// then
+			assert2.Equal(t, "TestToken", settings.JiraToken)
+			assert2.Equal(t, "TestUrl", settings.JiraRestUrl)
+			assert2.Equal(t, "TestUser", settings.JiraUsername)
+			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/%s.json", tt.args.workspace))
+
+			// and when
+			stdin = bytes.NewBufferString("TestUser2\nTestUrl2\n\n")
+			settings, err = readFromWorkspaceEdit(stdin, tt.args.workspace)
+			if err != nil {
+				assert2.Fail(t, err.Error())
+			}
+			<-time.NewTimer(100 * time.Millisecond).C
+
+			// then
+			assert2.Equal(t, "TestToken", settings.JiraToken)
+			assert2.Equal(t, "TestUrl2", settings.JiraRestUrl)
+			assert2.Equal(t, "TestUser2", settings.JiraUsername)
+			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/%s.json", tt.args.workspace))
+		})
+	}
+}
+
+func Test_fjira_ValidateWorkspaceName(t *testing.T) {
+	type args struct {
+		workspace string
+	}
+	tests := []struct {
+		name string
+		args args
+		wont error
+	}{
+		{"should validate workspace name", args{workspace: "xyz"}, nil},
+		{"should validate workspace name", args{workspace: ""}, nil},
+		{"should validate workspace name", args{workspace: ";asd;231"}, WorkspaceFormatInvalidErr},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// when
+			resultErr := validateWorkspaceName(tt.args.workspace)
+
+			// then
+			assert2.Equal(t, tt.wont, resultErr)
 		})
 	}
 }

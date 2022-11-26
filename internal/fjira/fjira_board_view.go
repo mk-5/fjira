@@ -46,7 +46,7 @@ type boardView struct {
 	columnSize             int
 }
 
-func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfiguration) *boardView {
+func newBoardView(project *jira.Project, boardConfiguration *jira.BoardConfiguration) *boardView {
 	col := 0
 	statusesColumnsMap := map[string]int{}
 	columnStatusesMap := map[int][]string{}

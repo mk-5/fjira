@@ -9,7 +9,7 @@ import (
 )
 
 // TODO - change to static?
-type FjiraFormatter interface {
+type fjiraFormatter interface {
 	formatJiraProject(project *jira.Project) string
 	formatJiraProjects(projects []jira.Project) []string
 	formatJiraIssue(issue *jira.Issue) string

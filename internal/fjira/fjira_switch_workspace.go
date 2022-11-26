@@ -12,7 +12,7 @@ type fjiraSwitchWorkspaceView struct {
 	workspaces *userHomeWorkspaces
 }
 
-func NewSwitchWorkspaceView() *fjiraSwitchWorkspaceView {
+func newSwitchWorkspaceView() *fjiraSwitchWorkspaceView {
 	return &fjiraSwitchWorkspaceView{
 		workspaces: &userHomeWorkspaces{},
 	}

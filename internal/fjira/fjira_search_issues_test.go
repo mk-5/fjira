@@ -298,3 +298,190 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 		})
 	}
 }
+
+func Test_fjiraSearchIssuesView_runSelectLabel(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{"should run select label view"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			CreateNewFjira(&fjiraSettings{})
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				_, err := w.Write([]byte(`{"token":"","suggestions":[{"label":"SomethingElse","html":"<b></b>SomethingElse"},{"label":"TestLabel","html":"<b></b>TestLabel"},{"label":"Design","html":"<b></b>Design"},{"label":"Windows","html":"<b></b>Windows"}]}`))
+				println(err)
+			})
+			_ = SetApi(api)
+			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
+
+			// when
+			go view.runSelectLabel()
+			<-time.NewTimer(100 * time.Millisecond).C
+			query := "de"
+			for _, key := range query {
+				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
+			}
+			view.Update()
+			view.Update()
+			<-time.NewTimer(100 * time.Millisecond).C
+			view.Update()
+			view.Update()
+			<-time.NewTimer(100 * time.Millisecond).C
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
+			<-time.NewTimer(100 * time.Millisecond).C
+
+			// then
+			assert.NotNil(t, searchForLabel)
+			assert.Equal(t, "Design", searchForLabel)
+		})
+	}
+}
+
+func Test_fjiraSearchIssuesView_runSelectBoard(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{"should run&select board view"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			CreateNewFjira(&fjiraSettings{})
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				_, err := w.Write([]byte(`{
+    "maxResults": 50,
+    "startAt": 0,
+    "total": 1,
+    "isLast": true,
+    "values": [
+        {
+            "id": 1,
+            "self": "https://test/rest/agile/1.0/board/1",
+            "name": "GEN board",
+            "type": "kanban",
+            "location": {
+                "projectId": 10000,
+                "displayName": "General (GEN)",
+                "projectName": "General",
+                "projectKey": "GEN",
+                "projectTypeKey": "software",
+                "avatarURI": "https://test/rest/api/2/universal_avatar/view/type/project/avatar/10416?size=small",
+                "name": "General (GEN)"
+            }
+        }
+    ]
+}
+`))
+				println(err)
+			})
+			_ = SetApi(api)
+			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
+
+			// when
+			go view.runSelectBoard()
+			<-time.NewTimer(100 * time.Millisecond).C
+			query := "Gen"
+			for _, key := range query {
+				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
+			}
+			view.Update()
+			view.Update()
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
+			<-time.NewTimer(100 * time.Millisecond).C
+			_, switchedToBoardsView := app.GetApp().CurrentView().(*boardView)
+
+			// then
+			assert.True(t, switchedToBoardsView)
+		})
+	}
+}
+
+func Test_fjiraSearchIssuesView_findLabels(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{"should find project labels"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			CreateNewFjira(&fjiraSettings{})
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				_, err := w.Write([]byte(`{"token":"","suggestions":[{"label":"SomethingElse","html":"<b></b>SomethingElse"},{"label":"TestLabel","html":"<b></b>TestLabel"},{"label":"Design","html":"<b></b>Design"},{"label":"Windows","html":"<b></b>Windows"}]}`))
+				println(err)
+			})
+			_ = SetApi(api)
+			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
+
+			// when
+			view.findLabels("")
+
+			// then: should contain 4 labels + "All" label
+			assert.Equal(t, 5, len(view.labels))
+			assert.Contains(t, view.labels, "SomethingElse")
+			assert.Contains(t, view.labels, "TestLabel")
+			assert.Contains(t, view.labels, "Windows")
+			assert.Contains(t, view.labels, "Design")
+		})
+	}
+}
+
+func Test_fjiraSearchIssuesView_findBoards(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{"should find project labels"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			CreateNewFjira(&fjiraSettings{})
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				_, err := w.Write([]byte(`{
+    "maxResults": 50,
+    "startAt": 0,
+    "total": 1,
+    "isLast": true,
+    "values": [
+        {
+            "id": 1,
+            "self": "https://test/rest/agile/1.0/board/1",
+            "name": "GEN board",
+            "type": "kanban",
+            "location": {
+                "projectId": 10000,
+                "displayName": "General (GEN)",
+                "projectName": "General",
+                "projectKey": "GEN",
+                "projectTypeKey": "software",
+                "avatarURI": "https://test/rest/api/2/universal_avatar/view/type/project/avatar/10416?size=small",
+                "name": "General (GEN)"
+            }
+        }
+    ]
+}
+`))
+				println(err)
+			})
+			_ = SetApi(api)
+			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
+
+			// when
+			boards := view.findBoards()
+
+			// then
+			assert.Equal(t, 1, len(boards))
+			assert.Equal(t, "GEN board", boards[0].Name)
+		})
+	}
+}

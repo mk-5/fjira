@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 const jiraIssueJson = `
@@ -148,6 +149,63 @@ func Test_shouldDisplayIssueView(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.testFunc()
+		})
+	}
+}
+
+func Test_issueView_ActionBar(t *testing.T) {
+	type args struct {
+		key           tcell.Key
+		char          rune
+		viewPredicate func() bool
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"should handle exit action", args{key: tcell.KeyEscape, viewPredicate: func() bool {
+			_, result := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
+			return result
+		}}},
+		{"should handle status change action", args{char: 's', viewPredicate: func() bool {
+			_, result := app.GetApp().CurrentView().(*fjiraStatusChangeView)
+			return result
+		}}},
+		{"should handle assign user action", args{char: 'a', viewPredicate: func() bool {
+			_, result := app.GetApp().CurrentView().(*fjiraAssignChangeView)
+			return result
+		}}},
+		{"should handle comment action", args{char: 'c', viewPredicate: func() bool {
+			_, result := app.GetApp().CurrentView().(*fjiraCommentView)
+			return result
+		}}},
+		{"should handle label action", args{char: 'l', viewPredicate: func() bool {
+			_, result := app.GetApp().CurrentView().(*fjiraAddLabelView)
+			return result
+		}}},
+		{"should handle open action", args{char: 'o', viewPredicate: func() bool {
+			return true
+		}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			CreateNewFjira(&fjiraSettings{})
+			_ = SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+			}))
+			issue := &jira.Issue{Id: "1", Key: "ABC-1"}
+			view := newIssueView(issue)
+			go view.handleIssueAction()
+
+			// when
+			view.HandleKeyEvent(tcell.NewEventKey(tt.args.key, tt.args.char, tcell.ModNone))
+			<-time.NewTimer(100 * time.Millisecond).C
+			result := tt.args.viewPredicate()
+
+			// then
+			assert2.True(t, result)
 		})
 	}
 }

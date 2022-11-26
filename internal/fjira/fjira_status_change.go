@@ -73,7 +73,7 @@ func (view *fjiraStatusChangeView) startStatusSearching() {
 	if status := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if status.Index < 0 {
-			app.GetApp().SetView(NewIssueView(view.issue))
+			app.GetApp().SetView(newIssueView(view.issue))
 			return
 		}
 		view.fuzzyFind = nil
@@ -93,7 +93,7 @@ func (view *fjiraStatusChangeView) changeStatusTo(status *jira.IssueTransition) 
 		view.changeStatusForTicket(view.issue, status)
 		goIntoIssueView(view.issue.Key)
 	case false:
-		app.GetApp().SetView(NewIssueView(view.issue))
+		app.GetApp().SetView(newIssueView(view.issue))
 	}
 }
 

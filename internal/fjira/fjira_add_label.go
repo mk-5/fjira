@@ -16,7 +16,7 @@ type fjiraAddLabelView struct {
 	labels    []string
 }
 
-func NewAddLabelView(issue *jira.Issue) *fjiraAddLabelView {
+func newAddLabelView(issue *jira.Issue) *fjiraAddLabelView {
 	return &fjiraAddLabelView{
 		issue:     issue,
 		topBar:    CreateIssueTopBar(issue),
@@ -91,7 +91,7 @@ func (view *fjiraAddLabelView) findLabels(query string) []string {
 
 func (view *fjiraAddLabelView) addLabelToIssue(issue *jira.Issue, label string) {
 	if label == "" {
-		app.GetApp().SetView(NewIssueView(view.issue))
+		app.GetApp().SetView(newIssueView(view.issue))
 		return
 	}
 	view.doAddLabel(issue, label)

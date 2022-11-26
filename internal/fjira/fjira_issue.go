@@ -42,7 +42,7 @@ const (
 	labelsDelimiter = " | "
 )
 
-func NewIssueView(issue *jira.Issue) *fjiraIssueView {
+func newIssueView(issue *jira.Issue) *fjiraIssueView {
 	bottomBar := CreateBottomLeftBar()
 	bottomBar.AddItem(NewStatusChangeBarItem())
 	bottomBar.AddItem(NewAssigneeChangeBarItem())

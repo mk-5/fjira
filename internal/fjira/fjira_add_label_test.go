@@ -50,7 +50,7 @@ func TestNewAddLabelView(t *testing.T) {
 				_, _ = w.Write([]byte(body))
 			})
 			_ = SetApi(api)
-			view := NewAddLabelView(tt.args.issue)
+			view := newAddLabelView(tt.args.issue)
 
 			// when
 			view.Init()
@@ -102,7 +102,7 @@ func Test_fjiraAddLabelView_doAddLabel(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
-			view := NewAddLabelView(tt.args.issue)
+			view := newAddLabelView(tt.args.issue)
 
 			// when
 			addLabelRequestSent := make(chan bool)
