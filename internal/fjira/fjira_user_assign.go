@@ -89,7 +89,7 @@ func (view *fjiraAssignChangeView) findUser(project string) []jira.User {
 	return users
 }
 
-func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.Issue, user *jira.User) {
+func (view fjiraAssignChangeView) assignUserToTicket(issue *jira.Issue, user *jira.User) {
 	if user == nil {
 		app.GetApp().SetView(newIssueView(view.issue))
 		return
@@ -109,7 +109,7 @@ func (view *fjiraAssignChangeView) assignUserToTicket(issue *jira.Issue, user *j
 	}
 }
 
-func (view fjiraAssignChangeView) doAssignmentChange(issue *jira.Issue, user *jira.User) {
+func (view *fjiraAssignChangeView) doAssignmentChange(issue *jira.Issue, user *jira.User) {
 	app.GetApp().LoadingWithText(true, MessageAssigningUser)
 	api, _ := GetApi()
 	err := api.DoAssignee(issue.Key, user.AccountId)
