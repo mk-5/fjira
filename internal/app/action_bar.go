@@ -13,7 +13,7 @@ type ActionBar struct {
 	Y                int
 	X                int
 	screenX, screenY int
-	items            []*ActionBarItem
+	items            []ActionBarItem
 	vAlign           int
 	hAlign           int
 }
@@ -36,7 +36,7 @@ func NewActionBar(vAlign int, hAlign int) *ActionBar {
 		screenY: 0,
 		vAlign:  vAlign,
 		hAlign:  hAlign,
-		items:   make([]*ActionBarItem, 0, ActionBarMaxItems),
+		items:   make([]ActionBarItem, 0, ActionBarMaxItems),
 	}
 }
 
@@ -49,7 +49,7 @@ func (b *ActionBar) AddItem(item *ActionBarItem) {
 	item.text = fmt.Sprintf("%s%s", item.Text1, item.Text2)
 	item.x = b.getNextItemX(len(b.items) - 1)
 	item.y = b.Y
-	b.items = append(b.items, item)
+	b.items = append(b.items, *item)
 	b.Resize(b.screenX, b.screenY)
 }
 
@@ -69,7 +69,7 @@ func (b *ActionBar) GetItem(index int) *ActionBarItem {
 	if index > len(b.items)-1 {
 		return nil
 	}
-	return b.items[index]
+	return &b.items[index]
 }
 
 func (b *ActionBar) RemoveItem(id int) {
@@ -93,6 +93,11 @@ func (b *ActionBar) TrimItemsTo(index int) {
 		b.items = b.items[:index]
 		b.Resize(b.screenX, b.screenY)
 	}
+}
+
+func (b *ActionBar) Clear() {
+	b.items = nil
+	b.Resize(b.screenX, b.screenY)
 }
 
 func (b *ActionBar) Draw(screen tcell.Screen) {
@@ -128,10 +133,14 @@ func (b *ActionBar) Resize(screenX, screenY int) {
 	case Top:
 		b.Y = 0
 	}
-	for i, item := range b.items {
-		item.x = b.getNextItemX(i)
-		item.y = b.Y
+	for i := range b.items {
+		b.items[i].x = b.getNextItemX(i)
+		b.items[i].y = b.Y
 	}
+}
+
+func (b *ActionBar) Destroy() {
+	close(b.Action)
 }
 
 func (b *ActionBar) getNextItemX(startIndex int) int {

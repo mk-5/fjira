@@ -1,6 +1,8 @@
 package fjira
 
 import (
+	"github.com/gdamore/tcell/v2"
+	"github.com/mk-5/fjira/internal/app"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -16,6 +18,9 @@ func TestCreateNewFjira(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// when
+			screen := tcell.NewSimulationScreen("utf-8")
+			_ = screen.Init() //nolint:errcheck
+			app.CreateNewAppWithScreen(screen)
 			f := CreateNewFjira(&fjiraSettings{JiraRestUrl: "test", JiraToken: "test", JiraUsername: "test"})
 
 			// then

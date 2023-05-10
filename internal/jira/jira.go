@@ -22,7 +22,7 @@ type Api interface {
 	DoAssignee(issueId string, accountId string) error
 	GetIssueDetailed(issueId string) (*Issue, error)
 	DoComment(issueId string, commentBody string) error
-	FindBoards(projectKeyOrId string) ([]*BoardItem, error)
+	FindBoards(projectKeyOrId string) ([]BoardItem, error)
 	GetBoardConfiguration(boardId int) (*BoardConfiguration, error)
 	Close()
 }
@@ -122,11 +122,11 @@ type BoardItem struct {
 }
 
 type BoardsResponse struct {
-	MaxResults int          `json:"maxResults"`
-	StartAt    int          `json:"startAt"`
-	Total      int          `json:"total"`
-	IsLast     bool         `json:"isLast"`
-	Values     []*BoardItem `json:"values"`
+	MaxResults int         `json:"maxResults"`
+	StartAt    int         `json:"startAt"`
+	Total      int         `json:"total"`
+	IsLast     bool        `json:"isLast"`
+	Values     []BoardItem `json:"values"`
 }
 
 type BoardConfiguration struct {

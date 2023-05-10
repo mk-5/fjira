@@ -4,31 +4,29 @@ import (
 	"bytes"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
-	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
-	"net/http"
 	"testing"
 	"time"
 )
 
-func TestNewCommentView(t *testing.T) {
+func TestTextWriterView(t *testing.T) {
 	type args struct {
-		issue *jira.Issue
+		args *textWriterArgs
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should create new comment view", args{issue: &jira.Issue{}}},
+		{"should create new text writer view", args{args: &textWriterArgs{}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.NotNil(t, newCommentView(tt.args.issue), "newCommentView(%v)", tt.args.issue)
+			assert.NotNil(t, newTextWriterView(tt.args.args), "newTextWriterView(%v)", tt.args)
 		})
 	}
 }
 
-func Test_fjiraCommentView_Destroy(t *testing.T) {
+func Test_fjiraTextWriterView_Destroy(t *testing.T) {
 	tests := []struct {
 		name string
 	}{
@@ -36,13 +34,13 @@ func Test_fjiraCommentView_Destroy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := newCommentView(&jira.Issue{})
+			view := newTextWriterView(&textWriterArgs{})
 			view.Destroy()
 		})
 	}
 }
 
-func Test_fjiraCommentView_Draw(t *testing.T) {
+func Test_fjiraTextWriterView_Draw(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
@@ -53,12 +51,12 @@ func Test_fjiraCommentView_Draw(t *testing.T) {
 		name string
 		args args
 	}{
-		{"should draw comment view", args{screen: screen}},
+		{"should draw text writer view", args{screen: screen}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := newCommentView(&jira.Issue{})
-			view.text = "Comment text"
+			view := newTextWriterView(&textWriterArgs{})
+			view.text = "Test text"
 
 			// when
 			view.Draw(tt.args.screen)
@@ -78,7 +76,7 @@ func Test_fjiraCommentView_Draw(t *testing.T) {
 	}
 }
 
-func Test_fjiraCommentView_HandleKeyEvent(t *testing.T) {
+func Test_fjiraTextWriterView_HandleKeyEvent(t *testing.T) {
 	type args struct {
 		ev []*tcell.EventKey
 	}
@@ -87,7 +85,7 @@ func Test_fjiraCommentView_HandleKeyEvent(t *testing.T) {
 		args            args
 		expectedComment string
 	}{
-		{"should handle key events and write comment", args{ev: []*tcell.EventKey{
+		{"should handle key events and write text", args{ev: []*tcell.EventKey{
 			tcell.NewEventKey(0, 'a', tcell.ModNone),
 			tcell.NewEventKey(0, 'b', tcell.ModNone),
 			tcell.NewEventKey(0, 'c', tcell.ModNone),
@@ -101,7 +99,7 @@ func Test_fjiraCommentView_HandleKeyEvent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := newCommentView(&jira.Issue{})
+			view := newTextWriterView(&textWriterArgs{})
 
 			// when
 			for _, key := range tt.args.ev {
@@ -114,7 +112,7 @@ func Test_fjiraCommentView_HandleKeyEvent(t *testing.T) {
 	}
 }
 
-func Test_fjiraCommentView_Init(t *testing.T) {
+func Test_fjiraTextWriterView_TextConsumer(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
@@ -122,7 +120,7 @@ func Test_fjiraCommentView_Init(t *testing.T) {
 	tests := []struct {
 		name string
 	}{
-		{"should initialize doComment handling"},
+		{"should initialize text consumer handling"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -130,13 +128,12 @@ func Test_fjiraCommentView_Init(t *testing.T) {
 			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
 			done := make(chan bool)
-			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(200)
-				_, _ = w.Write([]byte(``)) //nolint:errcheck
+			consumer := func(str string) {
 				done <- true
+			}
+			view := newTextWriterView(&textWriterArgs{
+				textConsumer: consumer,
 			})
-			_ = SetApi(api) //nolint:errcheck
-			view := newCommentView(&jira.Issue{})
 
 			// when
 			view.Init()
@@ -152,7 +149,44 @@ func Test_fjiraCommentView_Init(t *testing.T) {
 	}
 }
 
-func Test_fjiraCommentView_Resize(t *testing.T) {
+func Test_fjiraTextWriterView_GoBack(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	tests := []struct {
+		name string
+	}{
+		{"should initialize go-back handling"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
+			done := make(chan bool)
+			goBack := func() {
+				done <- true
+			}
+			view := newTextWriterView(&textWriterArgs{
+				goBack: goBack,
+			})
+
+			// when
+			view.Init()
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEscape, 'E', tcell.ModNone))
+
+			// then
+			select {
+			case <-done:
+			case <-time.After(3 * time.Second):
+				t.Fail()
+			}
+		})
+	}
+}
+
+func Test_fjiraTextWriterView_Resize(t *testing.T) {
 	type args struct {
 		screenX int
 		screenY int
@@ -165,13 +199,13 @@ func Test_fjiraCommentView_Resize(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := newCommentView(&jira.Issue{})
+			view := newTextWriterView(&textWriterArgs{})
 			view.Resize(tt.args.screenX, tt.args.screenY)
 		})
 	}
 }
 
-func Test_fjiraCommentView_Update(t *testing.T) {
+func Test_fjiraTextWriterView_Update(t *testing.T) {
 	tests := []struct {
 		name string
 	}{
@@ -179,7 +213,7 @@ func Test_fjiraCommentView_Update(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			view := newCommentView(&jira.Issue{})
+			view := newTextWriterView(&textWriterArgs{})
 			view.Update()
 		})
 	}

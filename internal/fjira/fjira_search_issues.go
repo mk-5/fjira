@@ -14,6 +14,7 @@ type fjiraSearchIssuesView struct {
 	fuzzyFind    *app.FuzzyFind
 	project      *jira.Project
 	currentQuery string
+	customJql    string
 	screenX      int
 	screenY      int
 	issues       []jira.Issue
@@ -42,6 +43,17 @@ func NewIssuesSearchView(project *jira.Project) *fjiraSearchIssuesView {
 		bottomBar: bottomBar,
 		topBar:    topBar,
 		project:   project,
+	}
+}
+
+func NewIssuesSearchViewWithCustomJql(jql string) *fjiraSearchIssuesView {
+	project := &jira.Project{Id: "", Key: MessageCustomJql, Name: ""}
+	topBar := CreateCustomJqlTopBar(jql)
+	return &fjiraSearchIssuesView{
+		bottomBar: app.NewActionBar(app.Bottom, app.Left),
+		topBar:    topBar,
+		project:   project,
+		customJql: jql,
 	}
 }
 
@@ -108,12 +120,15 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 	a := app.GetApp()
 	view.fuzzyFind = app.NewFuzzyFindWithProvider(MessageSelectIssue, view.findIssues)
 	view.fuzzyFind.MarginBottom = 1
+	if view.customJql != "" {
+		view.fuzzyFind.MarginBottom = 0
+	}
 	a.Loading(false)
 	a.ClearNow()
 	if chosen := <-view.fuzzyFind.Complete; true {
 		a.ClearNow()
 		if chosen.Index < 0 {
-			go goIntoProjectsSearch()
+			view.goBack()
 			searchForStatus = nil
 			searchForUser = nil
 			return
@@ -127,12 +142,13 @@ func (view *fjiraSearchIssuesView) findIssues(query string) []string {
 	formatter, _ := GetFormatter()
 	a := app.GetApp()
 
+	// when no custom jql set
 	// when manual set queryDirty=true
 	// when there is more records than max
 	// when backspace
 	// when query has issue format
 	// when there is no results
-	if view.queryDirty || len(view.issues) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() || len(view.issues) == 0 {
+	if !(view.customJql != "" && len(view.issues) > 0) && view.queryDirty || len(view.issues) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() || len(view.issues) == 0 {
 		view.queryDirty = false
 		a.LoadingWithText(true, MessageSearchIssuesLoading)
 		view.issues = view.searchForIssues(query)
@@ -225,7 +241,7 @@ func (view *fjiraSearchIssuesView) runSelectBoard() {
 	if board := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
 		if board.Index >= 0 && len(boardsString) > 0 {
-			goIntoBoardView(view.project, boards[board.Index])
+			goIntoBoardView(view.project, &boards[board.Index])
 			return
 		}
 		go view.runIssuesFuzzyFind()
@@ -237,6 +253,10 @@ func (view *fjiraSearchIssuesView) searchForIssues(query string) []jira.Issue {
 	q := strings.TrimSpace(query)
 	api, _ := GetApi()
 	jql := buildSearchIssuesJql(view.project, q, searchForStatus, searchForUser, searchForLabel)
+	// when custom JQL - use it instead of fuzzy query
+	if view.customJql != "" {
+		jql = view.customJql
+	}
 	issues, err := api.SearchJql(jql)
 	if err != nil {
 		app.Error(err.Error())
@@ -277,7 +297,7 @@ func (view *fjiraSearchIssuesView) findLabels(query string) []string {
 	return labels
 }
 
-func (view *fjiraSearchIssuesView) findBoards() []*jira.BoardItem {
+func (view *fjiraSearchIssuesView) findBoards() []jira.BoardItem {
 	api, _ := GetApi()
 	app.GetApp().LoadingWithText(true, MessageSearchBoardsLoading)
 	boards, err := api.FindBoards(view.project.Id)
@@ -290,4 +310,14 @@ func (view *fjiraSearchIssuesView) findBoards() []*jira.BoardItem {
 
 func (view *fjiraSearchIssuesView) queryHasIssueFormat() bool {
 	return issueRegExp.MatchString(view.currentQuery)
+}
+
+func (view *fjiraSearchIssuesView) goBack() {
+	if view.customJql == "" {
+		go goIntoProjectsSearch()
+		return
+	}
+	if view.customJql != "" {
+		go goIntoJqlView()
+	}
 }

@@ -14,7 +14,7 @@ type findBoardsQueryParams struct {
 	ProjectKeyOrId string `url:"projectKeyOrId"`
 }
 
-func (api *httpApi) FindBoards(projectKeyOrId string) ([]*BoardItem, error) {
+func (api *httpApi) FindBoards(projectKeyOrId string) ([]BoardItem, error) {
 	resultBytes, err := api.jiraRequest("GET", FindAllBoardsUrl, &findBoardsQueryParams{ProjectKeyOrId: projectKeyOrId}, nil)
 	if err != nil {
 		return nil, err

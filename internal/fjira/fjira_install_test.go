@@ -98,15 +98,15 @@ func Test_readFromUserSettings(t *testing.T) {
 	}{
 		{"should read user settings from current workspace",
 			args{workspace: "xyz", storedWorkspaceFilename: "xyz.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test.atlassian.net\",\"jiraToken\":\"123\",\"jiraUsername\":\"test@test.pl\"}"},
-			&fjiraSettings{JiraToken: "123", JiraUsername: "test@test.pl", JiraRestUrl: "https://test.atlassian.net"},
+			&fjiraSettings{JiraToken: "123", JiraUsername: "test@test.pl", JiraRestUrl: "https://test.atlassian.net", Workspace: "xyz"},
 		},
 		{"should read user settings from another workspace",
 			args{workspace: "abc", storedWorkspaceFilename: "abc.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test\",\"jiraToken\":\"111\",\"jiraUsername\":\"test_user\"}"},
-			&fjiraSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test"},
+			&fjiraSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test", Workspace: "abc"},
 		},
 		{"should read user settings from default workspace",
 			args{workspace: "", storedWorkspaceFilename: "default.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test\",\"jiraToken\":\"111\",\"jiraUsername\":\"test_user\"}"},
-			&fjiraSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test"},
+			&fjiraSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test", Workspace: "default"},
 		},
 	}
 	for _, tt := range tests {

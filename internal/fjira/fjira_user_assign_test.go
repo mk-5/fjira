@@ -156,7 +156,7 @@ func Test_fjiraAssignChangeView_noUserFound(t *testing.T) {
 			view.Update()
 			view.Update()
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, -1, tcell.ModNone))
-			<-time.NewTimer(1000 * time.Millisecond).C
+			<-time.NewTimer(1100 * time.Millisecond).C
 
 			// then
 			_, ok := app.GetApp().CurrentView().(*fjiraIssueView)

@@ -16,7 +16,7 @@ type fjiraFormatter interface {
 	formatJiraIssues(issues []jira.Issue) []string
 	formatJiraUser(user *jira.User) string
 	formatJiraUsers(user []jira.User) []string
-	formatJiraBoards(boards []*jira.BoardItem) []string
+	formatJiraBoards(boards []jira.BoardItem) []string
 	formatJiraTransitions(transitions []jira.IssueTransition) []string
 	formatJiraStatuses(statuses []jira.IssueStatus) []string
 }
@@ -107,7 +107,7 @@ func (f *defaultFormatter) formatJiraStatuses(statuses []jira.IssueStatus) []str
 	return formatted
 }
 
-func (f *defaultFormatter) formatJiraBoards(boards []*jira.BoardItem) []string {
+func (f *defaultFormatter) formatJiraBoards(boards []jira.BoardItem) []string {
 	formatted := make([]string, 0, len(boards))
 	for _, board := range boards {
 		formatted = append(formatted, board.Name)

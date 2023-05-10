@@ -224,6 +224,10 @@ func Test_fjiraSearchIssuesView_queryHasIssueFormat(t *testing.T) {
 }
 
 func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
 	tests := []struct {
 		name string
 	}{
@@ -232,19 +236,18 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				_, err := w.Write([]byte(`[{"statuses" : [{"id": "1", "name": "Status1", "description": ""}, {"id": "2", "name": "xxx", "description": ""}]}]`))
-				println(err)
+				_, _ = w.Write([]byte(`[{"statuses" : [{"id": "1", "name": "Status1", "description": ""}, {"id": "2", "name": "xxx", "description": ""}]}]`))
 			})
 			_ = SetApi(api)
 			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
 			go view.runSelectStatus()
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 			query := "xxx"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
@@ -252,7 +255,7 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 			view.Update()
 			view.Update()
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(400 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForStatus)
@@ -262,6 +265,10 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 }
 
 func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
 	tests := []struct {
 		name string
 	}{
@@ -270,27 +277,27 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				_, err := w.Write([]byte(`[{"id": "U1", "displayName": "Bob"}, {"id": "U2", "displayName": "John"}]`))
-				println(err)
+				_, _ = w.Write([]byte(`[{"id": "U1", "displayName": "Bob"}, {"id": "U2", "displayName": "John"}]`))
 			})
 			_ = SetApi(api)
 			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
 			go view.runSelectUser()
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 			query := "John"
 			for _, key := range query {
-				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
+				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
+			<-time.NewTimer(100 * time.Millisecond).C
 			view.Update()
 			view.Update()
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForUser)
@@ -300,6 +307,10 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 }
 
 func Test_fjiraSearchIssuesView_runSelectLabel(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
 	tests := []struct {
 		name string
 	}{
@@ -308,31 +319,30 @@ func Test_fjiraSearchIssuesView_runSelectLabel(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				_, err := w.Write([]byte(`{"token":"","suggestions":[{"label":"SomethingElse","html":"<b></b>SomethingElse"},{"label":"TestLabel","html":"<b></b>TestLabel"},{"label":"Design","html":"<b></b>Design"},{"label":"Windows","html":"<b></b>Windows"}]}`))
-				println(err)
+				_, _ = w.Write([]byte(`{"token":"","suggestions":[{"label":"SomethingElse","html":"<b></b>SomethingElse"},{"label":"TestLabel","html":"<b></b>TestLabel"},{"label":"Design","html":"<b></b>Design"},{"label":"Windows","html":"<b></b>Windows"}]}`))
 			})
 			_ = SetApi(api)
 			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
 			go view.runSelectLabel()
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(200 * time.Millisecond).C
 			query := "de"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
 			view.Update()
 			view.Update()
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 			view.Update()
 			view.Update()
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForLabel)
@@ -342,6 +352,10 @@ func Test_fjiraSearchIssuesView_runSelectLabel(t *testing.T) {
 }
 
 func Test_fjiraSearchIssuesView_runSelectBoard(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
 	tests := []struct {
 		name string
 	}{
@@ -350,7 +364,7 @@ func Test_fjiraSearchIssuesView_runSelectBoard(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -385,7 +399,7 @@ func Test_fjiraSearchIssuesView_runSelectBoard(t *testing.T) {
 
 			// when
 			go view.runSelectBoard()
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 			query := "Gen"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
@@ -393,7 +407,7 @@ func Test_fjiraSearchIssuesView_runSelectBoard(t *testing.T) {
 			view.Update()
 			view.Update()
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-time.NewTimer(300 * time.Millisecond).C
 			_, switchedToBoardsView := app.GetApp().CurrentView().(*boardView)
 
 			// then
@@ -403,6 +417,10 @@ func Test_fjiraSearchIssuesView_runSelectBoard(t *testing.T) {
 }
 
 func Test_fjiraSearchIssuesView_findLabels(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
 	tests := []struct {
 		name string
 	}{
@@ -411,7 +429,7 @@ func Test_fjiraSearchIssuesView_findLabels(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -435,6 +453,10 @@ func Test_fjiraSearchIssuesView_findLabels(t *testing.T) {
 }
 
 func Test_fjiraSearchIssuesView_findBoards(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
 	tests := []struct {
 		name string
 	}{
@@ -443,7 +465,7 @@ func Test_fjiraSearchIssuesView_findBoards(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
+			app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -482,6 +504,62 @@ func Test_fjiraSearchIssuesView_findBoards(t *testing.T) {
 			// then
 			assert.Equal(t, 1, len(boards))
 			assert.Equal(t, "GEN board", boards[0].Name)
+		})
+	}
+}
+
+func Test_fjiraSearchIssuesView_goBack(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	tests := []struct {
+		name string
+	}{
+		{"should go back"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
+			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
+
+			// when
+			view.goBack()
+			<-time.After(200 * time.Millisecond)
+
+			// then
+			_, ok := app.GetApp().CurrentView().(*fjiraSearchProjectsView)
+			assert.True(t, ok)
+		})
+	}
+}
+
+func Test_fjiraSearchIssuesView_goBackWithCustomJql(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	tests := []struct {
+		name string
+	}{
+		{"should go back with custom jql"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
+			view := NewIssuesSearchViewWithCustomJql("test jql")
+
+			// when
+			view.goBack()
+			<-time.After(200 * time.Millisecond)
+
+			// then
+			_, ok := app.GetApp().CurrentView().(*fjiraJqlSearchView)
+			assert.True(t, ok)
 		})
 	}
 }

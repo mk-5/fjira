@@ -11,6 +11,7 @@ type fjiraSettings struct {
 	JiraRestUrl  string `json:"jiraRestUrl"`
 	JiraToken    string `json:"jiraToken"`
 	JiraUsername string `json:"jiraUsername"`
+	Workspace    string `json:"-"`
 }
 
 var (
@@ -45,6 +46,7 @@ func (s *userHomeSettingsStorage) read(workspace string) (*fjiraSettings, error)
 	if err != nil {
 		return nil, err
 	}
+	settings.Workspace = workspace
 	return &settings, nil
 }
 
@@ -66,6 +68,14 @@ func (s *userHomeSettingsStorage) settingsFilePath(workspace string) (string, er
 		workspace = DefaultWorkspaceName
 	}
 	settingsFilename := fmt.Sprintf("%s.json", workspace)
+	configDir, err := s.configDir()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/%s", configDir, settingsFilename), err
+}
+
+func (s *userHomeSettingsStorage) configDir() (string, error) {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -77,5 +87,5 @@ func (s *userHomeSettingsStorage) settingsFilePath(workspace string) (string, er
 			return "", err
 		}
 	}
-	return fmt.Sprintf("%s/%s", configDir, settingsFilename), err
+	return configDir, nil
 }

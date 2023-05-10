@@ -30,6 +30,7 @@ type Fjira struct {
 	api       jira.Api
 	formatter fjiraFormatter
 	jiraUrl   string
+	workspace string
 }
 
 type CliArgs struct {
@@ -38,6 +39,7 @@ type CliArgs struct {
 	Workspace       string
 	WorkspaceSwitch bool
 	WorkspaceEdit   bool
+	JqlMode         bool
 }
 
 var (
@@ -60,6 +62,7 @@ func CreateNewFjira(settings *fjiraSettings) *Fjira {
 			api:       api,
 			formatter: &defaultFormatter{},
 			jiraUrl:   url,
+			workspace: settings.Workspace,
 		}
 	})
 	return fjiraInstance
@@ -92,6 +95,16 @@ func GetJiraUrl() (string, error) {
 		return "", FjiraNotInitalizedErr
 	}
 	return fjiraInstance.jiraUrl, nil
+}
+
+func GetCurrentWorkspace() (string, error) {
+	if fjiraInstance == nil {
+		return "", FjiraNotInitalizedErr
+	}
+	if fjiraInstance.workspace == "" {
+		return "default", nil
+	}
+	return fjiraInstance.workspace, nil
 }
 
 func Install(args CliArgs) (*fjiraSettings, error) {
@@ -155,6 +168,10 @@ func (f *Fjira) bootstrap(args *CliArgs) {
 	}
 	if args.IssueKey != "" {
 		goIntoIssueView(args.IssueKey)
+		return
+	}
+	if args.JqlMode {
+		goIntoJqlView()
 		return
 	}
 	time.Sleep(350 * time.Millisecond)

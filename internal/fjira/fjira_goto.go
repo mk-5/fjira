@@ -31,6 +31,16 @@ func goIntoIssuesSearch(project *jira.Project) {
 	app.GetApp().SetView(issuesSearchView)
 }
 
+func goIntoIssuesSearchForJql(jql string) {
+	issuesSearchView := NewIssuesSearchViewWithCustomJql(jql)
+	app.GetApp().SetView(issuesSearchView)
+}
+
+func goIntoJqlView() {
+	jqlView := NewJqlSearchView()
+	app.GetApp().SetView(jqlView)
+}
+
 func goIntoIssueView(issueKey string) {
 	defer app.GetApp().PanicRecover()
 	app.GetApp().Loading(true)
@@ -55,10 +65,9 @@ func goIntoChangeAssignment(issue *jira.Issue) {
 	assignChangeView := NewAssignChangeView(issue)
 	app.GetApp().SetView(assignChangeView)
 }
-
-func goIntoCommentView(issue *jira.Issue) {
-	commentView := newCommentView(issue)
-	app.GetApp().SetView(commentView)
+func goIntoTextWriterView(args *textWriterArgs) {
+	view := newTextWriterView(args)
+	app.GetApp().SetView(view)
 }
 
 func goIntoAddLabelView(issue *jira.Issue) {

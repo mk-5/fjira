@@ -21,6 +21,8 @@ const (
 	ActionAddLabel
 	ActionSelect
 	ActionUnselect
+	ActionNew
+	ActionDelete
 )
 
 var (
@@ -80,6 +82,19 @@ func CreateSearchIssuesTopBar(project *jira.Project) *app.ActionBar {
 	actionBar.AddItemWithStyles(
 		MessageLabelLabel,
 		MessageAll,
+		TopBarItemDefault, TopBarItemBold,
+	)
+	return actionBar
+}
+
+func CreateCustomJqlTopBar(jql string) *app.ActionBar {
+	actionBar := app.NewActionBar(app.Top, app.Left)
+	if len(jql) > 50 {
+		jql = jql[:50]
+	}
+	actionBar.AddItemWithStyles(
+		MessageJqlLabel,
+		app.ActionBarLabel(jql),
 		TopBarItemDefault, TopBarItemBold,
 	)
 	return actionBar
@@ -315,5 +330,27 @@ func NewSaveBarItem() *app.ActionBarItem {
 		Text1Style: BottomBarItemDefaultStyle,
 		Text2Style: BottomBarActionBarKeyBold,
 		TriggerKey: tcell.KeyF1,
+	}
+}
+
+func NewNewJqlItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:         int(ActionNew),
+		Text1:      MessageNew,
+		Text2:      "[F1]",
+		Text1Style: BottomBarItemDefaultStyle,
+		Text2Style: BottomBarActionBarKeyBold,
+		TriggerKey: tcell.KeyF1,
+	}
+}
+
+func NewDeleteItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:         int(ActionDelete),
+		Text1:      MessageDelete,
+		Text2:      "[F2]",
+		Text1Style: BottomBarItemDefaultStyle,
+		Text2Style: BottomBarActionBarKeyBold,
+		TriggerKey: tcell.KeyF2,
 	}
 }
