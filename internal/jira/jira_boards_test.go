@@ -9,10 +9,10 @@ import (
 func Test_httpApi_FindBoards(t *testing.T) {
 	tests := []struct {
 		name    string
-		want    []*BoardItem
+		want    []BoardItem
 		wantErr bool
 	}{
-		{"should find boards without error", []*BoardItem{&BoardItem{Id: 1, Name: "GEN board", Self: "https://test.net/rest/agile/1.0/board/1", Type: "kanban"}}, false},
+		{"should find boards without error", []BoardItem{BoardItem{Id: 1, Name: "GEN board", Self: "https://test.net/rest/agile/1.0/board/1", Type: "kanban"}}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

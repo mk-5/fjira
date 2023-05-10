@@ -57,8 +57,9 @@ func CreateNewApp() *App {
 
 // CreateNewAppWithScreen accessible for testing
 func CreateNewAppWithScreen(screen tcell.Screen) *App {
+	initAppWithScreen(screen)
 	once.Do(func() {
-		initAppWithScreen(screen)
+		// ... do nothing, complete 'once'
 	})
 	return appInstance
 }
@@ -175,6 +176,10 @@ func (a *App) Loading(flag bool) {
 
 func (a *App) IsLoading() bool {
 	return a.loading
+}
+
+func (a *App) IsQuit() bool {
+	return a.quit
 }
 
 func (a *App) LoadingWithText(flag bool, text string) {

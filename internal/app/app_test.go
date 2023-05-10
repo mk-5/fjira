@@ -85,3 +85,43 @@ func TestApp_KeepAlive(t *testing.T) {
 		})
 	}
 }
+
+func Test_App_processTerminalEvents(t *testing.T) {
+	tests := []struct {
+		name         string
+		keyEvent     tcell.Key
+		expectedQuit bool
+	}{
+		{"should process terminal events and handle keys", tcell.KeyEnter, false},
+		{"should process terminal events and handle keys", tcell.KeyEscape, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			screen := tcell.NewSimulationScreen("utf-8")
+			_ = screen.Init() //nolint:errcheck
+
+			// when
+			a := &App{
+				screen:          screen,
+				spinnerIndex:    0,
+				keyEvent:        make(chan *tcell.EventKey),
+				runOnAppRoutine: make([]func(), 0, 64),
+				drawables:       make([]Drawable, 0, 256),
+				systems:         make([]System, 0, 128),
+				flash:           make([]Drawable, 0, 5),
+				keepAlive:       make(map[interface{}]bool),
+				dirty:           make(chan bool),
+			}
+			go a.Start()
+			<-time.NewTimer(100 * time.Millisecond).C
+			go a.processTerminalEvents()
+			<-time.NewTimer(100 * time.Millisecond).C
+			screen.InjectKey(tt.keyEvent, 'a', tcell.ModNone)
+			<-time.NewTimer(100 * time.Millisecond).C
+
+			// then
+			assert.Equal(t, tt.expectedQuit, a.quit)
+		})
+	}
+}

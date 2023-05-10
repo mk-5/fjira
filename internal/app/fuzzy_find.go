@@ -157,7 +157,7 @@ func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
 	if ev.Key() == tcell.KeyDown {
 		f.selected = ClampInt(f.selected-1, 0, f.matches.Len()-1)
 	}
-	if unicode.IsLetter(ev.Rune()) || unicode.IsSpace(ev.Rune()) || unicode.IsDigit(ev.Rune()) || ev.Rune() == '-' {
+	if f.isEventWritable(ev) {
 		f.buffer.WriteRune(ev.Rune())
 		f.dirty = true
 	}
@@ -170,6 +170,13 @@ func (f *FuzzyFind) Resize(screenX, screenY int) {
 
 func (f *FuzzyFind) GetQuery() string {
 	return f.query
+}
+
+func (f *FuzzyFind) GetSelectedItem() string {
+	if len(f.records) == 0 {
+		return ""
+	}
+	return f.records[f.selected]
 }
 
 func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
@@ -213,6 +220,13 @@ func (f *FuzzyFind) updateRecordsFromSupplier() {
 		})
 	}
 	f.dirty = true
+}
+
+func (f *FuzzyFind) isEventWritable(ev *tcell.EventKey) bool {
+	return unicode.IsLetter(ev.Rune()) || unicode.IsSpace(ev.Rune()) || unicode.IsDigit(ev.Rune()) ||
+		ev.Rune() == '-' || ev.Rune() == '"' || ev.Rune() == '\'' || ev.Rune() == '&' ||
+		ev.Rune() == ';' || ev.Rune() == '|' || ev.Rune() == '>' || ev.Rune() == '<' || ev.Rune() == '=' ||
+		ev.Rune() == '!'
 }
 
 func contains(needle int, haystack []int) bool {

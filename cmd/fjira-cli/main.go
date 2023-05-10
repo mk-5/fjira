@@ -27,6 +27,7 @@ Flags:
     -w, --workspace           Use different fjira workspace without switching it globally, example: -w myworkspace
     -nw, --new-workspace      Create new workspace, example: fjira --new-workspace=abc
     -ew, --edit-workspace     Edit workspace, example: fjira --edit-workspace=abc
+    -jql, --jql     		  Run with custom JQL mode, example: fjira -jql
 `
 )
 
@@ -54,6 +55,7 @@ func parseCliArgs() fjira.CliArgs {
 	var workspace string
 	var newWorkspace string
 	var editWorkspace string
+	var jql bool
 	flag.StringVar(&projectId, "project", "", "Jira Project Key")
 	flag.StringVar(&projectId, "p", "", "Jira Project Key")
 	flag.StringVar(&workspace, "workspace", "", "Fjira workspace")
@@ -62,6 +64,7 @@ func parseCliArgs() fjira.CliArgs {
 	flag.StringVar(&newWorkspace, "nw", "", "New workspace name")
 	flag.StringVar(&editWorkspace, "edit-workspace", "", "Edit workspace")
 	flag.StringVar(&editWorkspace, "ew", "", "Edit workspace")
+	flag.BoolVar(&jql, "jql", false, "Custom Jql model")
 	flag.Parse()
 
 	issueRegExp := regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
@@ -104,5 +107,6 @@ func parseCliArgs() fjira.CliArgs {
 		Workspace:       workspace,
 		WorkspaceSwitch: false,
 		WorkspaceEdit:   false,
+		JqlMode:         jql,
 	}
 }

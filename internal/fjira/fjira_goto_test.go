@@ -79,10 +79,10 @@ func Test_goIntoValidScreen(t *testing.T) {
 				return ok
 			},
 		}},
-		{"should switch view into comment view", args{
-			gotoMethod: func() { goIntoCommentView(&jira.Issue{}) },
+		{"should switch view into text writer view", args{
+			gotoMethod: func() { goIntoTextWriterView(&textWriterArgs{}) },
 			viewPredicate: func() bool {
-				_, ok := app.GetApp().CurrentView().(*fjiraCommentView)
+				_, ok := app.GetApp().CurrentView().(*fjiraTextWriterView)
 				return ok
 			},
 		}},
@@ -97,6 +97,20 @@ func Test_goIntoValidScreen(t *testing.T) {
 			gotoMethod: func() { goIntoBoardView(&jira.Project{}, &jira.BoardItem{Id: 1}) },
 			viewPredicate: func() bool {
 				_, ok := app.GetApp().CurrentView().(*boardView)
+				return ok
+			},
+		}},
+		{"should switch view into jql view", args{
+			gotoMethod: func() { goIntoJqlView() },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraJqlSearchView)
+				return ok
+			},
+		}},
+		{"should switch view into issues view with jql", args{
+			gotoMethod: func() { goIntoIssuesSearchForJql("test jql") },
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
 				return ok
 			},
 		}},

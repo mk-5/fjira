@@ -39,7 +39,8 @@ var (
 )
 
 const (
-	labelsDelimiter = " | "
+	maxCommentLineWidth = 150
+	labelsDelimiter     = " | "
 )
 
 func newIssueView(issue *jira.Issue) *fjiraIssueView {
@@ -166,7 +167,16 @@ func (view *fjiraIssueView) handleIssueAction() {
 			goIntoChangeAssignment(view.issue)
 			return
 		case ActionComment:
-			goIntoCommentView(view.issue)
+			goIntoTextWriterView(&textWriterArgs{
+				header: MessageTypeCommentAndSave,
+				goBack: func() {
+					goIntoIssueView(view.issue.Key)
+				},
+				textConsumer: func(s string) {
+					view.doComment(view.issue, s)
+				},
+				maxLength: maxCommentLineWidth,
+			})
 			return
 		case ActionAddLabel:
 			goIntoAddLabelView(view.issue)
@@ -178,6 +188,17 @@ func (view *fjiraIssueView) handleIssueAction() {
 			return
 		}
 	}
+}
+
+func (view *fjiraIssueView) doComment(issue *jira.Issue, comment string) {
+	app.GetApp().LoadingWithText(true, MessageAddingComment)
+	api, _ := GetApi()
+	err := api.DoComment(issue.Key, comment)
+	app.GetApp().Loading(false)
+	if err != nil {
+		app.Error(fmt.Sprintf(MessageCannotAddComment, issue.Key, err))
+	}
+	app.Success(fmt.Sprintf(MessageCommentSuccess, issue.Key))
 }
 
 // TODO - could be optimized a bit

@@ -176,7 +176,7 @@ func Test_issueView_ActionBar(t *testing.T) {
 			return result
 		}}},
 		{"should handle comment action", args{char: 'c', viewPredicate: func() bool {
-			_, result := app.GetApp().CurrentView().(*fjiraCommentView)
+			_, result := app.GetApp().CurrentView().(*fjiraTextWriterView)
 			return result
 		}}},
 		{"should handle label action", args{char: 'l', viewPredicate: func() bool {
@@ -206,6 +206,79 @@ func Test_issueView_ActionBar(t *testing.T) {
 
 			// then
 			assert2.True(t, result)
+		})
+	}
+}
+
+func Test_issueView_doComment(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	tests := []struct {
+		name string
+	}{
+		{"should run doComment api"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
+			done := make(chan bool)
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				_, _ = w.Write([]byte(``)) //nolint:errcheck
+				done <- true
+			})
+			_ = SetApi(api) //nolint:errcheck
+			view := newIssueView(&jira.Issue{Key: "test"})
+
+			// when
+			view.Init()
+			go view.doComment(view.issue, "abcde")
+
+			// then
+			select {
+			case <-done:
+			case <-time.After(3 * time.Second):
+				t.Fail()
+			}
+		})
+	}
+}
+
+func Test_fjiraIssueView_HandleKeyEvent(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	tests := []struct {
+		name string
+	}{
+		{"should process scrollUp&scrollDown"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
+			view := newIssueView(&jira.Issue{Key: "test"})
+			view.fuzzyFind = app.NewFuzzyFind("test", []string{})
+			view.scrollY = 0
+			view.maxScrollY = 100
+
+			// when
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyDown, 'k', tcell.ModNone))
+
+			// then
+			assert2.Equal(t, 1, view.scrollY)
+
+			// and when
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyUp, 'k', tcell.ModNone))
+
+			// then
+			assert2.Equal(t, 0, view.scrollY)
 		})
 	}
 }

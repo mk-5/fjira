@@ -19,6 +19,7 @@
 - Changes Jira Issue assignee
 - Changes Jira Issue status
 - Supports multiple workspaces
+- Search for Jira Issues using custom JQL
 - Runs on MacOS and Linux
 
 ## Install
@@ -142,6 +143,18 @@ The app will skip all the screens, and it'll go to the issue view directly.
 
 You can open board-like view using the navigation buttons from the project menu.
 First open the project, and then press F4.
+
+
+## Custom JQL View
+
+![Fjira Custom JQL](demo_custom_jql.png)
+
+You can write your custom JQLs, and use them to search for Jira issues.
+
+```shell
+fjira -jql
+```
+
 
 ## The Future (TODO)
 
