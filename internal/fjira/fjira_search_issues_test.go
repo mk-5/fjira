@@ -296,6 +296,7 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 			<-time.NewTimer(100 * time.Millisecond).C
 			view.Update()
 			view.Update()
+			<-time.NewTimer(300 * time.Millisecond).C
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
 			<-time.NewTimer(300 * time.Millisecond).C
 
