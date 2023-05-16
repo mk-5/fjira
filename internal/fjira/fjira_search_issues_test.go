@@ -293,12 +293,13 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 			for _, key := range query {
 				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			<-time.NewTimer(100 * time.Millisecond).C
-			view.Update()
-			view.Update()
-			<-time.NewTimer(300 * time.Millisecond).C
+			view.fuzzyFind.Update()
+			<-time.NewTimer(500 * time.Millisecond).C // fuzzy debounce
+			view.fuzzyFind.Update()
+			<-time.NewTimer(500 * time.Millisecond).C
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(300 * time.Millisecond).C
+			view.Update()
+			<-time.NewTimer(500 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForUser)
@@ -331,19 +332,18 @@ func Test_fjiraSearchIssuesView_runSelectLabel(t *testing.T) {
 
 			// when
 			go view.runSelectLabel()
-			<-time.NewTimer(200 * time.Millisecond).C
+			<-time.NewTimer(100 * time.Millisecond).C
 			query := "de"
 			for _, key := range query {
-				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
+				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			view.Update()
-			view.Update()
-			<-time.NewTimer(300 * time.Millisecond).C
-			view.Update()
-			view.Update()
-			<-time.NewTimer(300 * time.Millisecond).C
+			view.fuzzyFind.Update()
+			<-time.NewTimer(500 * time.Millisecond).C // fuzzy debounce
+			view.fuzzyFind.Update()
+			<-time.NewTimer(500 * time.Millisecond).C
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(300 * time.Millisecond).C
+			view.Update()
+			<-time.NewTimer(500 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForLabel)

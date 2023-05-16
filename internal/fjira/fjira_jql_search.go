@@ -102,34 +102,42 @@ func (view *fjiraJqlSearchView) handleBottomBarActions() {
 		action := <-view.bottomBar.Action
 		switch action {
 		case ActionCancel:
-			if view.fuzzyFind != nil {
-				app.GetApp().Quit()
-			}
-			if view.fuzzyFind == nil {
-				app.GetApp().SetView(NewJqlSearchView())
-			}
+			view.cancel()
 			return
 		case ActionNew:
-			app.GetApp().SetView(newTextWriterView(&textWriterArgs{
-				header: MessageTypeJqlAndSave,
-				goBack: func() {
-					app.GetApp().SetView(NewJqlSearchView())
-				},
-				textConsumer: func(s string) {
-					err := view.jqlStorage.addNew(s)
-					if err != nil {
-						app.Error(err.Error())
-						return
-					}
-					app.Success(MessageJqlAddSuccess)
-				},
-				maxLength: MaxJqlLength,
-			}))
+			view.newJql()
 			return
 		case ActionDelete:
 			go view.confirmJqlDelete(view.fuzzyFind.GetSelectedItem())
 		}
 	}
+}
+
+func (view *fjiraJqlSearchView) cancel() {
+	if view.fuzzyFind != nil {
+		app.GetApp().Quit()
+	}
+	if view.fuzzyFind == nil {
+		app.GetApp().SetView(NewJqlSearchView())
+	}
+}
+
+func (view *fjiraJqlSearchView) newJql() {
+	app.GetApp().SetView(newTextWriterView(&textWriterArgs{
+		header: MessageTypeJqlAndSave,
+		goBack: func() {
+			app.GetApp().SetView(NewJqlSearchView())
+		},
+		textConsumer: func(s string) {
+			err := view.jqlStorage.addNew(s)
+			if err != nil {
+				app.Error(err.Error())
+				return
+			}
+			app.Success(MessageJqlAddSuccess)
+		},
+		maxLength: MaxJqlLength,
+	}))
 }
 
 func (view *fjiraJqlSearchView) confirmJqlDelete(jql string) {
