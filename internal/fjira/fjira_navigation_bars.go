@@ -89,8 +89,8 @@ func CreateSearchIssuesTopBar(project *jira.Project) *app.ActionBar {
 
 func CreateCustomJqlTopBar(jql string) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Top, app.Left)
-	if len(jql) > 50 {
-		jql = jql[:50]
+	if len(jql) > 250 {
+		jql = jql[:250]
 	}
 	actionBar.AddItemWithStyles(
 		MessageJqlLabel,

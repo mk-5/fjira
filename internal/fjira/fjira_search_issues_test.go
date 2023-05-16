@@ -247,15 +247,18 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 
 			// when
 			go view.runSelectStatus()
-			<-time.NewTimer(300 * time.Millisecond).C
+			<-time.NewTimer(700 * time.Millisecond).C
 			query := "xxx"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			view.Update()
-			view.Update()
+			view.fuzzyFind.Update()
+			<-time.NewTimer(700 * time.Millisecond).C // fuzzy debounce
+			view.fuzzyFind.Update()
+			<-time.NewTimer(700 * time.Millisecond).C
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(400 * time.Millisecond).C
+			view.Update()
+			<-time.NewTimer(700 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForStatus)
@@ -288,17 +291,18 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 
 			// when
 			go view.runSelectUser()
-			<-time.NewTimer(300 * time.Millisecond).C
+			<-time.NewTimer(700 * time.Millisecond).C
 			query := "John"
 			for _, key := range query {
 				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			<-time.NewTimer(100 * time.Millisecond).C
-			view.Update()
-			view.Update()
-			<-time.NewTimer(300 * time.Millisecond).C
+			view.fuzzyFind.Update()
+			<-time.NewTimer(700 * time.Millisecond).C // fuzzy debounce
+			view.fuzzyFind.Update()
+			<-time.NewTimer(700 * time.Millisecond).C
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(300 * time.Millisecond).C
+			view.Update()
+			<-time.NewTimer(700 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForUser)
@@ -331,19 +335,18 @@ func Test_fjiraSearchIssuesView_runSelectLabel(t *testing.T) {
 
 			// when
 			go view.runSelectLabel()
-			<-time.NewTimer(200 * time.Millisecond).C
+			<-time.NewTimer(700 * time.Millisecond).C
 			query := "de"
 			for _, key := range query {
-				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
+				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			view.Update()
-			view.Update()
-			<-time.NewTimer(300 * time.Millisecond).C
-			view.Update()
-			view.Update()
-			<-time.NewTimer(300 * time.Millisecond).C
+			view.fuzzyFind.Update()
+			<-time.NewTimer(700 * time.Millisecond).C // fuzzy debounce
+			view.fuzzyFind.Update()
+			<-time.NewTimer(700 * time.Millisecond).C
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(300 * time.Millisecond).C
+			view.Update()
+			<-time.NewTimer(700 * time.Millisecond).C
 
 			// then
 			assert.NotNil(t, searchForLabel)
