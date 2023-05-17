@@ -3,73 +3,71 @@ package fjira
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
-	"os"
+	"net/http"
 	"testing"
-	"time"
 )
 
-func TestCreateNewFjira(t *testing.T) {
+func TestFjira_bootstrap(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	type args struct {
+		cliArgs       CliArgs
+		viewPredicate func() bool
+	}
 	tests := []struct {
 		name string
+		args args
 	}{
-		{"should create&run fjira without error"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// when
-			screen := tcell.NewSimulationScreen("utf-8")
-			_ = screen.Init() //nolint:errcheck
-			app.CreateNewAppWithScreen(screen)
-			f := CreateNewFjira(&fjiraSettings{JiraRestUrl: "test", JiraToken: "test", JiraUsername: "test"})
-
-			// then
-			assert.NotNil(t, f)
-
-			// and then
-			settings, err := Install(CliArgs{})
-			go f.Run(&CliArgs{})
-			<-time.NewTimer(100 * time.Millisecond).C
-
-			// and then
-			f.Close()
-			assert.NotNil(t, settings)
-			assert.Nil(t, err)
-		})
-	}
-}
-
-func TestInstall(t *testing.T) {
-	// TODO - not working on windows
-	tempDir := t.TempDir()
-	_ = os.Setenv("HOME", tempDir)
-	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
-	defer func(name string) {
-		_ = os.Remove(name)
-	}(tempDir + "/.fjira")
-
-	tests := []struct {
-		name string
-	}{
-		{"should run install without error"},
+		{"should switch to workspace view", args{
+			cliArgs: CliArgs{WorkspaceSwitch: true},
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraSwitchWorkspaceView)
+				return ok
+			},
+		}},
+		{"should switch to project view", args{
+			cliArgs: CliArgs{ProjectId: "test"},
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
+				return ok
+			},
+		}},
+		{"should switch to issue view", args{
+			cliArgs: CliArgs{IssueKey: "test"},
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraIssueView)
+				return ok
+			},
+		}},
+		{"should switch to jql view", args{
+			cliArgs: CliArgs{JqlMode: true},
+			viewPredicate: func() bool {
+				_, ok := app.GetApp().CurrentView().(*fjiraJqlSearchView)
+				return ok
+			},
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			u := &userHomeWorkspaces{}
-			s := &userHomeSettingsStorage{}
-			settings := &fjiraSettings{JiraRestUrl: "http://test", JiraUsername: "test_user", JiraToken: "test_token"}
-			filepath, _ := s.settingsFilePath("xyz")
-			assert.NoFileExists(t, filepath)
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				w.Write([]byte("{}")) //nolint:errcheck
+			})
+			app.CreateNewAppWithScreen(screen)
+			fjira := CreateNewFjira(&fjiraSettings{})
+			_ = SetApi(api)
 
 			// when
-			_ = s.write("xyz", settings)
-			_ = u.setCurrentWorkspace("xyz")
-			settings, err := Install(CliArgs{})
+			fjira.bootstrap(&tt.args.cliArgs)
 
-			// when
-			assert.NotNil(t, settings)
-			assert.Nil(t, err)
+			// then
+			ok := tt.args.viewPredicate()
+			assert.New(t).True(ok, "Current view is invalid.")
 		})
 	}
 }
