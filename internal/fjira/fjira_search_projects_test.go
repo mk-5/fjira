@@ -42,10 +42,10 @@ func TestNewProjectsSearchView(t *testing.T) {
 			view.Update()
 			view.Update()
 			view.Resize(screen.Size())
-			<-time.NewTimer(250 * time.Millisecond).C
+			<-time.NewTimer(500 * time.Millisecond).C
 			view.Update()
 			view.Draw(screen)
-			<-time.NewTimer(350 * time.Millisecond).C
+			<-time.NewTimer(500 * time.Millisecond).C
 
 			var buffer bytes.Buffer
 			contents, x, y := screen.GetContents()

@@ -134,8 +134,19 @@ func (view *fjiraSearchIssuesView) runIssuesFuzzyFind() {
 			return
 		}
 		chosenIssue := view.issues[chosen.Index]
-		go goIntoIssueView(chosenIssue.Key)
+		view.goToIssueView(chosenIssue.Key)
 	}
+}
+
+func (view *fjiraSearchIssuesView) goToIssueView(issueKey string) {
+	go func() {
+		goIntoIssueView(issueKey)
+		if view.customJql != "" {
+			if v, ok := app.GetApp().CurrentView().(*fjiraIssueView); ok {
+				v.SetGoBackJql(view.customJql)
+			}
+		}
+	}()
 }
 
 func (view *fjiraSearchIssuesView) findIssues(query string) []string {

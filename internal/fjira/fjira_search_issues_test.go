@@ -567,3 +567,94 @@ func Test_fjiraSearchIssuesView_goBackWithCustomJql(t *testing.T) {
 		})
 	}
 }
+
+func TestNewIssuesSearchView_fjiraIssueView_goIntoIssueVIew(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	type args struct {
+		project *jira.Project
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"should go into issue view, and set custom JQL", args{project: &jira.Project{}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				body := `
+{
+    "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations,customfield_10010.requestTypePractice",
+    "id": "10011",
+    "self": "https://test/rest/api/2/issue/10011",
+    "key": "JWC-3",
+    "fields": {
+        "issuetype": {
+            "id": "10013",
+            "description": "A small, distinct piece of work.",
+            "name": "Task",
+            "subtask": false
+        },
+        "timespent": 14400,
+        "project": {
+            "id": "10003",
+            "key": "JWC",
+            "name": "TEST",
+            "projectTypeKey": "software"
+        },
+        "lastViewed": "2022-02-22T00:27:17.356+0100",
+        "created": "2021-10-02T22:34:22.521+0200",
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2022-02-22T00:27:19.792+0100",
+        "status": {
+            "description": "",
+            "name": "Done",
+            "id": "10013"
+        },
+		"labels": ["TestLabel"],
+        "description": "Lorem ipsum",
+        "summary": "Tutorial - create tutorial",
+        "creator": {
+        },
+        "subtasks": [],
+        "reporter": {
+        },
+ 		"comment": {}
+    }
+}
+`
+				w.Write([]byte(body)) //nolint:errcheck
+			})
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
+			_ = SetApi(api)
+			view := NewIssuesSearchView(tt.args.project)
+
+			// when
+			view.goToIssueView("ABC")
+			<-time.After(500 * time.Millisecond)
+
+			// then
+			if v, ok := app.GetApp().CurrentView().(*fjiraIssueView); ok {
+				assert.Empty(t, v.goBackJql)
+			} else {
+				assert.Fail(t, "invalid view set")
+			}
+
+			// and when
+			view.customJql = "TEST"
+			view.goToIssueView("ABC")
+			<-time.After(500 * time.Millisecond)
+
+			// then
+			vv, _ := app.GetApp().CurrentView().(*fjiraIssueView)
+			assert.Equal(t, "TEST", vv.goBackJql)
+		})
+	}
+}

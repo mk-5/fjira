@@ -16,6 +16,7 @@ type fjiraIssueView struct {
 	topBar            *app.ActionBar
 	fuzzyFind         *app.FuzzyFind
 	issue             *jira.Issue
+	goBackJql         string
 	descriptionLimitX int
 	descriptionLimitY int
 	scrollY           int
@@ -151,6 +152,19 @@ func (view *fjiraIssueView) HandleKeyEvent(ev *tcell.EventKey) {
 	}
 	if ev.Key() == tcell.KeyDown {
 		view.scrollY = app.ClampInt(view.scrollY+1, 0, view.maxScrollY)
+	}
+}
+
+func (view *fjiraIssueView) SetGoBackJql(jql string) {
+	view.goBackJql = jql
+}
+
+func (view *fjiraIssueView) goBack() {
+	if view.goBackJql == "" {
+		app.GetApp().SetView(NewIssuesSearchView(&view.issue.Fields.Project))
+	}
+	if view.goBackJql != "" {
+		app.GetApp().SetView(NewIssuesSearchViewWithCustomJql(view.goBackJql))
 	}
 }
 
