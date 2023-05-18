@@ -26,6 +26,16 @@ func Test_httpJiraApi_Search(t *testing.T) {
 			3,
 			false,
 		},
+		{"should do search without error using issue key",
+			args{query: "ISSUE-1"},
+			[]Issue{
+				{"ISSUE-1", IssueFields{Description: "Desc1", Status: Status{Name: "Status1"}}, ""},
+				{"ISSUE-2", IssueFields{Description: "Desc2", Status: Status{Name: "Status2"}}, ""},
+				{"ISSUE-3", IssueFields{Description: "Desc3", Status: Status{Name: "Status3"}}, ""},
+			},
+			3,
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

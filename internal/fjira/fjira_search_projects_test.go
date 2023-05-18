@@ -34,7 +34,7 @@ func TestNewProjectsSearchView(t *testing.T) {
 
 			// when
 			view.Init()
-			<-time.NewTimer(250 * time.Millisecond).C
+			<-time.NewTimer(500 * time.Millisecond).C
 			query := "FJIR"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
