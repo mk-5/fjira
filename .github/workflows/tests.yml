@@ -24,3 +24,16 @@ jobs:
       - run: |
           make build
           bats bats/test.bats
+  test_windows:
+    strategy:
+      matrix:
+        go-version: [ 1.18.x ]
+        os: [ windows-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - uses: actions/checkout@v3
+      - run: |
+          go test ./internal/...
