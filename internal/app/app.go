@@ -113,6 +113,7 @@ func (a *App) Start() {
 	go a.processTerminalEvents()
 	go a.processOsSignals()
 	defer a.PanicRecover()
+	a.quit = false
 
 	for {
 		if a.quit {
