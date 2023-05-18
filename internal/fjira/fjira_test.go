@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestFjira_bootstrap(t *testing.T) {
@@ -50,6 +51,14 @@ func TestFjira_bootstrap(t *testing.T) {
 				return ok
 			},
 		}},
+		{"should switch to projects search by default", args{
+			cliArgs: CliArgs{},
+			viewPredicate: func() bool {
+				<-time.After(500 * time.Millisecond)
+				_, ok := app.GetApp().CurrentView().(*fjiraSearchProjectsView)
+				return ok
+			},
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -58,16 +67,40 @@ func TestFjira_bootstrap(t *testing.T) {
 				w.WriteHeader(200)
 				w.Write([]byte("{}")) //nolint:errcheck
 			})
-			app.CreateNewAppWithScreen(screen)
+			a := app.CreateNewAppWithScreen(screen)
 			fjira := CreateNewFjira(&fjiraSettings{})
+			fjira.app = a
 			_ = SetApi(api)
+			go a.Start()
+			<-time.After(500 * time.Millisecond)
 
 			// when
 			fjira.bootstrap(&tt.args.cliArgs)
 
 			// then
 			ok := tt.args.viewPredicate()
-			assert.New(t).True(ok, "Current view is invalid.")
+			assert.New(t).True(ok, "Current view is invalid: ", app.GetApp().CurrentView())
 		})
 	}
+}
+
+func TestFjira_run_should_run_without_error(t *testing.T) {
+	// given
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+	api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte("{}")) //nolint:errcheck
+	})
+	app.CreateNewAppWithScreen(screen)
+	fjira := CreateNewFjira(&fjiraSettings{})
+	_ = SetApi(api)
+
+	// when
+	go fjira.Run(&CliArgs{})
+	<-time.After(300 * time.Millisecond)
+
+	// then
+	assert.False(t, app.GetApp().IsQuit())
 }
