@@ -1,0 +1,2 @@
+ignore:
+  - "internal/jira/jira_mock.go"

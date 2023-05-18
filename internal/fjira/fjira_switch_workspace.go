@@ -25,23 +25,7 @@ func (s *fjiraSwitchWorkspaceView) Init() {
 	}
 	s.fuzzyFind = app.NewFuzzyFind(MessageSelectWorkspace, records)
 	s.fuzzyFind.MarginBottom = 0
-	go func() {
-		if workspace := <-s.fuzzyFind.Complete; true {
-			if workspace.Index < 0 {
-				app.GetApp().Quit()
-				return
-			}
-			err := s.workspaces.setCurrentWorkspace(workspace.Match)
-			if err != nil {
-				app.Error(err.Error())
-				app.GetApp().Quit()
-				return
-			}
-			app.Success(fmt.Sprintf(MessageSelectWorkspaceSuccess, workspace.Match))
-			time.Sleep(2 * time.Second)
-			app.GetApp().Quit()
-		}
-	}()
+	go s.waitForFuzzyFindComplete()
 }
 
 func (s *fjiraSwitchWorkspaceView) Destroy() {
@@ -69,5 +53,23 @@ func (s *fjiraSwitchWorkspaceView) Resize(screenX, screenY int) {
 func (s *fjiraSwitchWorkspaceView) HandleKeyEvent(keyEvent *tcell.EventKey) {
 	if s.fuzzyFind != nil {
 		s.fuzzyFind.HandleKeyEvent(keyEvent)
+	}
+}
+
+func (s *fjiraSwitchWorkspaceView) waitForFuzzyFindComplete() {
+	if workspace := <-s.fuzzyFind.Complete; true {
+		if workspace.Index < 0 {
+			app.GetApp().Quit()
+			return
+		}
+		err := s.workspaces.setCurrentWorkspace(workspace.Match)
+		if err != nil {
+			app.Error(err.Error())
+			app.GetApp().Quit()
+			return
+		}
+		app.Success(fmt.Sprintf(MessageSelectWorkspaceSuccess, workspace.Match))
+		time.Sleep(2 * time.Second)
+		app.GetApp().Quit()
 	}
 }

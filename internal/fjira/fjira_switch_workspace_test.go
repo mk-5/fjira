@@ -5,6 +5,7 @@ import (
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestNewSwitchWorkspaceView(t *testing.T) {
@@ -15,7 +16,9 @@ func TestNewSwitchWorkspaceView(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.NotNil(t, newSwitchWorkspaceView(), "newSwitchWorkspaceView()")
+			view := newSwitchWorkspaceView()
+			view.Destroy()
+			assert.NotNil(t, view, "newSwitchWorkspaceView()")
 		})
 	}
 }
@@ -143,4 +146,40 @@ func Test_fjiraSwitchWorkspaceView_Update(t *testing.T) {
 			s.Update()
 		})
 	}
+}
+
+func Test_fjiraSwitchWorkspaceView_should_handle_empty_fuzzy_find_result(t *testing.T) {
+	// given
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+	app.CreateNewAppWithScreen(screen)
+	s := newSwitchWorkspaceView()
+
+	// when
+	s.Init()
+	<-time.After(100 * time.Millisecond)
+	s.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, -1, tcell.ModNone))
+	<-time.After(300 * time.Millisecond)
+
+	// then
+	assert.True(t, app.GetApp().IsQuit())
+}
+
+func Test_fjiraSwitchWorkspaceView_should_handle_fuzzy_find_result(t *testing.T) {
+	// given
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+	app.CreateNewAppWithScreen(screen)
+	s := newSwitchWorkspaceView()
+
+	// when
+	s.Init()
+	<-time.After(100 * time.Millisecond)
+	s.fuzzyFind.Complete <- app.FuzzyFindResult{Index: 0, Match: "test"}
+	<-time.After(300 * time.Millisecond)
+
+	// then
+	assert.True(t, app.GetApp().IsQuit())
 }

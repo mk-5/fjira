@@ -74,14 +74,16 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 	defer screen.Fini()
 
 	type args struct {
-		issue *jira.Issue
+		issue         *jira.Issue
+		confirmAction rune
 	}
 
 	tests := []struct {
 		name string
 		args args
 	}{
-		{"should send assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}}},
+		{"should send assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, confirmAction: app.Yes}},
+		{"should send assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, confirmAction: app.No}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -110,7 +112,7 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 			<-time.NewTimer(250 * time.Millisecond).C
 			confirmation := app.GetApp().LastDrawable()
 			if kl, ok := (confirmation).(app.KeyListener); ok {
-				kl.HandleKeyEvent(tcell.NewEventKey(0, app.Yes, 0))
+				kl.HandleKeyEvent(tcell.NewEventKey(0, tt.args.confirmAction, 0))
 			}
 			<-time.NewTimer(250 * time.Millisecond).C
 
@@ -118,8 +120,38 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 			select {
 			case <-assignUserRequestSent:
 			case <-time.After(5 * time.Second):
-				t.Fail()
+				_, ok := app.GetApp().CurrentView().(*fjiraIssueView)
+				if !ok {
+					t.Fail()
+				}
 			}
+		})
+	}
+}
+
+func Test_fjiraAssignChangeView_assignUserToTicket_empty_user(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	tests := []struct {
+		name string
+	}{
+		{"should send set issue view instead of assign user request when user is empty"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.CreateNewAppWithScreen(screen)
+			CreateNewFjira(&fjiraSettings{})
+			view := NewAssignChangeView(&jira.Issue{})
+
+			// when
+			view.assignUserToTicket(&jira.Issue{}, nil)
+
+			// then
+			_, ok := app.GetApp().CurrentView().(*fjiraIssueView)
+			assert.True(t, ok)
 		})
 	}
 }
