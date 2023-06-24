@@ -19,3 +19,8 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         if: matrix.os == 'ubuntu-latest'
+      - name: Run BATS tests
+        uses: mig4/setup-bats@v1
+      - run: |
+          make build
+          bats bats/test.bats
