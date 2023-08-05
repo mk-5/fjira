@@ -13,6 +13,11 @@ build:
 	go build -o ${BINARY_NAME} cmd/fjira-cli/main.go
 	chmod +x ${BINARY_NAME}
 
+build_windows:
+	mkdir -p ${BINARY_DIR}
+	GOOS=windows GOARCH=amd64 go build -o ${BINARY_NAME}.exe cmd/fjira-cli/main.go
+	chmod +x ${BINARY_NAME}.exe
+
 run:
 	./${BINARY_NAME}
 
