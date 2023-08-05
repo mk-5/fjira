@@ -108,9 +108,9 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 		return nil, err
 	}
 	settings := &fjiraSettings{
-		JiraToken:    strings.TrimSuffix(token, "\n"),
-		JiraUsername: strings.TrimSuffix(username, "\n"),
-		JiraRestUrl:  strings.TrimSuffix(url, "\n"),
+		JiraToken:    strings.TrimSpace(token),
+		JiraUsername: strings.TrimSpace(username),
+		JiraRestUrl:  strings.TrimSpace(url),
 	}
 	if existingSettings != nil && settings.JiraUsername == "" {
 		settings.JiraUsername = existingSettings.JiraUsername
