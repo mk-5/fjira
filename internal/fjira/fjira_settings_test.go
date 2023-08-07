@@ -1,8 +1,8 @@
 package fjira
 
 import (
+	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
@@ -21,7 +21,7 @@ func Test_userHomeSettingsStorage_write(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			tempDir := t.TempDir()
-			_ = os.Setenv("HOME", tempDir) // TODO - will not work on windows
+			_ = os2.SetUserHomeDir(tempDir)
 			s := &userHomeSettingsStorage{}
 			settings := &fjiraSettings{JiraRestUrl: "http://test", JiraUsername: "test_user", JiraToken: "test_token"}
 			filepath, _ := s.settingsFilePath(tt.args.workspace)

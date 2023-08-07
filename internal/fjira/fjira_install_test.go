@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
+	os2 "github.com/mk-5/fjira/internal/os"
 	assert2 "github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -78,9 +79,8 @@ func Test_fjira_Close(t *testing.T) {
 }
 
 func Test_readFromUserSettings(t *testing.T) {
-	// TODO - not working on windows
 	tempDir := t.TempDir()
-	_ = os.Setenv("HOME", tempDir)
+	_ = os2.SetUserHomeDir(tempDir)
 	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
 	defer func(name string) {
 		_ = os.Remove(name)
@@ -122,9 +122,8 @@ func Test_readFromUserSettings(t *testing.T) {
 }
 
 func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
-	// TODO - not working on windows
 	tempDir := t.TempDir()
-	_ = os.Setenv("HOME", tempDir)
+	_ = os2.SetUserHomeDir(tempDir)
 	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
 	defer func(name string) {
 		_ = os.Remove(name)

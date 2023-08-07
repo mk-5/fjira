@@ -3,9 +3,9 @@ package fjira
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
+	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"os"
 	"strings"
 	"testing"
 )
@@ -26,7 +26,7 @@ func Test_jqlStorage(t *testing.T) {
 			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
 			CreateNewFjira(&fjiraSettings{Workspace: "default"})
 			tempDir := t.TempDir()
-			_ = os.Setenv("HOME", tempDir) // TODO - will not work on windows
+			_ = os2.SetUserHomeDir(tempDir)
 			s := &jqlStorage{}
 			jqlFile, _ := s.jqlsFile()
 
