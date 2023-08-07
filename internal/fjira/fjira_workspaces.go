@@ -3,8 +3,10 @@ package fjira
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -29,7 +31,13 @@ func (u *userHomeWorkspaces) readCurrentWorkspace() (string, error) {
 		return "", err
 	}
 	linkPath := fmt.Sprintf(CurrentWorkspaceFilePattern, userHomeDir)
-	workspaceFilePath, err := os.Readlink(linkPath)
+	var workspaceFilePath string
+	switch runtime.GOOS {
+	case "windows":
+		workspaceFilePath = linkPath
+	default:
+		workspaceFilePath, err = os.Readlink(linkPath)
+	}
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return "", err
 	}
@@ -77,9 +85,26 @@ func (u *userHomeWorkspaces) setCurrentWorkspace(workspace string) error {
 	if _, err := os.Lstat(currentWorkspacePath); err == nil {
 		_ = os.Remove(currentWorkspacePath)
 	}
-	err = os.Symlink(workspaceFilepath, currentWorkspacePath)
-	if err != nil {
-		return err
+	switch runtime.GOOS {
+	case "windows":
+		// copy on windows due to https://github.com/golang/go/issues/22874
+		f1, err := os.Open(workspaceFilepath)
+		if err != nil {
+			return err
+		}
+		f2, err := os.Create(currentWorkspacePath)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(f2, f1)
+		if err != nil {
+			return err
+		}
+	default:
+		err = os.Symlink(workspaceFilepath, currentWorkspacePath)
+		if err != nil {
+			return err
+		}
 	}
 	return err
 }

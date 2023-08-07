@@ -8,6 +8,7 @@ import (
 	os2 "github.com/mk-5/fjira/internal/os"
 	assert2 "github.com/stretchr/testify/assert"
 	"os"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -82,9 +83,9 @@ func Test_readFromUserSettings(t *testing.T) {
 	tempDir := t.TempDir()
 	_ = os2.SetUserHomeDir(tempDir)
 	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
-	defer func(name string) {
-		_ = os.Remove(name)
-	}(tempDir + "/.fjira")
+	t.Cleanup(func() {
+		_ = os.RemoveAll(tempDir)
+	})
 
 	type args struct {
 		workspace               string
@@ -111,6 +112,11 @@ func Test_readFromUserSettings(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			switch runtime.GOOS {
+			case "windows":
+				// on windows we are using copy instead of symlink due to privileges problems
+				tt.args.storedWorkspaceFilename = "_current.json"
+			}
 			file, _ := os.Create(tempDir + "/.fjira/" + tt.args.storedWorkspaceFilename) //nolint:errcheck
 			_, _ = file.WriteString(tt.args.storedWorkspaceJson)                         //nolint:errcheck
 			_ = os.Symlink(tempDir+"/.fjira/_current.json", file.Name())                 //nolint:errcheck
@@ -125,9 +131,9 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 	tempDir := t.TempDir()
 	_ = os2.SetUserHomeDir(tempDir)
 	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
-	defer func(name string) {
-		_ = os.Remove(name)
-	}(tempDir + "/.fjira")
+	t.Cleanup(func() {
+		_ = os.RemoveAll(tempDir)
+	})
 
 	type args struct {
 		workspace        string
