@@ -75,10 +75,12 @@ func TestFjira_bootstrap(t *testing.T) {
 			fjira.app = a
 			_ = SetApi(api)
 			go a.Start()
-			<-time.After(500 * time.Millisecond)
 
 			// when
-			fjira.bootstrap(&tt.args.cliArgs)
+			go fjira.bootstrap(&tt.args.cliArgs)
+			for a.CurrentView() == nil {
+				<-time.After(10 * time.Millisecond)
+			}
 
 			// then
 			ok := tt.args.viewPredicate()
