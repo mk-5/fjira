@@ -2,15 +2,15 @@ package fjira
 
 import (
 	"fmt"
+	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 )
 
 func Test_userHomeWorkspaces_getWorkspaceFilepath(t *testing.T) {
-	// TODO - not working on windows
 	tempDir := t.TempDir()
-	os.Setenv("HOME", tempDir)
+	_ = os2.SetUserHomeDir(tempDir)
 	defer os.Remove(tempDir + "/.fjira")
 
 	type args struct {
@@ -53,9 +53,8 @@ func Test_userHomeWorkspaces_normalizeWorkspaceFilename(t *testing.T) {
 }
 
 func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
-	// TODO - not working on windows
 	tempDir := t.TempDir()
-	os.Setenv("HOME", tempDir)
+	_ = os2.SetUserHomeDir(tempDir)
 	os.Mkdir(tempDir+"/.fjira", os.ModePerm)  //nolint:errcheck
 	os.Create(tempDir + "/.fjira/test1.json") //nolint:errcheck
 	os.Create(tempDir + "/.fjira/test2.json") //nolint:errcheck
@@ -78,9 +77,8 @@ func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 }
 
 func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
-	// TODO - not working on windows
 	tempDir := t.TempDir()
-	_ = os.Setenv("HOME", tempDir)
+	_ = os2.SetUserHomeDir(tempDir)
 	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm)                                //nolint:errcheck
 	_, _ = os.Create(tempDir + "/.fjira/xyz.json")                              //nolint:errcheck
 	_ = os.Symlink(tempDir+"/.fjira/xyz.json", tempDir+"/.fjira/_current.json") //nolint:errcheck
@@ -109,8 +107,7 @@ func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 
 func Test_userHomeWorkspaces_setCurrentWorkspace(t *testing.T) {
 	tempDir := t.TempDir()
-	// TODO - not working on windows
-	_ = os.Setenv("HOME", tempDir)
+	_ = os2.SetUserHomeDir(tempDir)
 	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm)       //nolint:errcheck
 	_, _ = os.Create(tempDir + "/.fjira/default.json") //nolint:errcheck
 	_, _ = os.Create(tempDir + "/.fjira/yyy.json")     //nolint:errcheck

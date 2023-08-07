@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
+	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -17,7 +17,7 @@ func prepareTestScreen(t *testing.T) tcell.SimulationScreen {
 	app.CreateNewAppWithScreen(screen)
 	CreateNewFjira(&fjiraSettings{Workspace: "default"})
 	tempDir := t.TempDir()
-	_ = os.Setenv("HOME", tempDir) // TODO - will not work on windows
+	_ = os2.SetUserHomeDir(tempDir)
 	return screen
 }
 
