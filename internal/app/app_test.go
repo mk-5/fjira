@@ -28,7 +28,7 @@ func TestApp(t *testing.T) {
 				systems:         make([]System, 0, 128),
 				flash:           make([]Drawable, 0, 5),
 				keepAlive:       make(map[interface{}]bool),
-				dirty:           make(chan bool),
+				dirty:           true,
 			}
 			go a.Start()
 			<-time.NewTimer(100 * time.Millisecond).C
@@ -66,7 +66,7 @@ func TestApp_KeepAlive(t *testing.T) {
 				systems:         make([]System, 0, 128),
 				flash:           make([]Drawable, 0, 5),
 				keepAlive:       make(map[interface{}]bool),
-				dirty:           make(chan bool),
+				dirty:           true,
 			}
 			drawable := NewText(0, 0, tcell.StyleDefault, "test")
 			a.AddDrawable(drawable)
@@ -111,7 +111,7 @@ func Test_App_processTerminalEvents(t *testing.T) {
 				systems:         make([]System, 0, 128),
 				flash:           make([]Drawable, 0, 5),
 				keepAlive:       make(map[interface{}]bool),
-				dirty:           make(chan bool),
+				dirty:           true,
 			}
 			go a.Start()
 			<-time.NewTimer(100 * time.Millisecond).C

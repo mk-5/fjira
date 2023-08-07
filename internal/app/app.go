@@ -30,7 +30,7 @@ type App struct {
 	viewMutex    sync.Mutex
 	quit         bool
 	// re-render screen if true
-	dirty           chan bool
+	dirty           bool
 	loading         bool
 	closed          bool
 	runOnAppRoutine []func()
@@ -103,7 +103,7 @@ func initAppWithScreen(screen tcell.Screen) {
 		systems:         make([]System, 0, 128),
 		flash:           make([]Drawable, 0, 5),
 		keepAlive:       make(map[interface{}]bool),
-		dirty:           make(chan bool),
+		dirty:           true,
 		spinner:         s,
 	}
 }
@@ -113,17 +113,11 @@ func (a *App) Start() {
 	go a.processTerminalEvents()
 	go a.processOsSignals()
 	defer a.PanicRecover()
-	a.quit = false
 
 	for {
 		if a.quit {
 			return
 		}
-		// TODO - could be added as an potential performance improvement
-		// it will reduce the render cycles
-		//select {
-		//case <-a.dirty:
-		//}
 		a.Render()
 		if len(a.runOnAppRoutine) == 0 {
 			time.Sleep(FPSMilliseconds)
@@ -146,6 +140,10 @@ func (a *App) Render() {
 	for _, system := range a.systems {
 		system.Update()
 	}
+	if !a.dirty && !a.loading {
+		time.Sleep(FPSMilliseconds)
+		return
+	}
 	a.screen.Fill(' ', DefaultStyle)
 	if a.loading {
 		a.spinner.Draw(a.screen)
@@ -156,6 +154,7 @@ func (a *App) Render() {
 	for _, flash := range a.flash {
 		flash.Draw(a.screen)
 	}
+	a.dirty = false
 }
 
 func (a *App) Close() {
@@ -173,6 +172,7 @@ func (a *App) Close() {
 func (a *App) Loading(flag bool) {
 	a.spinner.text = "Fetching"
 	a.loading = flag
+	a.dirty = true
 }
 
 func (a *App) IsLoading() bool {
@@ -190,6 +190,7 @@ func (a *App) LoadingWithText(flag bool, text string) {
 
 func (a *App) SetView(view View) {
 	a.viewMutex.Lock()
+	a.dirty = true
 	if a.view != nil {
 		a.view.Destroy()
 		delete(a.keepAlive, a.view)
@@ -257,12 +258,14 @@ func (a *App) AddFlash(flash Drawable, duration time.Duration) {
 		resizable.Resize(a.ScreenX, a.ScreenY)
 	}
 	timer := time.NewTimer(duration)
+	a.dirty = true
 	go func() {
 		defer a.PanicRecover()
 		<-timer.C
 		a.changeMutex.Lock()
 		a.flash = nil // it could lead to removing just-added flash message. For now, it's a good-enough solution
 		a.changeMutex.Unlock()
+		a.dirty = true
 	}()
 }
 
@@ -298,10 +301,11 @@ func (a *App) LastDrawable() Drawable {
 }
 
 func (a *App) SetDirty() {
-	a.dirty <- true
+	a.dirty = true
 }
 
 func (a *App) ClearNow() {
+	a.dirty = true
 	a.clear()
 	// a.screen.Clear() is preserving terminal buffer (not alternate screen buffer) :/ different then in 1.3
 	//a.screen.Clear()
@@ -353,6 +357,7 @@ func (a *App) processTerminalEvents() {
 		ev := a.screen.PollEvent()
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
+			a.dirty = true
 			a.screen.Sync()
 			x, y := a.screen.Size()
 			a.ScreenX = x
@@ -363,6 +368,7 @@ func (a *App) processTerminalEvents() {
 				}
 			}
 		case *tcell.EventKey:
+			a.dirty = true
 			if ev.Key() == tcell.KeyCtrlC {
 				a.Quit()
 				return
