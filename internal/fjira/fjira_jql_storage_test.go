@@ -24,7 +24,7 @@ func Test_jqlStorage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
-			CreateNewFjira(&fjiraSettings{Workspace: "default"})
+			CreateNewFjira(&fjiraWorkspaceSettings{Workspace: "default"})
 			tempDir := t.TempDir()
 			_ = os2.SetUserHomeDir(tempDir)
 			s := &jqlStorage{}

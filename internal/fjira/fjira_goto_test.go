@@ -10,7 +10,7 @@ import (
 )
 
 func Test_goIntoValidScreen(t *testing.T) {
-	fjira := CreateNewFjira(&fjiraSettings{})
+	fjira := CreateNewFjira(&fjiraWorkspaceSettings{})
 	fjira.SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.String(), "issue") {
 			w.WriteHeader(200)

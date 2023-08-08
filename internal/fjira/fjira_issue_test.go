@@ -96,7 +96,7 @@ func Test_shouldDisplayIssueView(t *testing.T) {
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 
-	fjira := CreateNewFjira(&fjiraSettings{})
+	fjira := CreateNewFjira(&fjiraWorkspaceSettings{})
 	fjira.SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.String(), "issue") {
 			w.WriteHeader(200)
@@ -191,7 +191,7 @@ func Test_issueView_ActionBar(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			_ = SetApi(jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 			}))
@@ -224,7 +224,7 @@ func Test_issueView_doComment(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			done := make(chan bool)
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -262,7 +262,7 @@ func Test_fjiraIssueView_HandleKeyEvent(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := newIssueView(&jira.Issue{Key: "test"})
 			view.fuzzyFind = app.NewFuzzyFind("test", []string{})
 			view.scrollY = 0

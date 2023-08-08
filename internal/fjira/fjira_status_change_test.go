@@ -29,7 +29,7 @@ func TestNewStatusChangeView(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, _ = w.Write([]byte(`{
@@ -97,7 +97,7 @@ func Test_fjiraStatusChangeView_changeStatusForTicket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := NewStatusChangeView(tt.args.issue)
 
 			// when

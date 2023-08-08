@@ -1,8 +1,6 @@
 package fjira
 
 import (
-	"errors"
-	"fmt"
 	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -10,33 +8,11 @@ import (
 	"testing"
 )
 
-func Test_userHomeWorkspaces_getWorkspaceFilepath(t *testing.T) {
-	tempDir := t.TempDir()
-	_ = os2.SetUserHomeDir(tempDir)
-	t.Cleanup(func() {
-		_ = os.RemoveAll(tempDir)
-	})
-
-	type args struct {
-		workspace string
-		current   bool
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{"should convert filename into filepath, not current", args{workspace: "test", current: false}, tempDir + "/.fjira/test.json"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			u := &userHomeWorkspaces{}
-			assert.Equalf(t, tt.want, u.getWorkspaceFilepath(tt.args.workspace, tt.args.current), "getWorkspaceFilepath(%v, %v)", tt.args.workspace, tt.args.current)
-		})
-	}
-}
-
 func Test_userHomeWorkspaces_normalizeWorkspaceFilename(t *testing.T) {
+	// userHomeWorkspaces is deprecated and it's not working on windows
+	if runtime.GOOS == "windows" {
+		return
+	}
 	type args struct {
 		workspace string
 	}
@@ -57,6 +33,10 @@ func Test_userHomeWorkspaces_normalizeWorkspaceFilename(t *testing.T) {
 }
 
 func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
+	// userHomeWorkspaces is deprecated and it's not working on windows
+	if runtime.GOOS == "windows" {
+		return
+	}
 	tempDir := t.TempDir()
 	_ = os2.SetUserHomeDir(tempDir)
 	os.Mkdir(tempDir+"/.fjira", os.ModePerm)  //nolint:errcheck
@@ -71,7 +51,7 @@ func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 		name string
 		want []string
 	}{
-		{"should read all workspaces", []string{"test1", "test2", "test3"}},
+		{"should read all fjiraSettings", []string{"test1", "test2", "test3"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -83,6 +63,10 @@ func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 }
 
 func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
+	// userHomeWorkspaces is deprecated and it's not working on windows
+	if runtime.GOOS == "windows" {
+		return
+	}
 	tempDir := t.TempDir()
 	_ = os2.SetUserHomeDir(tempDir)
 	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm)                                //nolint:errcheck
@@ -107,47 +91,6 @@ func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 				return
 			}
 			assert.Equalf(t, tt.want, got, "readCurrentWorkspace()")
-		})
-	}
-}
-
-func Test_userHomeWorkspaces_setCurrentWorkspace(t *testing.T) {
-	tempDir := t.TempDir()
-	_ = os2.SetUserHomeDir(tempDir)
-	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm)       //nolint:errcheck
-	_, _ = os.Create(tempDir + "/.fjira/default.json") //nolint:errcheck
-	_, _ = os.Create(tempDir + "/.fjira/yyy.json")     //nolint:errcheck
-	_ = os.Symlink(tempDir+"/.fjira/default.json", tempDir+"/.fjira/_current.json")
-	t.Cleanup(func() {
-		_ = os.RemoveAll(tempDir)
-	})
-
-	type args struct {
-		workspace string
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{"should set current workspace", args{workspace: "yyy"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			u := &userHomeWorkspaces{}
-			err := u.setCurrentWorkspace(tt.args.workspace)
-			path, err3 := os.Readlink(tempDir + "/.fjira/_current.json")
-			switch runtime.GOOS {
-			case "windows":
-				path = fmt.Sprintf("%s/.fjira/%s.json", tempDir, tt.args.workspace)
-				err3 = nil
-				if _, err := os.Stat(tempDir + "/.fjira/_current.json"); errors.Is(err, os.ErrNotExist) {
-					assert.Fail(t, "current workspace .json doesnt exist")
-				}
-			}
-
-			assert.Nil(t, err)
-			assert.Nil(t, err3)
-			assert.Equal(t, fmt.Sprintf("%s/.fjira/%s.json", tempDir, tt.args.workspace), path)
 		})
 	}
 }

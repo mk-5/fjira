@@ -30,7 +30,7 @@ func TestNewAssignChangeView(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, err := w.Write([]byte(`[{"id": "U1", "displayName": "Bob"}, {"id": "U2", "displayName": "John"}]`))
@@ -89,7 +89,7 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := NewAssignChangeView(tt.args.issue)
 
 			// when
@@ -143,7 +143,7 @@ func Test_fjiraAssignChangeView_assignUserToTicket_empty_user(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := NewAssignChangeView(&jira.Issue{})
 
 			// when
@@ -175,7 +175,7 @@ func Test_fjiraAssignChangeView_noUserFound(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := NewAssignChangeView(tt.args.issue)
 
 			// when

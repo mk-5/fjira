@@ -47,7 +47,7 @@ var (
 	fjiraOnce     sync.Once
 )
 
-func CreateNewFjira(settings *fjiraSettings) *Fjira {
+func CreateNewFjira(settings *fjiraWorkspaceSettings) *Fjira {
 	if settings == nil {
 		panic("Cannot find appropriate fjira settings!")
 	}
@@ -107,7 +107,11 @@ func GetCurrentWorkspace() (string, error) {
 	return fjiraInstance.workspace, nil
 }
 
-func Install(args CliArgs) (*fjiraSettings, error) {
+func Install(args CliArgs) (*fjiraWorkspaceSettings, error) {
+	// it will be removed after a few version
+	u := userHomeWorkspaces{}
+	_ = u.migrateFromGlobWorkspacesToYaml()
+
 	err := validateWorkspaceName(args.Workspace)
 	if err != nil {
 		return nil, err
@@ -127,7 +131,7 @@ func Install(args CliArgs) (*fjiraSettings, error) {
 		return nil, err
 	}
 	settings2, err := readFromUserSettings(args.Workspace)
-	if err == WorkspaceNotFoundErr {
+	if err == WorkspaceNotFoundErr || errors.Unwrap(err) == WorkspaceNotFoundErr {
 		return readFromUserInputAndStore(os.Stdin, args.Workspace, nil)
 	}
 	if err != nil {

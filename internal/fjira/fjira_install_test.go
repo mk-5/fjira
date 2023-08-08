@@ -8,7 +8,6 @@ import (
 	os2 "github.com/mk-5/fjira/internal/os"
 	assert2 "github.com/stretchr/testify/assert"
 	"os"
-	"runtime"
 	"testing"
 	"time"
 )
@@ -68,7 +67,7 @@ func Test_fjira_Close(t *testing.T) {
 			_ = screen.Init() //nolint:errcheck
 			defer screen.Fini()
 			app.CreateNewAppWithScreen(screen)
-			fjira := CreateNewFjira(&fjiraSettings{})
+			fjira := CreateNewFjira(&fjiraWorkspaceSettings{})
 
 			// when
 			fjira.Close()
@@ -88,40 +87,41 @@ func Test_readFromUserSettings(t *testing.T) {
 	})
 
 	type args struct {
-		workspace               string
-		storedWorkspaceFilename string
-		storedWorkspaceJson     string
+		workspace           string
+		storedWorkspaceYaml string
 	}
 	tests := []struct {
 		name string
 		args args
-		want *fjiraSettings
+		want *fjiraWorkspaceSettings
 	}{
 		{"should read user settings from current workspace",
-			args{workspace: "xyz", storedWorkspaceFilename: "xyz.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test.atlassian.net\",\"jiraToken\":\"123\",\"jiraUsername\":\"test@test.pl\"}"},
-			&fjiraSettings{JiraToken: "123", JiraUsername: "test@test.pl", JiraRestUrl: "https://test.atlassian.net", Workspace: "xyz"},
+			args{workspace: "xyz", storedWorkspaceYaml: "\ncurrent: xyz\nworkspaces:\n    xyz:\n        jiraRestUrl: https://test.atlassian.net\n        jiraToken: 123\n        jiraUsername: test@test.pl"},
+			&fjiraWorkspaceSettings{JiraToken: "123", JiraUsername: "test@test.pl", JiraRestUrl: "https://test.atlassian.net", Workspace: "xyz"},
 		},
 		{"should read user settings from another workspace",
-			args{workspace: "abc", storedWorkspaceFilename: "abc.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test\",\"jiraToken\":\"111\",\"jiraUsername\":\"test_user\"}"},
-			&fjiraSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test", Workspace: "abc"},
+			args{workspace: "abc", storedWorkspaceYaml: "\ncurrent: default\nworkspaces:\n    abc:\n        jiraRestUrl: https://test\n        jiraToken: 111\n        jiraUsername: test_user"},
+			&fjiraWorkspaceSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test", Workspace: "abc"},
 		},
 		{"should read user settings from default workspace",
-			args{workspace: "", storedWorkspaceFilename: "default.json", storedWorkspaceJson: "{\"jiraRestUrl\":\"https://test\",\"jiraToken\":\"111\",\"jiraUsername\":\"test_user\"}"},
-			&fjiraSettings{JiraToken: "111", JiraUsername: "test_user", JiraRestUrl: "https://test", Workspace: "default"},
+			args{workspace: "", storedWorkspaceYaml: "\ncurrent: default\nworkspaces:\n    default:\n        jiraRestUrl: https://test2\n        jiraToken: 333\n        jiraUsername: test_user2"},
+			&fjiraWorkspaceSettings{JiraToken: "333", JiraUsername: "test_user2", JiraRestUrl: "https://test2", Workspace: "default"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			switch runtime.GOOS {
-			case "windows":
-				// on windows we are using copy instead of symlink due to privileges problems
-				tt.args.storedWorkspaceFilename = "_current.json"
+			file, err := os.Create(tempDir + "/.fjira/fjira.yaml") //nolint:errcheck
+			if err != nil {
+				panic(err)
 			}
-			file, _ := os.Create(tempDir + "/.fjira/" + tt.args.storedWorkspaceFilename) //nolint:errcheck
-			_, _ = file.WriteString(tt.args.storedWorkspaceJson)                         //nolint:errcheck
-			_ = os.Symlink(tempDir+"/.fjira/_current.json", file.Name())                 //nolint:errcheck
+			_, err = file.WriteString(tt.args.storedWorkspaceYaml) //nolint:errcheck
+			if err != nil {
+				panic(err)
+			}
+			assert2.Nil(t, err)
 
-			got, _ := readFromUserSettings(tt.args.workspace)
+			got, err := readFromUserSettings(tt.args.workspace)
+			assert2.Nil(t, err)
 			assert2.Equalf(t, tt.want, got, "readFromUserSettings(%v)", tt.args.workspace)
 		})
 	}
@@ -137,14 +137,14 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 
 	type args struct {
 		workspace        string
-		existingSettings *fjiraSettings
+		existingSettings *fjiraWorkspaceSettings
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
 		{"should read workspace data from user input",
-			args{workspace: "xyz", existingSettings: &fjiraSettings{JiraToken: "123", JiraUsername: "test@test.pl", JiraRestUrl: "https://test.atlassian.net"}}},
+			args{workspace: "xyz", existingSettings: &fjiraWorkspaceSettings{JiraToken: "123", JiraUsername: "test@test.pl", JiraRestUrl: "https://test.atlassian.net"}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -162,7 +162,7 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 			assert2.Equal(t, "TestToken", settings.JiraToken)
 			assert2.Equal(t, "TestUrl", settings.JiraRestUrl)
 			assert2.Equal(t, "TestUser", settings.JiraUsername)
-			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/%s.json", tt.args.workspace))
+			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/fjira.yaml"))
 
 			// and when
 			stdin = bytes.NewBufferString("TestUser2\nTestUrl2\n\n")
@@ -176,7 +176,7 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 			assert2.Equal(t, "TestToken", settings.JiraToken)
 			assert2.Equal(t, "TestUrl2", settings.JiraRestUrl)
 			assert2.Equal(t, "TestUser2", settings.JiraUsername)
-			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/%s.json", tt.args.workspace))
+			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/fjira.yaml"))
 		})
 	}
 }

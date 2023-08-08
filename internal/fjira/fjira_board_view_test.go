@@ -195,10 +195,10 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := newBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{})
 			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view.columnStatusesMap[0] = []string{"0"}
 			view.columnStatusesMap[1] = []string{"1"}
 			view.columnStatusesMap[2] = []string{"2"}
@@ -234,7 +234,7 @@ func Test_boardView_Init(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			view := newBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{})
 			app.CreateNewAppWithScreen(tcell.NewSimulationScreen("utf-8"))
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				body := `

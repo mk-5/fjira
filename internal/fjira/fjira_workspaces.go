@@ -1,28 +1,26 @@
 package fjira
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 
 const (
 	CurrentWorkspaceFilenamePrefix = "_"
-	CurrentWorkspaceFilePattern    = "%s/.fjira/_current.json"
-	AvailableWorkspacesPattern     = "%s/.fjira/[^_]*.json"
-	WorkspaceFileExtension         = ".json"
+	CurrentWorkspaceFileName       = "current"
+	CurrentWorkspaceFilePattern    = "%s/.fjira/" + CurrentWorkspaceFilenamePrefix + CurrentWorkspaceFileName + ".json" // @deprecated
+	AvailableWorkspacesPattern     = "%s/.fjira/[^_]*.json"                                                             // @deprecated
+	WorkspaceFileExtension         = ".json"                                                                            // @deprecated
 )
 
+// @deprecated - it shouldn't be in use. Everything is handled by userHomeSettingsStorage now
 type userHomeWorkspaces struct{}
 
 type workspaces interface { //nolint
-	readCurrentWorkspace() (string, error)
-	readAllWorkspaces() ([]string, error)
-	setCurrentWorkspace(workspace string) error
 }
 
 func (u *userHomeWorkspaces) readCurrentWorkspace() (string, error) {
@@ -31,13 +29,7 @@ func (u *userHomeWorkspaces) readCurrentWorkspace() (string, error) {
 		return "", err
 	}
 	linkPath := fmt.Sprintf(CurrentWorkspaceFilePattern, userHomeDir)
-	var workspaceFilePath string
-	switch runtime.GOOS {
-	case "windows":
-		workspaceFilePath = linkPath
-	default:
-		workspaceFilePath, err = os.Readlink(linkPath)
-	}
+	workspaceFilePath, err := os.Readlink(linkPath)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return "", err
 	}
@@ -69,54 +61,6 @@ func (u *userHomeWorkspaces) readAllWorkspaces() ([]string, error) {
 	return workspaces, nil
 }
 
-func (u *userHomeWorkspaces) setCurrentWorkspace(workspace string) error {
-	if workspace == EmptyWorkspace {
-		workspace = DefaultWorkspaceName
-	}
-	workspaceFilepath := u.getWorkspaceFilepath(workspace, false)
-	if _, err := os.Stat(workspaceFilepath); errors.Is(err, os.ErrNotExist) {
-		return WorkspaceNotFoundErr
-	}
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err.Error())
-	}
-	currentWorkspacePath := fmt.Sprintf(CurrentWorkspaceFilePattern, userHomeDir)
-	if _, err := os.Lstat(currentWorkspacePath); err == nil {
-		_ = os.Remove(currentWorkspacePath)
-	}
-	switch runtime.GOOS {
-	case "windows":
-		// copy on windows due to https://github.com/golang/go/issues/22874
-		f1, err := os.Open(workspaceFilepath)
-		if err != nil {
-			return err
-		}
-		f2, err := os.Create(currentWorkspacePath)
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(f2, f1)
-		if err != nil {
-			return err
-		}
-	default:
-		err = os.Symlink(workspaceFilepath, currentWorkspacePath)
-		if err != nil {
-			return err
-		}
-	}
-	return err
-}
-
-func (*userHomeWorkspaces) getWorkspaceFilepath(workspace string, current bool) string {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err.Error())
-	}
-	return fmt.Sprintf("%s/.fjira/%s.json", userHomeDir, workspace)
-}
-
 func (*userHomeWorkspaces) normalizeWorkspaceFilename(workspace string) string {
 	workspace = filepath.Base(workspace)
 	workspace = strings.TrimSpace(workspace)
@@ -124,4 +68,60 @@ func (*userHomeWorkspaces) normalizeWorkspaceFilename(workspace string) string {
 	workspace = strings.Replace(workspace, WorkspaceFileExtension, "", 1)
 	workspace = strings.Join(strings.Fields(workspace), "")
 	return workspace
+}
+
+// In the first version all workspaces have been stored ~/.fjira/ directory,
+// and the current workspace pointer was just _current.json file.
+// There is a problem with symlinks for windows platform, so it was not super future-proof solution.
+// That method is migrating from the old to the new .yml settings approach
+func (u *userHomeWorkspaces) migrateFromGlobWorkspacesToYaml() error {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err.Error())
+	}
+	oldCurrentWorkspacePointerLink := fmt.Sprintf(CurrentWorkspaceFilePattern, userHomeDir)
+	if _, err := os.Lstat(oldCurrentWorkspacePointerLink); errors.Is(err, os.ErrNotExist) {
+		// nothing to do
+		return nil
+	}
+
+	workspaces, err := u.readAllWorkspaces()
+	if err != nil {
+		return err
+	}
+
+	settingsStorage := &userHomeSettingsStorage{}
+
+	for _, w := range workspaces {
+		file := fmt.Sprintf("%s/.fjira/%s.json", userHomeDir, w)
+		bytes, err := os.ReadFile(file)
+		if err != nil {
+			// skip if it cannot read the workspace
+			continue
+		}
+		var wSettings fjiraWorkspaceSettings
+		err = json.Unmarshal(bytes, &wSettings)
+		if err != nil {
+			// skip if it cannot read the workspace
+			continue
+		}
+		err = settingsStorage.write(w, &wSettings)
+		if err != nil {
+			return err
+		}
+		os.Remove(file)
+	}
+
+	current, err := u.readCurrentWorkspace()
+	if err != nil {
+		current = DefaultWorkspaceName
+	}
+	err = settingsStorage.setCurrentWorkspace(current)
+	if err != nil {
+		return err
+	}
+
+	// remove old files
+	os.Remove(fmt.Sprintf("%s/.fjira/_current.json", userHomeDir))
+	return nil
 }

@@ -126,7 +126,7 @@ func Test_fjiraTextWriterView_TextConsumer(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			done := make(chan bool)
 			consumer := func(str string) {
 				done <- true
@@ -163,7 +163,7 @@ func Test_fjiraTextWriterView_GoBack(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			done := make(chan bool)
 			goBack := func() {
 				done <- true

@@ -10,7 +10,7 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-      #      - windows
+      - windows
       - darwin
     id: fjira
     main: ./cmd/fjira-cli
@@ -39,12 +39,14 @@ brews:
     homepage: "https://github.com/mk-5/fjira"
     license: "AGPL-3.0"
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      #      windows: Windows
-      386: i386
-      amd64: x86_64
+  - id: fjira
+    name_template: >-
+      {{- .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end -}}
 nfpms:
   - id: linux_packages
     file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"

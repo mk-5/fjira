@@ -60,7 +60,7 @@ func Test_fjiraSearchIssuesView_Init(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, _ = w.Write([]byte(`{
@@ -237,7 +237,7 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, _ = w.Write([]byte(`[{"statuses" : [{"id": "1", "name": "Status1", "description": ""}, {"id": "2", "name": "xxx", "description": ""}]}]`))
@@ -281,7 +281,7 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, _ = w.Write([]byte(`[{"id": "U1", "displayName": "Bob"}, {"id": "U2", "displayName": "John"}]`))
@@ -325,7 +325,7 @@ func Test_fjiraSearchIssuesView_runSelectLabel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, _ = w.Write([]byte(`{"token":"","suggestions":[{"label":"SomethingElse","html":"<b></b>SomethingElse"},{"label":"TestLabel","html":"<b></b>TestLabel"},{"label":"Design","html":"<b></b>Design"},{"label":"Windows","html":"<b></b>Windows"}]}`))
@@ -369,7 +369,7 @@ func Test_fjiraSearchIssuesView_runSelectBoard(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, err := w.Write([]byte(`{
@@ -434,7 +434,7 @@ func Test_fjiraSearchIssuesView_findLabels(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, err := w.Write([]byte(`{"token":"","suggestions":[{"label":"SomethingElse","html":"<b></b>SomethingElse"},{"label":"TestLabel","html":"<b></b>TestLabel"},{"label":"Design","html":"<b></b>Design"},{"label":"Windows","html":"<b></b>Windows"}]}`))
@@ -470,7 +470,7 @@ func Test_fjiraSearchIssuesView_findBoards(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				_, err := w.Write([]byte(`{
@@ -526,7 +526,7 @@ func Test_fjiraSearchIssuesView_goBack(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
@@ -554,7 +554,7 @@ func Test_fjiraSearchIssuesView_goBackWithCustomJql(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := NewIssuesSearchViewWithCustomJql("test jql")
 
 			// when
@@ -632,7 +632,7 @@ func TestNewIssuesSearchView_fjiraIssueView_goIntoIssueVIew(t *testing.T) {
 				w.Write([]byte(body)) //nolint:errcheck
 			})
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			_ = SetApi(api)
 			view := NewIssuesSearchView(tt.args.project)
 

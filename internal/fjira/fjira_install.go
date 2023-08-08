@@ -30,30 +30,29 @@ func validateWorkspaceName(workspace string) error {
 	return nil
 }
 
-func readFromEnvironments() (*fjiraSettings, error) {
+func readFromEnvironments() (*fjiraWorkspaceSettings, error) {
 	var token = os.Getenv(JiraTokenEnv)
 	var restUrl = os.Getenv(JiraRestUrlEnv)
 	var username = os.Getenv(JiraUsernameEnv)
 	if token == "" || restUrl == "" || username == "" {
 		return nil, EnvironmentsMissingErr
 	}
-	return &fjiraSettings{
+	return &fjiraWorkspaceSettings{
 		JiraToken:    token,
 		JiraRestUrl:  restUrl,
 		JiraUsername: username,
 	}, nil
 }
 
-func readFromUserSettings(workspace string) (*fjiraSettings, error) {
+func readFromUserSettings(workspace string) (*fjiraWorkspaceSettings, error) {
 	var err error
+	settingsStorage := &userHomeSettingsStorage{}
 	if workspace == EmptyWorkspace {
-		workspaces := &userHomeWorkspaces{}
-		workspace, err = workspaces.readCurrentWorkspace()
+		workspace, err = settingsStorage.readCurrentWorkspace()
 	}
 	if err != nil {
 		return nil, err
 	}
-	var settingsStorage = &userHomeSettingsStorage{}
 	settings, err := settingsStorage.read(workspace)
 	if err != nil {
 		return nil, err
@@ -61,7 +60,7 @@ func readFromUserSettings(workspace string) (*fjiraSettings, error) {
 	return settings, err
 }
 
-func readFromUserInputAndStore(input io.Reader, workspace string, existingSettings *fjiraSettings) (*fjiraSettings, error) {
+func readFromUserInputAndStore(input io.Reader, workspace string, existingSettings *fjiraWorkspaceSettings) (*fjiraWorkspaceSettings, error) {
 	workspaceName := workspace
 	if workspace == EmptyWorkspace {
 		workspaceName = DefaultWorkspaceName
@@ -107,7 +106,7 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 	if err != nil {
 		return nil, err
 	}
-	settings := &fjiraSettings{
+	settings := &fjiraWorkspaceSettings{
 		JiraToken:    strings.TrimSpace(token),
 		JiraUsername: strings.TrimSpace(username),
 		JiraRestUrl:  strings.TrimSpace(url),
@@ -126,12 +125,11 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 	if err != nil {
 		return nil, err
 	}
-	workspaces := &userHomeWorkspaces{}
-	_ = workspaces.setCurrentWorkspace(workspace)
+	_ = settingsStorage.setCurrentWorkspace(workspace)
 	return settings, err
 }
 
-func readFromWorkspaceEdit(input io.Reader, workspace string) (*fjiraSettings, error) {
+func readFromWorkspaceEdit(input io.Reader, workspace string) (*fjiraWorkspaceSettings, error) {
 	var settingsStorage = &userHomeSettingsStorage{}
 	settings, err := settingsStorage.read(workspace)
 	if err != nil {

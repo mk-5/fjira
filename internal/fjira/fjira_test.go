@@ -4,6 +4,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
+	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -63,12 +64,14 @@ func TestFjira_bootstrap(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
+			tempDir := t.TempDir()
+			_ = os2.SetUserHomeDir(tempDir)
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				w.Write([]byte("{}")) //nolint:errcheck
 			})
 			a := app.CreateNewAppWithScreen(screen)
-			fjira := CreateNewFjira(&fjiraSettings{})
+			fjira := CreateNewFjira(&fjiraWorkspaceSettings{})
 			fjira.app = a
 			_ = SetApi(api)
 			go a.Start()
@@ -94,7 +97,7 @@ func TestFjira_run_should_run_without_error(t *testing.T) {
 		w.Write([]byte("{}")) //nolint:errcheck
 	})
 	app.CreateNewAppWithScreen(screen)
-	fjira := CreateNewFjira(&fjiraSettings{})
+	fjira := CreateNewFjira(&fjiraWorkspaceSettings{})
 	_ = SetApi(api)
 
 	// when
