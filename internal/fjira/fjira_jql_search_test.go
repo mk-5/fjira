@@ -15,7 +15,7 @@ func prepareTestScreen(t *testing.T) tcell.SimulationScreen {
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	app.CreateNewAppWithScreen(screen)
-	CreateNewFjira(&fjiraSettings{Workspace: "default"})
+	CreateNewFjira(&fjiraWorkspaceSettings{Workspace: "default"})
 	tempDir := t.TempDir()
 	_ = os2.SetUserHomeDir(tempDir)
 	return screen

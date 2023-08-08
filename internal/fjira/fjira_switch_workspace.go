@@ -8,18 +8,18 @@ import (
 )
 
 type fjiraSwitchWorkspaceView struct {
-	fuzzyFind  *app.FuzzyFind
-	workspaces *userHomeWorkspaces
+	fuzzyFind     *app.FuzzyFind
+	fjiraSettings *userHomeSettingsStorage
 }
 
 func newSwitchWorkspaceView() *fjiraSwitchWorkspaceView {
 	return &fjiraSwitchWorkspaceView{
-		workspaces: &userHomeWorkspaces{},
+		fjiraSettings: &userHomeSettingsStorage{},
 	}
 }
 
 func (s *fjiraSwitchWorkspaceView) Init() {
-	records, err := s.workspaces.readAllWorkspaces()
+	records, err := s.fjiraSettings.readAllWorkspaces()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -62,7 +62,7 @@ func (s *fjiraSwitchWorkspaceView) waitForFuzzyFindComplete() {
 			app.GetApp().Quit()
 			return
 		}
-		err := s.workspaces.setCurrentWorkspace(workspace.Match)
+		err := s.fjiraSettings.setCurrentWorkspace(workspace.Match)
 		if err != nil {
 			app.Error(err.Error())
 			app.GetApp().Quit()

@@ -1,6 +1,7 @@
 package fjira
 
 import (
+	"errors"
 	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -23,8 +24,8 @@ func Test_userHomeSettingsStorage_write(t *testing.T) {
 			tempDir := t.TempDir()
 			_ = os2.SetUserHomeDir(tempDir)
 			s := &userHomeSettingsStorage{}
-			settings := &fjiraSettings{JiraRestUrl: "http://test", JiraUsername: "test_user", JiraToken: "test_token"}
-			filepath, _ := s.settingsFilePath(tt.args.workspace)
+			settings := &fjiraWorkspaceSettings{JiraRestUrl: "http://test", JiraUsername: "test_user", JiraToken: "test_token"}
+			filepath, _ := s.settingsFilePath()
 			assert.NoFileExists(t, filepath)
 
 			// when
@@ -33,6 +34,34 @@ func Test_userHomeSettingsStorage_write(t *testing.T) {
 			// then
 			assert.Nil(t, err)
 			assert.FileExists(t, filepath)
+		})
+	}
+}
+
+func Test_userHomeSettingsStorage_read(t *testing.T) {
+	type args struct {
+		workspace string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"should return WorkspaceNotFoundErr if workspace doesn't exit", args{workspace: "test2"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			tempDir := t.TempDir()
+			_ = os2.SetUserHomeDir(tempDir)
+			s := &userHomeSettingsStorage{}
+			filepath, _ := s.settingsFilePath()
+			assert.NoFileExists(t, filepath)
+
+			// when
+			_, err := s.read(tt.args.workspace)
+
+			// then
+			assert.True(t, errors.Is(err, WorkspaceNotFoundErr))
 		})
 	}
 }

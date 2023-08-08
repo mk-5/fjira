@@ -3,6 +3,7 @@ package fjira
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
+	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -25,8 +26,8 @@ func TestNewSwitchWorkspaceView(t *testing.T) {
 
 func Test_fjiraSwitchWorkspaceView_Draw(t *testing.T) {
 	type fields struct {
-		fuzzyFind  *app.FuzzyFind
-		workspaces *userHomeWorkspaces
+		fuzzyFind       *app.FuzzyFind
+		settingsStorage *userHomeSettingsStorage
 	}
 	type args struct {
 		screen tcell.Screen
@@ -41,8 +42,8 @@ func Test_fjiraSwitchWorkspaceView_Draw(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &fjiraSwitchWorkspaceView{
-				fuzzyFind:  tt.fields.fuzzyFind,
-				workspaces: tt.fields.workspaces,
+				fuzzyFind:     tt.fields.fuzzyFind,
+				fjiraSettings: tt.fields.settingsStorage,
 			}
 			s.Draw(tt.args.screen)
 		})
@@ -51,8 +52,8 @@ func Test_fjiraSwitchWorkspaceView_Draw(t *testing.T) {
 
 func Test_fjiraSwitchWorkspaceView_HandleKeyEvent(t *testing.T) {
 	type fields struct {
-		fuzzyFind  *app.FuzzyFind
-		workspaces *userHomeWorkspaces
+		fuzzyFind               *app.FuzzyFind
+		userHomeSettingsStorage *userHomeSettingsStorage
 	}
 	type args struct {
 		keyEvent *tcell.EventKey
@@ -67,8 +68,8 @@ func Test_fjiraSwitchWorkspaceView_HandleKeyEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &fjiraSwitchWorkspaceView{
-				fuzzyFind:  tt.fields.fuzzyFind,
-				workspaces: tt.fields.workspaces,
+				fuzzyFind:     tt.fields.fuzzyFind,
+				fjiraSettings: tt.fields.userHomeSettingsStorage,
 			}
 			s.HandleKeyEvent(tt.args.keyEvent)
 		})
@@ -77,8 +78,8 @@ func Test_fjiraSwitchWorkspaceView_HandleKeyEvent(t *testing.T) {
 
 func Test_fjiraSwitchWorkspaceView_Init(t *testing.T) {
 	type fields struct {
-		fuzzyFind  *app.FuzzyFind
-		workspaces *userHomeWorkspaces
+		fuzzyFind       *app.FuzzyFind
+		settingsStorage *userHomeSettingsStorage
 	}
 	tests := []struct {
 		name   string
@@ -88,9 +89,11 @@ func Test_fjiraSwitchWorkspaceView_Init(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tempDir := t.TempDir()
+			_ = os2.SetUserHomeDir(tempDir)
 			s := &fjiraSwitchWorkspaceView{
-				fuzzyFind:  tt.fields.fuzzyFind,
-				workspaces: tt.fields.workspaces,
+				fuzzyFind:     tt.fields.fuzzyFind,
+				fjiraSettings: tt.fields.settingsStorage,
 			}
 			s.Init()
 
@@ -101,8 +104,8 @@ func Test_fjiraSwitchWorkspaceView_Init(t *testing.T) {
 
 func Test_fjiraSwitchWorkspaceView_Resize(t *testing.T) {
 	type fields struct {
-		fuzzyFind  *app.FuzzyFind
-		workspaces *userHomeWorkspaces
+		fuzzyFind       *app.FuzzyFind
+		settingsStorage *userHomeSettingsStorage
 	}
 	type args struct {
 		screenX int
@@ -118,8 +121,8 @@ func Test_fjiraSwitchWorkspaceView_Resize(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &fjiraSwitchWorkspaceView{
-				fuzzyFind:  tt.fields.fuzzyFind,
-				workspaces: tt.fields.workspaces,
+				fuzzyFind:     tt.fields.fuzzyFind,
+				fjiraSettings: tt.fields.settingsStorage,
 			}
 			s.Resize(tt.args.screenX, tt.args.screenY)
 		})
@@ -128,8 +131,8 @@ func Test_fjiraSwitchWorkspaceView_Resize(t *testing.T) {
 
 func Test_fjiraSwitchWorkspaceView_Update(t *testing.T) {
 	type fields struct {
-		fuzzyFind  *app.FuzzyFind
-		workspaces *userHomeWorkspaces
+		fuzzyFind       *app.FuzzyFind
+		settingsStorage *userHomeSettingsStorage
 	}
 	tests := []struct {
 		name   string
@@ -140,8 +143,8 @@ func Test_fjiraSwitchWorkspaceView_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &fjiraSwitchWorkspaceView{
-				fuzzyFind:  tt.fields.fuzzyFind,
-				workspaces: tt.fields.workspaces,
+				fuzzyFind:     tt.fields.fuzzyFind,
+				fjiraSettings: tt.fields.settingsStorage,
 			}
 			s.Update()
 		})
@@ -150,6 +153,8 @@ func Test_fjiraSwitchWorkspaceView_Update(t *testing.T) {
 
 func Test_fjiraSwitchWorkspaceView_should_handle_empty_fuzzy_find_result(t *testing.T) {
 	// given
+	tempDir := t.TempDir()
+	_ = os2.SetUserHomeDir(tempDir)
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
@@ -168,6 +173,8 @@ func Test_fjiraSwitchWorkspaceView_should_handle_empty_fuzzy_find_result(t *test
 
 func Test_fjiraSwitchWorkspaceView_should_handle_fuzzy_find_result(t *testing.T) {
 	// given
+	tempDir := t.TempDir()
+	_ = os2.SetUserHomeDir(tempDir)
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()

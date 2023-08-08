@@ -29,7 +29,7 @@ func TestNewAddLabelView(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				body := `
@@ -101,7 +101,7 @@ func Test_fjiraAddLabelView_doAddLabel(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			app.CreateNewAppWithScreen(screen)
-			CreateNewFjira(&fjiraSettings{})
+			CreateNewFjira(&fjiraWorkspaceSettings{})
 			view := newAddLabelView(tt.args.issue)
 
 			// when
