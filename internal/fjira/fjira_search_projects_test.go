@@ -34,18 +34,25 @@ func TestNewProjectsSearchView(t *testing.T) {
 
 			// when
 			view.Init()
-			<-time.NewTimer(500 * time.Millisecond).C
+			for view.fuzzyFind == nil {
+				<-time.After(10 * time.Millisecond)
+			}
 			query := "FJIR"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			view.Update()
-			view.Update()
+			i := 0 // keep app going for a while
 			view.Resize(screen.Size())
-			<-time.NewTimer(500 * time.Millisecond).C
-			view.Update()
-			view.Draw(screen)
-			<-time.NewTimer(500 * time.Millisecond).C
+			for {
+				view.Update()
+				view.Draw(screen)
+				i++
+				if i > 100000 {
+					break
+				}
+			}
+
+			// then
 
 			var buffer bytes.Buffer
 			contents, x, y := screen.GetContents()
@@ -55,7 +62,6 @@ func TestNewProjectsSearchView(t *testing.T) {
 			}
 			result := buffer.String()
 
-			// then
 			assert.Contains(t, result, "Fjira")
 			assert.NotContains(t, result, "TEST")
 		})

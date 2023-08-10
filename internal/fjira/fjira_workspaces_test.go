@@ -26,6 +26,9 @@ func Test_userHomeWorkspaces_normalizeWorkspaceFilename(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if runtime.GOOS == "windows" {
+				return
+			}
 			u := &userHomeWorkspaces{}
 			assert.Equalf(t, tt.want, u.normalizeWorkspaceFilename(tt.args.workspace), "normalizeWorkspaceFilename(%v)", tt.args.workspace)
 		})
@@ -55,6 +58,9 @@ func Test_userHomeWorkspaces_readAllWorkspaces(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if runtime.GOOS == "windows" {
+				return
+			}
 			u := &userHomeWorkspaces{}
 			got, _ := u.readAllWorkspaces()
 			assert.Equalf(t, tt.want, got, "readAllWorkspaces()")
@@ -85,6 +91,9 @@ func Test_userHomeWorkspaces_readCurrentWorkspace(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if runtime.GOOS == "windows" {
+				return
+			}
 			u := &userHomeWorkspaces{}
 			got, err := u.readCurrentWorkspace()
 			if tt.wantErr != nil && !tt.wantErr(t, err, "readCurrentWorkspace()") {

@@ -39,9 +39,16 @@ func TestNewJqlSearchView(t *testing.T) {
 			view.Init()
 			<-time.After(time.Millisecond * 200)
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyACK, 't', tcell.ModNone))
-			view.Update()
-			view.Draw(screen)
-			view.Resize(screen.Size())
+			// keep going app for a while
+			i := 0
+			for {
+				view.Update()
+				view.Draw(screen)
+				i++
+				if i > 1000000 {
+					break
+				}
+			}
 			var buffer bytes.Buffer
 			contents, x, y := screen.GetContents()
 			screen.Show()
@@ -83,14 +90,22 @@ func Test_fjiraJqlSearchView_confirmJqlDelete(t *testing.T) {
 			assert.Contains(t, jqls, tt.args.jql) // ensure that jql is added
 
 			// when
-			go view.confirmJqlDelete(tt.args.jql)
+			done := make(chan struct{})
+			started := make(chan struct{})
+			go func() {
+				started <- struct{}{}
+				view.confirmJqlDelete(tt.args.jql)
+				done <- struct{}{}
+			}()
+			<-started
 			<-time.After(200 * time.Millisecond)
 			if confirmation, ok := (app.GetApp().LastDrawable()).(app.KeyListener); ok {
 				confirmation.HandleKeyEvent(tcell.NewEventKey(tcell.KeyACK, 'y', tcell.ModNone))
 			}
+			view.Update()
+			<-done
 
 			// then
-			<-time.After(200 * time.Millisecond)
 			jqls2, _ := view.jqlStorage.readAll()
 			assert.NotContains(t, jqls2, tt.args.jql)
 		})

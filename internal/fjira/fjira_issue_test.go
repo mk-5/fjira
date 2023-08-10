@@ -197,11 +197,19 @@ func Test_issueView_ActionBar(t *testing.T) {
 			}))
 			issue := &jira.Issue{Id: "1", Key: "ABC-1"}
 			view := newIssueView(issue)
-			go view.handleIssueAction()
+			done := make(chan struct{})
+			started := make(chan struct{})
+			go func() {
+				started <- struct{}{}
+				view.handleIssueAction()
+				done <- struct{}{}
+			}()
+			<-started
+			<-time.NewTimer(100 * time.Millisecond).C
 
 			// when
 			view.HandleKeyEvent(tcell.NewEventKey(tt.args.key, tt.args.char, tcell.ModNone))
-			<-time.NewTimer(100 * time.Millisecond).C
+			<-done
 			result := tt.args.viewPredicate()
 
 			// then
