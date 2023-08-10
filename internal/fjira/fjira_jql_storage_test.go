@@ -29,6 +29,7 @@ func Test_jqlStorage(t *testing.T) {
 			_ = os2.SetUserHomeDir(tempDir)
 			s := &jqlStorage{}
 			jqlFile, _ := s.jqlsFile()
+			defer jqlFile.Close()
 
 			// when
 			err := s.addNew(tt.args.jql)

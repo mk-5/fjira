@@ -83,7 +83,7 @@ func Test_readFromUserSettings(t *testing.T) {
 	_ = os2.SetUserHomeDir(tempDir)
 	_ = os.Mkdir(tempDir+"/.fjira", os.ModePerm) //nolint:errcheck
 	t.Cleanup(func() {
-		_ = os.RemoveAll(tempDir)
+		_ = os.Remove(tempDir)
 	})
 
 	type args struct {
@@ -111,6 +111,7 @@ func Test_readFromUserSettings(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			file, err := os.Create(tempDir + "/.fjira/fjira.yaml") //nolint:errcheck
+			defer file.Close()
 			if err != nil {
 				panic(err)
 			}

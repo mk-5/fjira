@@ -47,10 +47,10 @@ func (s *jqlStorage) remove(jql string) error {
 
 func (s *jqlStorage) readAll() ([]string, error) {
 	jqlFile, err := s.jqlsFile()
+	defer jqlFile.Close()
 	if err != nil {
 		return nil, err
 	}
-	defer jqlFile.Close()
 	lines := make([]string, 0, MaxJqlLines)
 	// it's not that many jqls stored - we can load them into memory
 	scanner := bufio.NewScanner(jqlFile)
@@ -63,6 +63,7 @@ func (s *jqlStorage) readAll() ([]string, error) {
 
 func (s *jqlStorage) writeAll(jqls []string) error {
 	jqlFile, err := s.jqlsFile()
+	defer jqlFile.Close()
 	if err != nil {
 		return err
 	}
@@ -73,7 +74,6 @@ func (s *jqlStorage) writeAll(jqls []string) error {
 	if len(jqls) > MaxJqlLines {
 		jqls = jqls[:MaxJqlLines]
 	}
-	defer jqlFile.Close()
 	_, err = jqlFile.Seek(0, io.SeekStart)
 	if err != nil {
 		return err

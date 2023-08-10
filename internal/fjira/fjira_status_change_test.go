@@ -50,18 +50,25 @@ func TestNewStatusChangeView(t *testing.T) {
 
 			// when
 			view.Init()
-			<-time.After(1 * time.Second)
+			for view.fuzzyFind == nil {
+				<-time.After(10 * time.Millisecond)
+			}
 			query := "in progress"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			view.Update()
+			i := 0 // keep app going for a while
 			view.Resize(screen.Size())
-			<-time.After(1 * time.Second)
-			view.Update()
-			view.Draw(screen)
-			<-time.After(1 * time.Second)
+			for {
+				view.Update()
+				view.Draw(screen)
+				i++
+				if i > 100000 {
+					break
+				}
+			}
 
+			// then
 			var buffer bytes.Buffer
 			contents, x, y := screen.GetContents()
 			screen.Show()
@@ -70,7 +77,6 @@ func TestNewStatusChangeView(t *testing.T) {
 			}
 			result := buffer.String()
 
-			// then
 			assert.Contains(t, result, "In Progress")
 			assert.NotContains(t, result, "To Do")
 		})

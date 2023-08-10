@@ -41,19 +41,25 @@ func TestNewAssignChangeView(t *testing.T) {
 
 			// when
 			view.Init()
-			<-time.NewTimer(300 * time.Millisecond).C
+			for view.fuzzyFind == nil {
+				<-time.After(10 * time.Millisecond)
+			}
 			query := "bob"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			view.Update()
-			view.Update()
+			i := 0 // keep app going for a while
 			view.Resize(screen.Size())
-			<-time.NewTimer(300 * time.Millisecond).C
-			view.Update()
-			view.Draw(screen)
-			<-time.NewTimer(300 * time.Millisecond).C
+			for {
+				view.Update()
+				view.Draw(screen)
+				i++
+				if i > 100000 {
+					break
+				}
+			}
 
+			// then
 			var buffer bytes.Buffer
 			contents, x, y := screen.GetContents()
 			screen.Show()
@@ -62,7 +68,6 @@ func TestNewAssignChangeView(t *testing.T) {
 			}
 			result := buffer.String()
 
-			// then
 			assert.Contains(t, result, "Bob")
 		})
 	}
@@ -82,8 +87,8 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 		name string
 		args args
 	}{
-		{"should send assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, confirmAction: app.Yes}},
-		{"should send assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, confirmAction: app.No}},
+		{"should process assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, confirmAction: app.Yes}},
+		{"should process assign user request", args{issue: &jira.Issue{Key: "ABC", Id: "123"}, confirmAction: app.No}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -103,18 +108,24 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 					_, _ = w.Write([]byte(`[{"id": "U1", "displayName": "Bob"}, {"id": "U2", "displayName": "John"}]`))
 				}
 			}))
-			go view.startUsersSearching()
-			<-time.NewTimer(500 * time.Millisecond).C
-			view.HandleKeyEvent(tcell.NewEventKey(-1, 'B', tcell.ModNone))
-			view.Update()
-			view.Update()
-			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, -1, tcell.ModNone))
-			<-time.NewTimer(250 * time.Millisecond).C
-			confirmation := app.GetApp().LastDrawable()
-			if kl, ok := (confirmation).(app.KeyListener); ok {
-				kl.HandleKeyEvent(tcell.NewEventKey(0, tt.args.confirmAction, 0))
+			go func() {
+				view.startUsersSearching()
+			}()
+			for view.fuzzyFind == nil {
+				<-time.After(10 * time.Millisecond)
 			}
-			<-time.NewTimer(250 * time.Millisecond).C
+			view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, 'B', tcell.ModNone))
+			view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, -1, tcell.ModNone))
+			// wait for confirmation
+			var confirmation *app.Confirmation
+			for confirmation == nil {
+				if c, ok := (app.GetApp().LastDrawable()).(*app.Confirmation); ok {
+					confirmation = c
+				}
+				<-time.After(10 * time.Millisecond)
+			}
+			confirmation.HandleKeyEvent(tcell.NewEventKey(0, tt.args.confirmAction, 0))
+			confirmation.Update()
 
 			// then
 			select {

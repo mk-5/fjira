@@ -28,6 +28,7 @@ type FuzzyFind struct {
 	screenX          int
 	screenY          int
 	supplierDebounce func(f func())
+	debounceDisabled bool
 }
 
 type FuzzyFindResult struct {
@@ -62,18 +63,19 @@ func NewFuzzyFind(title string, records []string) *FuzzyFind {
 		})
 	}
 	return &FuzzyFind{
-		Complete:        make(chan FuzzyFindResult),
-		records:         records,
-		query:           EmptyLine,
-		fuzzyStatus:     "0/0",
-		matches:         nil,
-		selected:        0,
-		dirty:           true,
-		matchesAll:      matchesAll,
-		recordsProvider: nil,
-		title:           title,
-		MarginTop:       0,
-		MarginBottom:    1,
+		Complete:         make(chan FuzzyFindResult),
+		records:          records,
+		query:            EmptyLine,
+		fuzzyStatus:      "0/0",
+		matches:          nil,
+		selected:         0,
+		dirty:            true,
+		matchesAll:       matchesAll,
+		recordsProvider:  nil,
+		title:            title,
+		MarginTop:        0,
+		MarginBottom:     1,
+		debounceDisabled: false,
 	}
 }
 
@@ -92,6 +94,7 @@ func NewFuzzyFindWithProvider(title string, recordsProvider func(query string) [
 		title:            title,
 		MarginTop:        0,
 		MarginBottom:     1,
+		debounceDisabled: false,
 	}
 }
 
@@ -117,7 +120,11 @@ func (f *FuzzyFind) Update() {
 	}
 	if f.query != f.buffer.String() && f.recordsProvider != nil {
 		f.query = f.buffer.String()
-		f.supplierDebounce(f.updateRecordsFromSupplier)
+		if f.debounceDisabled {
+			f.updateRecordsFromSupplier()
+		} else {
+			f.supplierDebounce(f.updateRecordsFromSupplier)
+		}
 		f.dirty = false
 		return
 	}
@@ -137,6 +144,8 @@ func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
 		f.Complete <- FuzzyFindResult{Index: -1, Match: ""}
 	}
 	if ev.Key() == tcell.KeyEnter {
+		f.dirty = true
+		f.Update()
 		if len(f.matches) > 0 && f.selected >= 0 {
 			match := f.matches[f.selected].Str
 			index := findSelectedRecord(match, f.records)
@@ -177,6 +186,10 @@ func (f *FuzzyFind) GetSelectedItem() string {
 		return ""
 	}
 	return f.records[f.selected]
+}
+
+func (f *FuzzyFind) SetDebounceDisabled(b bool) {
+	f.debounceDisabled = b
 }
 
 func (f *FuzzyFind) drawRecords(screen tcell.Screen) {

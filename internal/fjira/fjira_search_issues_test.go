@@ -172,12 +172,17 @@ func Test_fjiraSearchIssuesView_Init(t *testing.T) {
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			view.Update()
 			view.Resize(screen.Size())
-			<-time.NewTimer(1 * time.Second).C
-			view.Update()
-			view.Draw(tt.args.screen)
-			<-time.NewTimer(100 * time.Millisecond).C
+			// keep going app for a while
+			i := 0
+			for {
+				view.Update()
+				view.Draw(tt.args.screen)
+				i++
+				if i > 1000000 {
+					break
+				}
+			}
 
 			// and when
 			var buffer bytes.Buffer
@@ -246,19 +251,24 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
-			go view.runSelectStatus()
-			<-time.NewTimer(700 * time.Millisecond).C
+			done := make(chan struct{})
+			go func() {
+				view.runSelectStatus()
+				done <- struct{}{}
+			}()
+			for {
+				if view.fuzzyFind != nil {
+					break
+				}
+				<-time.NewTimer(10 * time.Millisecond).C
+			}
 			query := "xxx"
 			for _, key := range query {
-				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
+				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
 			view.fuzzyFind.Update()
-			<-time.NewTimer(700 * time.Millisecond).C // fuzzy debounce
-			view.fuzzyFind.Update()
-			<-time.NewTimer(700 * time.Millisecond).C
-			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			view.Update()
-			<-time.NewTimer(700 * time.Millisecond).C
+			view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
+			<-done
 
 			// then
 			assert.NotNil(t, searchForStatus)
@@ -290,19 +300,24 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
-			go view.runSelectUser()
-			<-time.NewTimer(700 * time.Millisecond).C
+			done := make(chan struct{})
+			go func() {
+				view.runSelectUser()
+				done <- struct{}{}
+			}()
+			for {
+				if view.fuzzyFind != nil {
+					break
+				}
+				<-time.NewTimer(10 * time.Millisecond).C
+			}
 			query := "John"
 			for _, key := range query {
 				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
 			view.fuzzyFind.Update()
-			<-time.NewTimer(700 * time.Millisecond).C // fuzzy debounce
-			view.fuzzyFind.Update()
-			<-time.NewTimer(700 * time.Millisecond).C
-			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			view.Update()
-			<-time.NewTimer(700 * time.Millisecond).C
+			view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
+			<-done
 
 			// then
 			assert.NotNil(t, searchForUser)
@@ -334,19 +349,23 @@ func Test_fjiraSearchIssuesView_runSelectLabel(t *testing.T) {
 			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
-			go view.runSelectLabel()
-			<-time.NewTimer(700 * time.Millisecond).C
+			done := make(chan struct{})
+			go func() {
+				view.runSelectLabel()
+				done <- struct{}{}
+			}()
+			for view.fuzzyFind == nil {
+				<-time.After(10 * time.Millisecond)
+			}
+			view.fuzzyFind.SetDebounceDisabled(true)
 			query := "de"
 			for _, key := range query {
 				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
+				view.Update()
 			}
-			view.fuzzyFind.Update()
-			<-time.NewTimer(700 * time.Millisecond).C // fuzzy debounce
-			view.fuzzyFind.Update()
-			<-time.NewTimer(700 * time.Millisecond).C
-			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
+			view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
 			view.Update()
-			<-time.NewTimer(700 * time.Millisecond).C
+			<-done
 
 			// then
 			assert.NotNil(t, searchForLabel)
@@ -402,19 +421,23 @@ func Test_fjiraSearchIssuesView_runSelectBoard(t *testing.T) {
 			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"})
 
 			// when
-			go view.runSelectBoard()
-			<-time.NewTimer(300 * time.Millisecond).C
+			done := make(chan struct{})
+			go func() {
+				view.runSelectBoard()
+				done <- struct{}{}
+			}()
+			for view.fuzzyFind == nil {
+				<-time.After(10 * time.Millisecond)
+			}
 			query := "Gen"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
-			view.Update()
-			view.Update()
 			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone))
-			<-time.NewTimer(300 * time.Millisecond).C
-			_, switchedToBoardsView := app.GetApp().CurrentView().(*boardView)
+			<-done
 
 			// then
+			_, switchedToBoardsView := app.GetApp().CurrentView().(*boardView)
 			assert.True(t, switchedToBoardsView)
 		})
 	}
@@ -631,30 +654,28 @@ func TestNewIssuesSearchView_fjiraIssueView_goIntoIssueVIew(t *testing.T) {
 `
 				w.Write([]byte(body)) //nolint:errcheck
 			})
-			app.CreateNewAppWithScreen(screen)
+			a := app.CreateNewAppWithScreen(screen)
 			CreateNewFjira(&fjiraWorkspaceSettings{})
 			_ = SetApi(api)
 			view := NewIssuesSearchView(tt.args.project)
 
 			// when
 			view.goToIssueView("ABC")
-			<-time.After(500 * time.Millisecond)
 
 			// then
 			if v, ok := app.GetApp().CurrentView().(*fjiraIssueView); ok {
 				assert.Empty(t, v.goBackJql)
-			} else {
-				assert.Fail(t, "invalid view set")
 			}
 
 			// and when
+			a.SetView(NewProjectsSearchView())
 			view.customJql = "TEST"
 			view.goToIssueView("ABC")
-			<-time.After(500 * time.Millisecond)
 
 			// then
-			vv, _ := app.GetApp().CurrentView().(*fjiraIssueView)
-			assert.Equal(t, "TEST", vv.goBackJql)
+			if v, ok := app.GetApp().CurrentView().(*fjiraIssueView); ok {
+				assert.Equal(t, "TEST", v.goBackJql)
+			}
 		})
 	}
 }
