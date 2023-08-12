@@ -167,22 +167,17 @@ func Test_fjiraSearchIssuesView_Init(t *testing.T) {
 
 			// when
 			view.Init()
-			<-time.NewTimer(1 * time.Second).C
+			for view.fuzzyFind == nil {
+				<-time.After(10 * time.Millisecond)
+			}
+			view.fuzzyFind.SetDebounceDisabled(true)
 			query := "summary"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
 			}
 			view.Resize(screen.Size())
-			// keep going app for a while
-			i := 0
-			for {
-				view.Update()
-				view.Draw(tt.args.screen)
-				i++
-				if i > 1000000 {
-					break
-				}
-			}
+			view.Update()
+			view.Draw(tt.args.screen)
 
 			// and when
 			var buffer bytes.Buffer

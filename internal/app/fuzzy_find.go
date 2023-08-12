@@ -124,9 +124,9 @@ func (f *FuzzyFind) Update() {
 			f.updateRecordsFromSupplier()
 		} else {
 			f.supplierDebounce(f.updateRecordsFromSupplier)
+			f.dirty = false
+			return
 		}
-		f.dirty = false
-		return
 	}
 	f.query = f.buffer.String()
 	if len(f.query) == 0 {
