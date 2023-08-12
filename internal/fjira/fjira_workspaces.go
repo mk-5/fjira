@@ -109,7 +109,7 @@ func (u *userHomeWorkspaces) migrateFromGlobWorkspacesToYaml() error {
 		if err != nil {
 			return err
 		}
-		os.Remove(file)
+		_ = os.Remove(file)
 	}
 
 	current, err := u.readCurrentWorkspace()
