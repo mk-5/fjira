@@ -1,6 +1,7 @@
 package jira
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -9,9 +10,17 @@ const (
 	XAtlassianToken = "X-Atlassian-Token"
 )
 
+type AuthType string
+
+const (
+	Basic  AuthType = "Basic"
+	Bearer AuthType = "Bearer"
+)
+
 type authInterceptor struct {
-	core  http.RoundTripper
-	token string
+	core     http.RoundTripper
+	authType AuthType
+	token    string
 }
 
 func (a *authInterceptor) RoundTrip(r *http.Request) (*http.Response, error) {
@@ -25,7 +34,7 @@ func (a *authInterceptor) RoundTrip(r *http.Request) (*http.Response, error) {
 }
 
 func (a *authInterceptor) modifyRequest(r *http.Request) *http.Request {
-	r.Header.Set(Authorization, "Basic "+a.token)
+	r.Header.Set(Authorization, fmt.Sprintf("%s %s", a.authType, a.token))
 	r.Header.Set(XAtlassianToken, "no-check")
 	return r
 }

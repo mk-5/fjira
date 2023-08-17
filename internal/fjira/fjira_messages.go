@@ -10,6 +10,7 @@ const (
 	MessageSelectWorkspaceSuccess    = "Workspace has been successfully switched to %s"
 	MessageQuestionMark              = "? "
 	MessageEnterJiraApiToken         = "Enter Jira Api Token: "
+	MessageEnterJiraTokenType        = "Jira Token Type: "
 	MessageProjectLabel              = "Project: "
 	MessageIssueLabel                = "Issue: "
 	MessageLabelStatus               = "Status: "

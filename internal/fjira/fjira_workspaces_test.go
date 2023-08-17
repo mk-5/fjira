@@ -144,7 +144,7 @@ func Test_userHomeWorkspaces_shouldMigrateToNewYamlWorkspaces(t *testing.T) {
 
 			// then
 			assert.Nil(t, err)
-			assert.Equal(t, "current: xyz\nworkspaces:\n    xyz:\n        jiraRestUrl: https://test\n        jiraToken: test_token\n        jiraUsername: test_user\n", string(yaml))
+			assert.Equal(t, "current: xyz\nworkspaces:\n    xyz:\n        jiraRestUrl: https://test\n        jiraToken: test_token\n        jiraUsername: test_user\n        jiraTokenType: \"\"\n", string(yaml))
 		})
 	}
 }

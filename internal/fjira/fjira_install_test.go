@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/jira"
 	os2 "github.com/mk-5/fjira/internal/os"
 	assert2 "github.com/stretchr/testify/assert"
 	"os"
@@ -150,7 +151,7 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			stdin := bytes.NewBufferString("TestUser\nTestUrl\nTestToken\n")
+			stdin := bytes.NewBufferString("TestUser\nTestUrl\nTestToken\n1\n")
 
 			// when
 			settings, err := readFromUserInputAndStore(stdin, tt.args.workspace, tt.args.existingSettings)
@@ -163,6 +164,7 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 			assert2.Equal(t, "TestToken", settings.JiraToken)
 			assert2.Equal(t, "TestUrl", settings.JiraRestUrl)
 			assert2.Equal(t, "TestUser", settings.JiraUsername)
+			assert2.Equal(t, jira.ApiToken, settings.JiraTokenType)
 			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/fjira.yaml"))
 
 			// and when
@@ -177,6 +179,7 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 			assert2.Equal(t, "TestToken", settings.JiraToken)
 			assert2.Equal(t, "TestUrl2", settings.JiraRestUrl)
 			assert2.Equal(t, "TestUser2", settings.JiraUsername)
+			assert2.Equal(t, jira.ApiToken, settings.JiraTokenType)
 			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/fjira.yaml"))
 		})
 	}

@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/mk-5/fjira/internal/jira"
+	goinput "github.com/tcnksm/go-input"
 	"io"
 	"os"
 	"regexp"
@@ -14,6 +16,7 @@ import (
 const (
 	JiraTokenEnv    = "FJIRA_TOKEN"
 	JiraUsernameEnv = "FJIRA_USERNAME"
+	JiraTokenType   = "FJIRA_JIRA_TOKEN_TYPE"
 	JiraRestUrlEnv  = "FJIRA_REST_URL"
 )
 
@@ -34,13 +37,19 @@ func readFromEnvironments() (*fjiraWorkspaceSettings, error) {
 	var token = os.Getenv(JiraTokenEnv)
 	var restUrl = os.Getenv(JiraRestUrlEnv)
 	var username = os.Getenv(JiraUsernameEnv)
+	var tokenTypeStr = os.Getenv(JiraTokenType)
 	if token == "" || restUrl == "" || username == "" {
 		return nil, EnvironmentsMissingErr
 	}
+	if tokenTypeStr == "" {
+		tokenTypeStr = string(jira.ApiToken)
+	}
+	tokenType := jira.JiraTokenType(tokenTypeStr)
 	return &fjiraWorkspaceSettings{
-		JiraToken:    token,
-		JiraRestUrl:  restUrl,
-		JiraUsername: username,
+		JiraToken:     token,
+		JiraRestUrl:   restUrl,
+		JiraUsername:  username,
+		JiraTokenType: tokenType,
 	}, nil
 }
 
@@ -76,6 +85,7 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 	}
 	fmt.Println(color.CyanString(workspaceName))
 	fmt.Println("")
+
 	reader := bufio.NewReader(input)
 	fmt.Print(color.HiYellowString(MessageQuestionMark))
 	fmt.Print(MessageEnterUsername)
@@ -106,12 +116,31 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 	if err != nil {
 		return nil, err
 	}
-	settings := &fjiraWorkspaceSettings{
-		JiraToken:    strings.TrimSpace(token),
-		JiraUsername: strings.TrimSpace(username),
-		JiraRestUrl:  strings.TrimSpace(url),
+	fmt.Print(color.HiYellowString(MessageQuestionMark))
+	ui := &goinput.UI{
+		Writer: os.Stdout,
+		Reader: input,
 	}
-	if existingSettings != nil && settings.JiraUsername == "" {
+	tokenType := jira.ApiToken
+	if existingSettings != nil && existingSettings.JiraTokenType != "" {
+		tokenType = existingSettings.JiraTokenType
+	}
+	tokenTypeOptions := []string{string(jira.ApiToken), string(jira.PersonalToken)}
+	tokenTypeStr, err := ui.Select(MessageEnterJiraTokenType, tokenTypeOptions, &goinput.Options{
+		Default:  string(tokenType),
+		Required: true,
+		Loop:     true,
+	})
+	if err != nil {
+		return nil, err
+	}
+	settings := &fjiraWorkspaceSettings{
+		JiraToken:     strings.TrimSpace(token),
+		JiraUsername:  strings.TrimSpace(username),
+		JiraRestUrl:   strings.TrimSpace(url),
+		JiraTokenType: jira.JiraTokenType(tokenTypeStr),
+	}
+	if existingSettings != nil && existingSettings.JiraUsername == "" {
 		settings.JiraUsername = existingSettings.JiraUsername
 	}
 	if existingSettings != nil && settings.JiraToken == "" {

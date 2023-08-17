@@ -9,11 +9,12 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/sahilm/fuzzy v0.1.0
 	github.com/stretchr/testify v1.7.1
+	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
@@ -23,7 +24,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
-	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.7.0 // indirect
 )
