@@ -3,6 +3,7 @@ package fjira
 import (
 	"errors"
 	"fmt"
+	"github.com/mk-5/fjira/internal/jira"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -13,10 +14,11 @@ type fjiraSettings struct {
 }
 
 type fjiraWorkspaceSettings struct {
-	JiraRestUrl  string `json:"jiraRestUrl" yaml:"jiraRestUrl"`
-	JiraToken    string `json:"jiraToken" yaml:"jiraToken"`
-	JiraUsername string `json:"jiraUsername" yaml:"jiraUsername"`
-	Workspace    string `json:"-" yaml:"-"`
+	JiraRestUrl   string             `json:"jiraRestUrl" yaml:"jiraRestUrl"`
+	JiraToken     string             `json:"jiraToken" yaml:"jiraToken"`
+	JiraUsername  string             `json:"jiraUsername" yaml:"jiraUsername"`
+	JiraTokenType jira.JiraTokenType `json:"jiraTokenType" yaml:"jiraTokenType"`
+	Workspace     string             `json:"-" yaml:"-"`
 }
 
 var (

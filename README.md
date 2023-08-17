@@ -20,7 +20,7 @@
 - Changes Jira Issue status
 - Supports multiple workspaces
 - Search for Jira Issues using custom JQL
-- Runs on MacOS and Linux
+- Runs on MacOS, Linux and Windows
 
 ## Install
 
@@ -109,6 +109,20 @@ You can edit existing workspace using `--edit-workspace` flag.
 
 ```shell
 fjira --edit-workspace abc
+```
+
+### Jira Token Type 
+
+Jira Server, and Jira Cloud are using different kinds of tokens for authorization. Please check, which token do you have before 
+workspace configuration. Fjira will ask you about Jira Token Type:
+
+```shell
+? Jira Token Type:
+
+1. api token
+2. personal token
+
+Enter a number (Default is 1):
 ```
 
 ## Projects search

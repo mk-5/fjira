@@ -14,7 +14,7 @@ func NewJiraApiMock(handler func(w http.ResponseWriter, r *http.Request)) Api {
 		w.WriteHeader(200)
 		w.Write([]byte("")) //nolint:errcheck
 	}))
-	api, err := NewApi(stubServer.URL, "test", "test")
+	api, err := NewApi(stubServer.URL, "test", "test", ApiToken)
 	if err != nil {
 		panic(err)
 	}

@@ -53,7 +53,7 @@ func CreateNewFjira(settings *fjiraWorkspaceSettings) *Fjira {
 	}
 	fjiraOnce.Do(func() {
 		url := strings.TrimSuffix(settings.JiraRestUrl, "/")
-		api, err := jira.NewApi(url, settings.JiraUsername, settings.JiraToken)
+		api, err := jira.NewApi(url, settings.JiraUsername, settings.JiraToken, settings.JiraTokenType)
 		if err != nil {
 			app.Error(err.Error())
 		}

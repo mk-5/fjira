@@ -168,20 +168,36 @@ type ApiCredentials struct {
 	ApiKey string
 }
 
+type JiraTokenType string
+
+const (
+	ApiToken      JiraTokenType = "api token"
+	PersonalToken JiraTokenType = "personal token"
+)
+
 type httpApi struct {
 	client  *http.Client
 	restUrl *url.URL
 }
 
-func NewApi(apiUrl string, username string, token string) (Api, error) {
+func NewApi(apiUrl string, username string, token string, tokenType JiraTokenType) (Api, error) {
 	baseUrl, err := url.Parse(apiUrl)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	basicToken := base64.StdEncoding.EncodeToString([]byte(username + ":" + token))
+	var authToken string
+	var authType AuthType
+	switch tokenType {
+	case PersonalToken:
+		authToken = token
+		authType = Bearer
+	default:
+		authToken = base64.StdEncoding.EncodeToString([]byte(username + ":" + token))
+		authType = Basic
+	}
 	return &httpApi{
 		client: &http.Client{
-			Transport: &authInterceptor{core: http.DefaultTransport, token: basicToken},
+			Transport: &authInterceptor{core: http.DefaultTransport, token: authToken, authType: authType},
 		},
 		restUrl: baseUrl,
 	}, nil
