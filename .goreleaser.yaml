@@ -134,6 +134,20 @@ chocolateys:
     api_key: '{{ .Env.CHOCOLATEY_API_KEY }}'
     source_repo: "https://push.chocolatey.org/"
     goamd64: v1
+
+aurs:
+  - name: fjira
+    homepage: https://github.com/mk-5/fjira
+    description: Fjira - the fuzziest Jira command line tool in the world
+    maintainers:
+      - 'Mateusz Kulawik <mateusz+aur@mk5.pl>'
+      - 'Jonathan Neidel <aur at jneidel dot com>'
+    license: 'AGPL3'
+    private_key: '{{ .Env.AUR_KEY }}'
+    git_url: 'ssh://aur@aur.archlinux.org/fjira.git'
+    package: |-
+      install -Dm755 "./fjira" "${pkgdir}/usr/bin/fjira"
+
 checksum:
   name_template: 'checksums.txt'
 snapshot:

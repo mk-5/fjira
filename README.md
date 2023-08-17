@@ -53,6 +53,12 @@ latest release version.
 sudo dpkg -i fjira_0.4.0_linux_amd64.deb
 ```
 
+#### AUR
+
+```sh
+yay -S fjira
+```
+
 #### Binary
 
 ```shell
@@ -200,7 +206,7 @@ fjira filters
 ## Roadmap (TODO)
 
 - Expand Documentation
-- Create&Delete Jira Filters 
+- Create&Delete Jira Filters
 - Support Additional Linux Package Managers (Apt, AUR, YUM)
 - Introduce More Jira Features
 
