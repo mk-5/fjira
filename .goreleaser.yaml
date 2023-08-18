@@ -69,32 +69,32 @@ nfpms:
     deb:
       signature:
         key_file: '{{ .Env.HOME }}/.key'
-chocolateys:
-  -
-    name: fjira
-    ids:
-      - fjira
-    owners: mk5
-    title: Fjira - the fuzziest Jira command line tool in the world.
-    authors: mk5
-    project_url: https://github.com/mk-5/fjira
-    url_template: "https://github.com/mk-5/fjira/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-    icon_url: 'https://github.com/mk-5/fjira/blob/master/fjira.png'
-    copyright: 2022 mk-5
-    license_url: https://github.com/mk-5/fjira/blob/master/LICENSE
-    require_license_acceptance: false
-    project_source_url: https://github.com/mk-5/fjira
-    docs_url: https://github.com/mk-5/fjira/blob/master/README.md
-    bug_tracker_url: https://github.com/mk-5/fjira/issues
-    tags: "fjira jira terminal tui"
-    summary: Terminal application to deal with Atlassian Jira.
-    description: |
-      {{ .ProjectName }} installer package.
-      Terminal application to deal with Atlassian Jira.
-    release_notes: "https://github.com/mk-5/fjira/releases/tag/v{{ .Version }}"
-    api_key: '{{ .Env.CHOCOLATEY_API_KEY }}'
-    source_repo: "https://push.chocolatey.org/"
-    goamd64: v1
+# chocolateys:
+#   -
+#     name: fjira
+#     ids:
+#       - fjira
+#     owners: mk5
+#     title: Fjira - the fuzziest Jira command line tool in the world.
+#     authors: mk5
+#     project_url: https://github.com/mk-5/fjira
+#     url_template: "https://github.com/mk-5/fjira/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+#     icon_url: 'https://github.com/mk-5/fjira/blob/master/fjira.png'
+#     copyright: 2022 mk-5
+#     license_url: https://github.com/mk-5/fjira/blob/master/LICENSE
+#     require_license_acceptance: false
+#     project_source_url: https://github.com/mk-5/fjira
+#     docs_url: https://github.com/mk-5/fjira/blob/master/README.md
+#     bug_tracker_url: https://github.com/mk-5/fjira/issues
+#     tags: "fjira jira terminal tui"
+#     summary: Terminal application to deal with Atlassian Jira.
+#     description: |
+#       {{ .ProjectName }} installer package.
+#       Terminal application to deal with Atlassian Jira.
+#     release_notes: "https://github.com/mk-5/fjira/releases/tag/v{{ .Version }}"
+#     api_key: '{{ .Env.CHOCOLATEY_API_KEY }}'
+#     source_repo: "https://push.chocolatey.org/"
+#     goamd64: v1
 checksum:
   name_template: 'checksums.txt'
 snapshot:
