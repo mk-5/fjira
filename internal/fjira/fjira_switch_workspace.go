@@ -25,6 +25,7 @@ func (s *fjiraSwitchWorkspaceView) Init() {
 	}
 	s.fuzzyFind = app.NewFuzzyFind(MessageSelectWorkspace, records)
 	s.fuzzyFind.MarginBottom = 0
+	app.GetApp().SetDirty()
 	go s.waitForFuzzyFindComplete()
 }
 
