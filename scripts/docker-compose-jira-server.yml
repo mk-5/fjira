@@ -1,0 +1,15 @@
+version: '3.4'
+
+# Jira Server Version - just for local testing
+services:
+  jira-server:
+    image: atlassian/jira-software
+    ports:
+      - 8080:8080
+    volumes:
+      - /var/atlassian/application-data/jira
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 4096M

@@ -207,7 +207,7 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 	app.GetApp().ClearNow()
 	app.GetApp().Loading(true)
 	formatter, _ := GetFormatter()
-	users := view.fetchUsers(view.project.Id)
+	users := view.fetchUsers(view.project.Key)
 	users = append(users, jira.User{DisplayName: MessageAll})
 	usersStrings := formatter.formatJiraUsers(users)
 	view.fuzzyFind = app.NewFuzzyFind(MessageSelectUser, usersStrings)

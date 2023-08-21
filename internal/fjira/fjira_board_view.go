@@ -156,7 +156,8 @@ func (b *boardView) Resize(screenX, screenY int) {
 func (b *boardView) Init() {
 	app.GetApp().Loading(true)
 	api, _ := GetApi()
-	issues, err := api.SearchJql(fmt.Sprintf("project = %s", b.boardConfiguration.Location.Id))
+	// it's not perfect - but I cannot find simple way to fetch all issues visible at given board
+	issues, err := api.SearchJql(fmt.Sprintf("project=%s order by updatedDate,createdDate", b.project.Id))
 	if err != nil {
 		app.GetApp().Loading(false)
 		app.Error(err.Error())
