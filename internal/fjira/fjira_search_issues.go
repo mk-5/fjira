@@ -19,14 +19,14 @@ type fjiraSearchIssuesView struct {
 	screenY      int
 	issues       []jira.Issue
 	labels       []string
-	queryDirty   bool
+	dirty        bool // refetch jira issues from api if dirty
 }
 
 const (
-	JiraRecordsMax = 100
-	topBarStatus   = 1
-	topBarAssignee = 2
-	topBarLabel    = 3
+	JiraFetchRecordsThreshold = 100
+	topBarStatus              = 1
+	topBarAssignee            = 2
+	topBarLabel               = 3
 )
 
 var (
@@ -150,18 +150,18 @@ func (view *fjiraSearchIssuesView) goToIssueView(issueKey string) {
 func (view *fjiraSearchIssuesView) findIssues(query string) []string {
 	formatter, _ := GetFormatter()
 	a := app.GetApp()
+	query = strings.TrimSpace(query)
 
 	// when no custom jql set
-	// when manual set queryDirty=true
+	// when manual set dirty=true
 	// when there is more records than max
-	// when backspace
 	// when query has issue format
 	// when there is no results
-	if !(view.customJql != "" && len(view.issues) > 0) && view.queryDirty || len(view.issues) >= JiraRecordsMax || len(query) < len(view.currentQuery) || view.queryHasIssueFormat() || len(view.issues) == 0 {
-		view.queryDirty = false
+	if view.customJql == "" || len(view.issues) >= JiraFetchRecordsThreshold || len(view.issues) == 0 || view.dirty || view.queryHasIssueFormat() || query == "" {
 		a.LoadingWithText(true, MessageSearchIssuesLoading)
 		view.issues = view.searchForIssues(query)
 		a.Loading(false)
+		view.dirty = false
 	}
 
 	view.currentQuery = query
@@ -196,7 +196,7 @@ func (view *fjiraSearchIssuesView) runSelectStatus() {
 		app.GetApp().ClearNow()
 		if status.Index >= 0 && len(statuses) > 0 {
 			searchForStatus = &statuses[status.Index]
-			view.queryDirty = true
+			view.dirty = true
 		}
 		go view.runIssuesFuzzyFind()
 		go view.handleSearchActions()
@@ -216,7 +216,7 @@ func (view *fjiraSearchIssuesView) runSelectUser() {
 		app.GetApp().ClearNow()
 		if user.Index >= 0 && len(users) > 0 {
 			searchForUser = &users[user.Index]
-			view.queryDirty = true
+			view.dirty = true
 		}
 		go view.runIssuesFuzzyFind()
 		go view.handleSearchActions()
@@ -232,7 +232,7 @@ func (view *fjiraSearchIssuesView) runSelectLabel() {
 		app.GetApp().ClearNow()
 		if label.Index >= 0 && len(view.labels) > 0 {
 			searchForLabel = view.labels[label.Index]
-			view.queryDirty = true
+			view.dirty = true
 		}
 		go view.runIssuesFuzzyFind()
 		go view.handleSearchActions()

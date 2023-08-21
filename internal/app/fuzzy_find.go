@@ -118,8 +118,9 @@ func (f *FuzzyFind) Update() {
 	if !f.dirty {
 		return
 	}
-	if f.query != f.buffer.String() && f.recordsProvider != nil {
-		f.query = f.buffer.String()
+	buff := f.buffer.String()
+	if f.recordsProvider != nil && (f.query != buff) { // FIXME - there is a problem with empty value. It should reset on empty
+		f.query = buff
 		if f.debounceDisabled {
 			f.updateRecordsFromSupplier()
 		} else {
@@ -128,7 +129,7 @@ func (f *FuzzyFind) Update() {
 			return
 		}
 	}
-	f.query = f.buffer.String()
+	f.query = buff
 	if len(f.query) == 0 {
 		f.matches = f.matchesAll
 	} else {
@@ -137,6 +138,11 @@ func (f *FuzzyFind) Update() {
 	f.fuzzyStatus = fmt.Sprintf("%d/%d", len(f.matches), len(f.records))
 	f.selected = ClampInt(f.selected, 0, f.matches.Len()-1)
 	f.dirty = false
+}
+
+func (f *FuzzyFind) ForceUpdate() {
+	f.dirty = true
+	f.Update()
 }
 
 func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
@@ -157,8 +163,8 @@ func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
 	if ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 {
 		if f.buffer.Len() > 0 {
 			f.buffer.Truncate(f.buffer.Len() - 1)
-			f.dirty = true
 		}
+		f.dirty = true
 	}
 	if ev.Key() == tcell.KeyUp {
 		f.selected = ClampInt(f.selected+1, 0, f.matches.Len()-1)
