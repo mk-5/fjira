@@ -119,7 +119,7 @@ func (f *FuzzyFind) Update() {
 		return
 	}
 	buff := f.buffer.String()
-	if f.recordsProvider != nil && (f.query != buff) { // FIXME - there is a problem with empty value. It should reset on empty
+	if f.recordsProvider != nil && (f.query != buff) {
 		f.query = buff
 		if f.debounceDisabled {
 			f.updateRecordsFromSupplier()
