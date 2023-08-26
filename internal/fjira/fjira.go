@@ -3,7 +3,15 @@ package fjira
 import (
 	"errors"
 	"github.com/mk-5/fjira/internal/app"
+	"github.com/mk-5/fjira/internal/boards"
+	"github.com/mk-5/fjira/internal/issues"
 	"github.com/mk-5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/labels"
+	"github.com/mk-5/fjira/internal/projects"
+	"github.com/mk-5/fjira/internal/statuses"
+	"github.com/mk-5/fjira/internal/ui"
+	"github.com/mk-5/fjira/internal/users"
+	"github.com/mk-5/fjira/internal/workspaces"
 	"os"
 	"strings"
 	"sync"
@@ -22,13 +30,12 @@ The command line tool for Jira.
 `
 )
 
-var InstallFailedErr = errors.New("Cannot use fjira. Please check error logs in order to install missing packages.")
-var FjiraNotInitalizedErr = errors.New("Cannot use fjira. You need to call CreateNewFjira first.")
+var InstallFailedErr = errors.New("cannot use fjira. Please check error logs in order to install missing packages")
+var NotInitializedErr = errors.New("cannot use fjira. You need to call CreateNewFjira first")
 
 type Fjira struct {
 	app       *app.App
 	api       jira.Api
-	formatter fjiraFormatter
 	jiraUrl   string
 	workspace string
 }
@@ -47,7 +54,7 @@ var (
 	fjiraOnce     sync.Once
 )
 
-func CreateNewFjira(settings *fjiraWorkspaceSettings) *Fjira {
+func CreateNewFjira(settings *workspaces.WorkspaceSettings) *Fjira {
 	if settings == nil {
 		panic("Cannot find appropriate fjira settings!")
 	}
@@ -60,7 +67,6 @@ func CreateNewFjira(settings *fjiraWorkspaceSettings) *Fjira {
 		fjiraInstance = &Fjira{
 			app:       app.CreateNewApp(),
 			api:       api,
-			formatter: &defaultFormatter{},
 			jiraUrl:   url,
 			workspace: settings.Workspace,
 		}
@@ -68,80 +74,53 @@ func CreateNewFjira(settings *fjiraWorkspaceSettings) *Fjira {
 	return fjiraInstance
 }
 
-func GetApi() (jira.Api, error) {
-	if fjiraInstance == nil {
-		return nil, FjiraNotInitalizedErr
-	}
-	return fjiraInstance.api, nil
-}
-
 func SetApi(api jira.Api) error {
 	if fjiraInstance == nil {
-		return FjiraNotInitalizedErr
+		return NotInitializedErr
 	}
 	fjiraInstance.api = api
 	return nil
 }
 
-func GetFormatter() (fjiraFormatter, error) {
-	if fjiraInstance == nil {
-		return nil, FjiraNotInitalizedErr
-	}
-	return fjiraInstance.formatter, nil
-}
-
-func GetJiraUrl() (string, error) {
-	if fjiraInstance == nil {
-		return "", FjiraNotInitalizedErr
-	}
-	return fjiraInstance.jiraUrl, nil
-}
-
-func GetCurrentWorkspace() (string, error) {
-	if fjiraInstance == nil {
-		return "", FjiraNotInitalizedErr
-	}
-	if fjiraInstance.workspace == "" {
-		return "default", nil
-	}
-	return fjiraInstance.workspace, nil
-}
-
-func Install(args CliArgs) (*fjiraWorkspaceSettings, error) {
+func Install(args CliArgs) (*workspaces.WorkspaceSettings, error) {
 	// it will be removed after a few version
-	u := userHomeWorkspaces{}
-	_ = u.migrateFromGlobWorkspacesToYaml()
+	u := workspaces.NewDeprecatedUserHomeWorkspaces()
+	_ = u.MigrateFromGlobWorkspacesToYaml()
 
 	err := validateWorkspaceName(args.Workspace)
 	if err != nil {
 		return nil, err
 	}
 	if args.WorkspaceEdit {
-		settings, err := readFromWorkspaceEdit(os.Stdin, args.Workspace)
+		s, err := readFromWorkspaceEdit(os.Stdin, args.Workspace)
 		if err != nil {
 			panic(err)
 		}
-		return settings, nil
+		return s, nil
 	}
-	settings, err := readFromEnvironments()
+	s, err := readFromEnvironments()
 	if err == nil {
-		return settings, nil // envs found
+		return s, nil // envs found
 	}
 	if err != EnvironmentsMissingErr {
 		return nil, err
 	}
-	settings2, err := readFromUserSettings(args.Workspace)
-	if err == WorkspaceNotFoundErr || errors.Unwrap(err) == WorkspaceNotFoundErr {
+	s2, err := readFromUserSettings(args.Workspace)
+	if err == workspaces.WorkspaceNotFoundErr || errors.Unwrap(err) == workspaces.WorkspaceNotFoundErr {
 		return readFromUserInputAndStore(os.Stdin, args.Workspace, nil)
 	}
 	if err != nil {
 		return nil, err
 	}
-	return settings2, nil
+	return s2, nil
 }
 
 func (f *Fjira) SetApi(api jira.Api) {
 	f.api = api
+}
+
+func (f *Fjira) GetApi() jira.Api {
+	return f.api
 }
 
 func (f *Fjira) Run(args *CliArgs) {
@@ -149,6 +128,7 @@ func (f *Fjira) Run(args *CliArgs) {
 	y := app.ClampInt(f.app.ScreenY/2-4, 0, f.app.ScreenY)
 	welcomeText := app.NewText(x, y, app.DefaultStyle, WelcomeMessage)
 	f.app.AddDrawable(welcomeText)
+	f.registerGoTos()
 	go f.bootstrap(args)
 	f.app.Start()
 }
@@ -160,26 +140,39 @@ func (f *Fjira) Close() {
 	}
 }
 
+func (f *Fjira) registerGoTos() {
+	projects.RegisterGoto()
+	issues.RegisterGoTo()
+	users.RegisterGoTo()
+	statuses.RegisterGoTo()
+	labels.RegisterGoTo()
+	workspaces.RegisterGoTo()
+	boards.RegisterGoTo()
+	ui.RegisterGoTo()
+}
+
 func (f *Fjira) bootstrap(args *CliArgs) {
 	defer f.app.PanicRecover()
 	if args.WorkspaceSwitch {
-		goIntoSwitchWorkspaceView()
+		app.GoTo("workspaces-switch")
 		return
 	}
 	if args.ProjectId != "" {
-		goIntoIssuesSearchForProject(args.ProjectId)
+		app.GoTo("issues-search", args.ProjectId, func() {
+			app.GoTo("projects", f.api)
+		}, f.api)
 		return
 	}
 	if args.IssueKey != "" {
-		goIntoIssueView(args.IssueKey)
+		app.GoTo("issue", args.IssueKey, nil, f.api)
 		return
 	}
 	if args.JqlMode {
-		goIntoJqlView()
+		app.GoTo("jql", f.api)
 		return
 	}
 	time.Sleep(350 * time.Millisecond)
 	f.app.RunOnAppRoutine(func() {
-		goIntoProjectsSearch()
+		app.GoTo("projects", f.api)
 	})
 }
