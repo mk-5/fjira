@@ -5,6 +5,7 @@ import (
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	os2 "github.com/mk-5/fjira/internal/os"
+	"github.com/mk-5/fjira/internal/workspaces"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -27,37 +28,32 @@ func TestFjira_bootstrap(t *testing.T) {
 		{"should switch to workspace view", args{
 			cliArgs: CliArgs{WorkspaceSwitch: true},
 			viewPredicate: func() bool {
-				_, ok := app.GetApp().CurrentView().(*fjiraSwitchWorkspaceView)
-				return ok
+				return app.CurrentScreenName() == "workspaces-switch"
 			},
 		}},
 		{"should switch to project view", args{
 			cliArgs: CliArgs{ProjectId: "test"},
 			viewPredicate: func() bool {
-				_, ok := app.GetApp().CurrentView().(*fjiraSearchIssuesView)
-				return ok
+				return app.CurrentScreenName() == "issues-search"
 			},
 		}},
 		{"should switch to issue view", args{
 			cliArgs: CliArgs{IssueKey: "test"},
 			viewPredicate: func() bool {
-				_, ok := app.GetApp().CurrentView().(*fjiraIssueView)
-				return ok
+				return app.CurrentScreenName() == "issue"
 			},
 		}},
 		{"should switch to jql view", args{
 			cliArgs: CliArgs{JqlMode: true},
 			viewPredicate: func() bool {
-				_, ok := app.GetApp().CurrentView().(*fjiraJqlSearchView)
-				return ok
+				return app.CurrentScreenName() == "jql"
 			},
 		}},
 		{"should switch to projects search by default", args{
 			cliArgs: CliArgs{},
 			viewPredicate: func() bool {
 				<-time.After(500 * time.Millisecond)
-				_, ok := app.GetApp().CurrentView().(*fjiraSearchProjectsView)
-				return ok
+				return app.CurrentScreenName() == "projects"
 			},
 		}},
 	}
@@ -71,20 +67,22 @@ func TestFjira_bootstrap(t *testing.T) {
 				w.Write([]byte("{}")) //nolint:errcheck
 			})
 			a := app.CreateNewAppWithScreen(screen)
-			fjira := CreateNewFjira(&fjiraWorkspaceSettings{})
+			fjira := CreateNewFjira(&workspaces.WorkspaceSettings{})
+			fjira.registerGoTos()
 			fjira.app = a
 			_ = SetApi(api)
 			go a.Start()
 
 			// when
 			go fjira.bootstrap(&tt.args.cliArgs)
-			for a.CurrentView() == nil {
+			for app.CurrentScreenName() == "" {
 				<-time.After(10 * time.Millisecond)
 			}
+			<-time.After(250 * time.Millisecond)
 
 			// then
 			ok := tt.args.viewPredicate()
-			assert.New(t).True(ok, "Current view is invalid: ", app.GetApp().CurrentView())
+			assert.New(t).True(ok, "Current view is invalid: ", app.GetApp().CurrentView(), app.CurrentScreenName())
 		})
 	}
 }
@@ -99,7 +97,7 @@ func TestFjira_run_should_run_without_error(t *testing.T) {
 		w.Write([]byte("{}")) //nolint:errcheck
 	})
 	app.CreateNewAppWithScreen(screen)
-	fjira := CreateNewFjira(&fjiraWorkspaceSettings{})
+	fjira := CreateNewFjira(&workspaces.WorkspaceSettings{})
 	_ = SetApi(api)
 
 	// when

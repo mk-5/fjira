@@ -25,6 +25,7 @@ type Api interface {
 	FindBoards(projectKeyOrId string) ([]BoardItem, error)
 	GetBoardConfiguration(boardId int) (*BoardConfiguration, error)
 	Close()
+	GetApiUrl() string
 }
 
 type Project struct {
@@ -176,6 +177,7 @@ const (
 )
 
 type httpApi struct {
+	apiUrl  string
 	client  *http.Client
 	restUrl *url.URL
 }
@@ -196,11 +198,16 @@ func NewApi(apiUrl string, username string, token string, tokenType JiraTokenTyp
 		authType = Basic
 	}
 	return &httpApi{
+		apiUrl: apiUrl,
 		client: &http.Client{
 			Transport: &authInterceptor{core: http.DefaultTransport, token: authToken, authType: authType},
 		},
 		restUrl: baseUrl,
 	}, nil
+}
+
+func (api *httpApi) GetApiUrl() string {
+	return api.apiUrl
 }
 
 func (api *httpApi) Close() {

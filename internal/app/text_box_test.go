@@ -13,9 +13,6 @@ func TestNewTextBox(t *testing.T) {
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
 
-	type args struct {
-		text string
-	}
 	tests := []struct {
 		name string
 	}{
