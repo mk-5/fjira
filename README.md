@@ -42,17 +42,17 @@ latest release version.
 sudo dpkg -i fjira_0.4.0_linux_amd64.deb
 ```
 
-#### Windows
-
-```shell
-choco install fjira
-```
-
 #### Binary
 
 ```shell
 tar -xvzf fjira_0.4.0_Linux_x86_64.tar.gz
 cp fjira /usr/local/bin/fjira
+```
+
+### Windows
+
+```shell
+choco install fjira
 ```
 
 ### Build from sources
