@@ -90,7 +90,7 @@ func (s *userHomeSettingsStorage) createOrGetSettings() (*Settings, error) {
 	settingsBytes, err := os.ReadFile(settingsFilePath)
 	if errors.Is(err, os.ErrNotExist) {
 		settings = Settings{
-			Current:    "",
+			Current:    DefaultWorkspaceName,
 			Workspaces: map[string]WorkspaceSettings{},
 		}
 	} else if err != nil {
@@ -99,6 +99,18 @@ func (s *userHomeSettingsStorage) createOrGetSettings() (*Settings, error) {
 	err = yaml.Unmarshal(settingsBytes, &settings)
 	if err != nil {
 		return nil, err
+	}
+	// temporary for migration, "" was a default workspace before. Should be removed after some time
+	for k := range settings.Workspaces {
+		if k == "" {
+			if settings.Current == "" {
+				settings.Current = DefaultWorkspaceName
+			}
+			settings.Workspaces[DefaultWorkspaceName] = settings.Workspaces[k]
+			delete(settings.Workspaces, k)
+			_ = s.writeSettings(&settings)
+			break
+		}
 	}
 	return &settings, nil
 }
