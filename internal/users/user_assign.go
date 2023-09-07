@@ -68,7 +68,7 @@ func (view *userAssignChangeView) HandleKeyEvent(ev *tcell.EventKey) {
 func (view *userAssignChangeView) startUsersSearching() {
 	app.GetApp().ClearNow()
 	app.GetApp().Loading(true)
-	users := view.findUser(view.issue.Fields.Project.Id)
+	users := view.findUser(view.issue.Fields.Project.Key)
 	usersStrings := FormatJiraUsers(users)
 	view.fuzzyFind = app.NewFuzzyFind(ui.MessageUsersFuzzyFind, usersStrings)
 	view.fuzzyFind.MarginBottom = 0

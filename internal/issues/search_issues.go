@@ -307,8 +307,8 @@ func (view *searchIssuesView) fetchStatuses(projectId string) []jira.IssueStatus
 	return ss
 }
 
-func (view *searchIssuesView) fetchUsers(projectId string) []jira.User {
-	us, err := view.api.FindUsers(projectId)
+func (view *searchIssuesView) fetchUsers(projectKey string) []jira.User {
+	us, err := view.api.FindUsers(projectKey)
 	if err != nil {
 		app.Error(err.Error())
 	}
