@@ -29,8 +29,8 @@ func (api *httpApi) FindProjects() ([]Project, error) {
 }
 
 func (api *httpApi) FindProject(projectKey string) (*Project, error) {
-	url := fmt.Sprintf(ProjectsByKeyJira, url.QueryEscape(projectKey))
-	response, err := api.jiraRequest("GET", url, nil, nil)
+	u := fmt.Sprintf(ProjectsByKeyJira, url.QueryEscape(projectKey))
+	response, err := api.jiraRequest("GET", u, nil, nil)
 	if err != nil {
 		return nil, err
 	}

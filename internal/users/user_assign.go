@@ -118,7 +118,7 @@ func (view *userAssignChangeView) doAssignmentChange(issue *jira.Issue, user *ji
 	err := view.api.DoAssignee(issue.Key, user.AccountId)
 	app.GetApp().Loading(false)
 	if err != nil {
-		app.Error(fmt.Sprintf(ui.MessageCannotAssignUser, user.DisplayName, issue.Key, err))
+		app.Error(fmt.Sprintf(ui.MessageCannotAssignUser, user.DisplayName, issue.Key, err.Error(), user.AccountId))
 		return
 	}
 	app.Success(fmt.Sprintf(ui.MessageAssignSuccess, user.DisplayName, issue.Key))
