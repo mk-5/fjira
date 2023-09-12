@@ -55,6 +55,7 @@ func TestNewAddLabelView(t *testing.T) {
 			for view.fuzzyFind == nil {
 				<-time.After(10 * time.Millisecond)
 			}
+			<-time.After(500 * time.Millisecond)
 			query := "label1"
 			for _, key := range query {
 				view.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))
