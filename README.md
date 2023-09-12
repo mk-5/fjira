@@ -179,7 +179,6 @@ fjira -jql
 ## The Future (TODO)
 
 - More docs
-- Windows support
 - Support Linux packages managers nonsense aka. Snapcraft, Deb, AUR
 - More Jira features ;)
 
