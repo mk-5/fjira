@@ -14,7 +14,7 @@ const (
 	DoAssigneePath = "/rest/api/2/issue/%s/assignee"
 )
 
-func (api httpApi) DoAssignee(issueId string, accountId string) error {
+func (api *httpApi) DoAssignee(issueId string, accountId string) error {
 	url := fmt.Sprintf(DoAssigneePath, issueId)
 	body := &assigneeRequestBody{AccountId: accountId}
 	jsonBody, _ := json.Marshal(body)

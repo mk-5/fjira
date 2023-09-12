@@ -29,7 +29,7 @@ const (
 	MessageSearchProjectsLoading     = "Fetching projects"
 	MessageSelectProject             = "Select project or ESC to exit"
 	MessageChangingAssigneeTo        = "Are you sure about changing %s assignee to [%s]?"
-	MessageCannotAssignUser          = "Cannot assign user %s to ticket %s. Reason: %s"
+	MessageCannotAssignUser          = "Cannot assign user %s to ticket %s. Reason: %s AccountId: %s"
 	MessageCannotAddLabel            = "Cannot add label %s to ticket %s. Reason: %s"
 	MessageCannotAddComment          = "Cannot add comment to ticket %s. Reason: %s"
 	MessageAssignSuccess             = "User %s has been successfully assigned to issue %s."
