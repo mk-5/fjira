@@ -19,7 +19,7 @@ type Api interface {
 	FindTransitions(issueId string) ([]IssueTransition, error)
 	FindProjectStatuses(projectId string) ([]IssueStatus, error)
 	DoTransition(issueId string, transition *IssueTransition) error
-	DoAssignee(issueId string, accountId string) error
+	DoAssignee(issueId string, user *User) error
 	GetIssueDetailed(issueId string) (*Issue, error)
 	DoComment(issueId string, commentBody string) error
 	FindBoards(projectKeyOrId string) ([]BoardItem, error)
@@ -89,6 +89,8 @@ type User struct {
 	Locale       string            `json:"locale"`
 	Self         string            `json:"self"`
 	TimeZone     string            `json:"timeZone"`
+	Key          string            `json:"key"`  // field used by on-premise installation
+	Name         string            `json:"name"` // field used by on-premise installation
 }
 
 type IssueTransition struct {
