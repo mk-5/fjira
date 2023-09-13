@@ -115,7 +115,7 @@ func (view *userAssignChangeView) assignUserToTicket(issue *jira.Issue, user *ji
 
 func (view *userAssignChangeView) doAssignmentChange(issue *jira.Issue, user *jira.User) {
 	app.GetApp().LoadingWithText(true, ui.MessageAssigningUser)
-	err := view.api.DoAssignee(issue.Key, user.AccountId)
+	err := view.api.DoAssignee(issue.Key, user)
 	app.GetApp().Loading(false)
 	if err != nil {
 		app.Error(fmt.Sprintf(ui.MessageCannotAssignUser, user.DisplayName, issue.Key, err.Error(), user.AccountId))
