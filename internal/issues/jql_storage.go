@@ -87,7 +87,7 @@ func (s *jqlStorage) writeAll(jqls []string) error {
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
-		_, err = jqlFile.WriteString(line)
+		_, err = jqlFile.WriteString(fmt.Sprintln(line))
 		if err != nil {
 			return err
 		}

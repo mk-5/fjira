@@ -43,7 +43,7 @@ func Test_jqlStorage(t *testing.T) {
 			assert.Nil(t, errWorkspace)
 			assert.Equal(t, "default", workspace)
 			assert.True(t, strings.HasSuffix(jqlFile.Name(), "default.jqls"), "invalid file %s", jqlFile.Name())
-			assert.Equal(t, "test jql", fileContent)
+			assert.Equal(t, "test jql\n", fileContent)
 
 			// and when
 			err3 := s.remove(tt.args.jql)
