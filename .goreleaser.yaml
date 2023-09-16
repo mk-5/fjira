@@ -90,7 +90,10 @@ chocolateys:
     summary: Terminal application to deal with Atlassian Jira.
     description: |
       {{ .ProjectName }} installer package.
-      Terminal application to deal with Atlassian Jira.
+      Fjira is a powerful terminal user interface (TUI) application designed to streamline your Jira workflow.
+      With its fuzzy-find capabilities, it simplifies the process of searching and accessing Jira issues,
+      making it easier than ever to locate and manage your tasks and projects efficiently.
+      Say goodbye to manual searching and hello to increased productivity with fjira.
     release_notes: "https://github.com/mk-5/fjira/releases/tag/v{{ .Version }}"
     api_key: '{{ .Env.CHOCOLATEY_API_KEY }}'
     source_repo: "https://push.chocolatey.org/"
