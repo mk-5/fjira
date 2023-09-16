@@ -28,11 +28,47 @@ var (
 	workspaceRegExp           = regexp.MustCompile("^[a-z0-9]{2,50}$")
 )
 
-func validateWorkspaceName(workspace string) error {
-	if workspace != workspaces.EmptyWorkspace && !workspaceRegExp.MatchString(workspace) {
-		return WorkspaceFormatInvalidErr
+func Install(workspace string) (*workspaces.WorkspaceSettings, error) {
+	// it will be removed after a few version
+	u := workspaces.NewDeprecatedUserHomeWorkspaces()
+	_ = u.MigrateFromGlobWorkspacesToYaml()
+
+	err := validateWorkspaceName(workspace)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	s, err := readFromEnvironments()
+	if err == nil {
+		return s, nil // envs found
+	}
+	if err != EnvironmentsMissingErr {
+		return nil, err
+	}
+	s2, err := readFromUserSettings(workspace)
+	if err == workspaces.WorkspaceNotFoundErr || errors.Unwrap(err) == workspaces.WorkspaceNotFoundErr {
+		return readFromUserInputAndStore(os.Stdin, workspace, nil)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return s2, nil
+}
+
+func EditWorkspaceAndReadSettings(input io.Reader, workspace string) (*workspaces.WorkspaceSettings, error) {
+	var settingsStorage = workspaces.NewUserHomeSettingsStorage()
+	settings, err := settingsStorage.Read(workspace)
+	if err != nil {
+		return nil, err
+	}
+	editedSettings, err := readFromUserInputAndStore(input, workspace, settings)
+	if err != nil {
+		return nil, err
+	}
+	err = settingsStorage.Write(workspace, editedSettings)
+	if err != nil {
+		return nil, err
+	}
+	return editedSettings, nil
 }
 
 func readFromEnvironments() (*workspaces.WorkspaceSettings, error) {
@@ -160,19 +196,9 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 	return settings, err
 }
 
-func readFromWorkspaceEdit(input io.Reader, workspace string) (*workspaces.WorkspaceSettings, error) {
-	var settingsStorage = workspaces.NewUserHomeSettingsStorage()
-	settings, err := settingsStorage.Read(workspace)
-	if err != nil {
-		return nil, err
+func validateWorkspaceName(workspace string) error {
+	if workspace != workspaces.EmptyWorkspace && !workspaceRegExp.MatchString(workspace) {
+		return WorkspaceFormatInvalidErr
 	}
-	editedSettings, err := readFromUserInputAndStore(input, workspace, settings)
-	if err != nil {
-		return nil, err
-	}
-	err = settingsStorage.Write(workspace, editedSettings)
-	if err != nil {
-		return nil, err
-	}
-	return editedSettings, nil
+	return nil
 }

@@ -62,15 +62,15 @@ func TestFjira_bootstrap(t *testing.T) {
 			// given
 			tempDir := t.TempDir()
 			_ = os2.SetUserHomeDir(tempDir)
+			a := app.CreateNewAppWithScreen(screen)
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				w.Write([]byte("{}")) //nolint:errcheck
 			})
-			a := app.CreateNewAppWithScreen(screen)
 			fjira := CreateNewFjira(&workspaces.WorkspaceSettings{})
 			fjira.registerGoTos()
 			fjira.app = a
-			_ = SetApi(api)
+			fjira.api = api
 			go a.Start()
 
 			// when
@@ -92,13 +92,8 @@ func TestFjira_run_should_run_without_error(t *testing.T) {
 	screen := tcell.NewSimulationScreen("utf-8")
 	_ = screen.Init() //nolint:errcheck
 	defer screen.Fini()
-	api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		w.Write([]byte("{}")) //nolint:errcheck
-	})
 	app.CreateNewAppWithScreen(screen)
 	fjira := CreateNewFjira(&workspaces.WorkspaceSettings{})
-	_ = SetApi(api)
 
 	// when
 	go fjira.Run(&CliArgs{})

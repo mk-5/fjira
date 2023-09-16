@@ -50,7 +50,7 @@ func Test_shouldInstallWithoutErrorWhenInstallEnvironmentProps(t *testing.T) {
 	_ = os.Setenv(JiraRestUrlEnv, "http://test.test")
 
 	// when
-	_, err := Install(CliArgs{Workspace: "abc"})
+	_, err := Install("abc")
 
 	// then
 	assert.NoError(err, "Should Install app without error when EnvironmentProps")
@@ -172,7 +172,7 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 
 			// and when
 			stdin = bytes.NewBufferString("TestUser2\nTestUrl2\n\n")
-			settings, err = readFromWorkspaceEdit(stdin, tt.args.workspace)
+			settings, err = EditWorkspaceAndReadSettings(stdin, tt.args.workspace)
 			if err != nil {
 				assert2.Fail(t, err.Error())
 			}

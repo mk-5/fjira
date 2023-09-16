@@ -12,7 +12,6 @@ import (
 	"github.com/mk-5/fjira/internal/ui"
 	"github.com/mk-5/fjira/internal/users"
 	"github.com/mk-5/fjira/internal/workspaces"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -31,7 +30,6 @@ The command line tool for Jira.
 )
 
 var InstallFailedErr = errors.New("cannot use fjira. Please check error logs in order to install missing packages")
-var NotInitializedErr = errors.New("cannot use fjira. You need to call CreateNewFjira first")
 
 type Fjira struct {
 	app       *app.App
@@ -40,6 +38,7 @@ type Fjira struct {
 	workspace string
 }
 
+// CliArgs TODO - drop it, and use cobra directly
 type CliArgs struct {
 	ProjectId       string
 	IssueKey        string
@@ -72,55 +71,6 @@ func CreateNewFjira(settings *workspaces.WorkspaceSettings) *Fjira {
 		}
 	})
 	return fjiraInstance
-}
-
-func SetApi(api jira.Api) error {
-	if fjiraInstance == nil {
-		return NotInitializedErr
-	}
-	fjiraInstance.api = api
-	return nil
-}
-
-func Install(args CliArgs) (*workspaces.WorkspaceSettings, error) {
-	// it will be removed after a few version
-	u := workspaces.NewDeprecatedUserHomeWorkspaces()
-	_ = u.MigrateFromGlobWorkspacesToYaml()
-
-	err := validateWorkspaceName(args.Workspace)
-	if err != nil {
-		return nil, err
-	}
-	if args.WorkspaceEdit {
-		s, err := readFromWorkspaceEdit(os.Stdin, args.Workspace)
-		if err != nil {
-			panic(err)
-		}
-		return s, nil
-	}
-	s, err := readFromEnvironments()
-	if err == nil {
-		return s, nil // envs found
-	}
-	if err != EnvironmentsMissingErr {
-		return nil, err
-	}
-	s2, err := readFromUserSettings(args.Workspace)
-	if err == workspaces.WorkspaceNotFoundErr || errors.Unwrap(err) == workspaces.WorkspaceNotFoundErr {
-		return readFromUserInputAndStore(os.Stdin, args.Workspace, nil)
-	}
-	if err != nil {
-		return nil, err
-	}
-	return s2, nil
-}
-
-func (f *Fjira) SetApi(api jira.Api) {
-	f.api = api
-}
-
-func (f *Fjira) GetApi() jira.Api {
-	return f.api
 }
 
 func (f *Fjira) Run(args *CliArgs) {

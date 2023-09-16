@@ -66,21 +66,25 @@ make
 
 ```text
 Usage:
-    fjira
-    fjira [command]
-    fjira [command] [flags]
-    fjira [flags]
-    fjira [jira-issue] [flags]
+  fjira [flags]
+  fjira [command]
 
 Available Commands:
-    workspace               Switch fjira workspace
-    help               	    Help
-    version                 Show version
+  [issueKey]  Open jira issue directly from the cli
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  jql         Search using custom-jql
+  version     Print the version number of fjira
+  workspace   Switch workspace to another
 
 Flags:
-    -p, --project             Open project issues search directly from CLI, example: -p GEN.
-    -w, --workspace           Use different fjira workspace without switching it globally, example: -w myworkspace
-    -nw, --new-workspace      Create new workspace, example: fjira --new-workspace=abc
+  -h, --help             help for fjira
+  -p, --project string   Open project directly from cli
+
+Additional help topics:
+  fjira            Open fuzzy-find for projects as a default action
+
+Use "fjira [command] --help" for more information about a command.
 ```
 
 ## Getting Started
@@ -97,7 +101,7 @@ Fjira will ask you about Jira API url, and token if you run fjira for the very f
 
 ![Fjira First Run](demo_first_run.gif)
 
-Fjira workspace is a set of jira configuration data, and it's kept in simple json file under `~/.fjira` directory.
+Fjira workspace is a set of jira configuration data, and it's kept in simple yaml file under `~/.fjira` directory.
 You can switch within multiple workspaces using `fjira workspace` command.
 
 ```shell
@@ -108,13 +112,13 @@ It will open a fuzzy finder with all available workspaces.
 In order to create a new workspace you need to use following command:
 
 ```shell
-fjira --new-workspace abc
+fjira workspace --new abc
 ```
 
-You can edit existing workspace using `--edit-workspace` flag.
+You can edit existing workspace using `--edit` flag.
 
 ```shell
-fjira --edit-workspace abc
+fjira workspace --edit abc
 ```
 
 ### Jira Token Type 
@@ -139,7 +143,7 @@ The projects search is a default view, just run `fjra` in order to open it.
 fjira
 ```
 
-## Open project directly from cli
+## Open concrete project directly from cli
 
 You can open a project directly from cli.
 
@@ -172,7 +176,7 @@ First open the project, and then press F4.
 You can write your custom JQLs, and use them to search for Jira issues.
 
 ```shell
-fjira -jql
+fjira jql
 ```
 
 
@@ -184,11 +188,11 @@ fjira -jql
 
 #### Motivation
 
-I've created this tool for myself, and the only motivation behind it was laziness (maybe plus fact that I like terminal
-tools).
-It's really common that from time to time you need to do something like: "I'd just need to move issue 123 to the next
-status".
-Opening Jira, finding ticket inside the board, opening the Jira issue modal... is okay, but it takes some time.
-I found it really handy to do it from terminal, where probably I do something anyway 😝
+I designed this tool with personal convenience in mind, motivated by a touch of laziness (and a genuine fondness for terminal tools).
+
+It's a common scenario where you think to yourself, 'I just need to transition issue 123 to the next status.' While opening Jira, locating the ticket on the board, and navigating the Jira issue modal are all perfectly fine, they do consume a fair amount of time.
+
+I found it incredibly useful to execute such tasks directly from the terminal, especially since I'm likely to be working there anyway! 😝"
+
 
 Sooo, if you feel it the same way as me - I'd love to get some star from you 🤜🤛
