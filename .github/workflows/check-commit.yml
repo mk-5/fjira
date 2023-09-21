@@ -10,7 +10,7 @@ jobs:
       - name: Verify commit message
         id: verify_commit_message
         run: |
-          if [[ ! "${{ github.event.head_commit.message }}" =~ ^(feat\(*[a-z0-9#]*\)*:)|(fix\(*[a-z0-9#]*\)*:)|(docs\(*[a-z0-9#]*\)*:)|(refactor\(*[a-z0-9#]*\)*:)|(misc\(*[a-z0-9#]*\)*:).* ]]; then 
+          if [[ ! "${{ github.event.head_commit.message }}" =~ ^(feat\(*[a-z0-9#]*\)*:)|(fix\(*[a-z0-9#]*\)*:)|(docs\(*[a-z0-9#]*\)*:)|(build\(*[a-z0-9#]*\)*:)|(refactor\(*[a-z0-9#]*\)*:)|(misc\(*[a-z0-9#]*\)*:).* ]]; then 
             echo "Invalid commit message: "
             echo "${{ github.event.head_commit.message }}"
             exit 1
