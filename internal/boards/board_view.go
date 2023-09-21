@@ -32,6 +32,7 @@ type boardView struct {
 	selectedIssueBottomBar *app.ActionBar
 	topBar                 *app.ActionBar
 	boardConfiguration     *jira.BoardConfiguration
+	filterJQL              string
 	project                *jira.Project
 	issues                 []jira.Issue
 	statusesColumnsMap     map[string]int
@@ -53,7 +54,7 @@ type boardView struct {
 	columnSize             int
 }
 
-func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfiguration, api jira.Api) app.View {
+func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfiguration, filterJQL string, api jira.Api) app.View {
 	col := 0
 	statusesColumnsMap := map[string]int{}
 	columnStatusesMap := map[int][]string{}
@@ -86,6 +87,7 @@ func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfigura
 		api:                    api,
 		project:                project,
 		boardConfiguration:     boardConfiguration,
+		filterJQL:              filterJQL,
 		statusesColumnsMap:     statusesColumnsMap,
 		columnStatusesMap:      columnStatusesMap,
 		columns:                columns,
@@ -163,8 +165,7 @@ func (b *boardView) Resize(screenX, screenY int) {
 
 func (b *boardView) Init() {
 	app.GetApp().Loading(true)
-	// it's not perfect - but I cannot find simple way to fetch all iss visible at given board
-	iss, err := b.api.SearchJql(fmt.Sprintf("project=%s order by updatedDate,createdDate", b.project.Id))
+	iss, err := b.api.SearchJql(b.filterJQL)
 	if err != nil {
 		app.GetApp().Loading(false)
 		app.Error(err.Error())
