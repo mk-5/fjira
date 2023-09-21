@@ -61,19 +61,33 @@ const (
 
 type findBoardsQueryParams struct {
 	ProjectKeyOrId string `url:"projectKeyOrId"`
+	StartAt        int    `url:"startAt"`
 }
 
 func (api *httpApi) FindBoards(projectKeyOrId string) ([]BoardItem, error) {
-	resultBytes, err := api.jiraRequest("GET", FindAllBoardsUrl, &findBoardsQueryParams{ProjectKeyOrId: projectKeyOrId}, nil)
-	if err != nil {
-		return nil, err
+	params := &findBoardsQueryParams{ProjectKeyOrId: projectKeyOrId, StartAt: 0}
+	var boards []BoardItem
+	for {
+		resultBytes, err := api.jiraRequest("GET", FindAllBoardsUrl, params, nil)
+		if err != nil {
+			return nil, err
+		}
+		var result BoardsResponse
+		err = json.Unmarshal(resultBytes, &result)
+		if err != nil {
+			return nil, err
+		}
+		if cap(boards) == 0 {
+			boards = make([]BoardItem, 0, result.Total)
+		}
+		boards = append(boards, result.Values...)
+
+		if result.IsLast {
+			break
+		}
+		params.StartAt += result.MaxResults
 	}
-	var result BoardsResponse
-	err = json.Unmarshal(resultBytes, &result)
-	if err != nil {
-		return nil, err
-	}
-	return result.Values, nil
+	return boards, nil
 }
 
 func (api *httpApi) GetBoardConfiguration(boardId int) (*BoardConfiguration, error) {
