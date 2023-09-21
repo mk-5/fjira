@@ -25,7 +25,7 @@ func TestNewBoardView(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.NotNil(t, NewBoardView(tt.args.project, tt.args.boardConfiguration, nil), "NewBoardView(%v, %v)", tt.args.project, tt.args.boardConfiguration)
+			assert.NotNil(t, NewBoardView(tt.args.project, tt.args.boardConfiguration, "", nil), "NewBoardView(%v, %v)", tt.args.project, tt.args.boardConfiguration)
 		})
 	}
 }
@@ -38,7 +38,7 @@ func Test_boardView_Destroy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := NewBoardView(&jira.Project{}, &jira.BoardConfiguration{}, nil)
+			b := NewBoardView(&jira.Project{}, &jira.BoardConfiguration{}, "", nil)
 			b.Destroy()
 		})
 	}
@@ -132,7 +132,7 @@ func Test_boardView_Draw(t *testing.T) {
 `
 			var board jira.BoardConfiguration
 			_ = json.Unmarshal([]byte(boardJson), &board)
-			view := NewBoardView(&jira.Project{}, &board, nil).(*boardView)
+			view := NewBoardView(&jira.Project{}, &board, "", nil).(*boardView)
 			view.issues = []jira.Issue{
 				{Id: "1", Key: "GEN-1", Fields: jira.IssueFields{Status: jira.Status{Id: "10000"}}},
 				{Id: "2", Key: "GEN-2", Fields: jira.IssueFields{Status: jira.Status{Id: "10001"}}},
@@ -230,7 +230,7 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 `
 				w.Write([]byte(body)) //nolint:errcheck
 			})
-			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{}, api).(*boardView)
+			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{}, "", api).(*boardView)
 			view.columnStatusesMap[0] = []string{"0"}
 			view.columnStatusesMap[1] = []string{"1"}
 			view.columnStatusesMap[2] = []string{"2"}
@@ -315,7 +315,7 @@ func Test_boardView_Init(t *testing.T) {
 `
 				_, _ = w.Write([]byte(body)) //nolint:errcheck
 			})
-			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{}, api).(*boardView)
+			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{}, "", api).(*boardView)
 
 			// when
 			view.Init()

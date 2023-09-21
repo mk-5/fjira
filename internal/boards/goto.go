@@ -23,8 +23,14 @@ func RegisterGoTo() {
 			app.Error(err.Error())
 			return
 		}
+		filter, err := api.GetFilter(boardConfig.Filter.Id)
+		if err != nil {
+			app.GetApp().Loading(false)
+			app.Error(err.Error())
+			return
+		}
 		app.GetApp().Loading(false)
-		boardView := NewBoardView(project, boardConfig, api).(*boardView)
+		boardView := NewBoardView(project, boardConfig, filter.JQL, api).(*boardView)
 		boardView.SetGoBackFn(goBackFn)
 		app.GetApp().SetView(boardView)
 	})

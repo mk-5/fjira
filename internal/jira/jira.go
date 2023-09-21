@@ -24,6 +24,7 @@ type Api interface {
 	DoComment(issueId string, commentBody string) error
 	FindBoards(projectKeyOrId string) ([]BoardItem, error)
 	GetBoardConfiguration(boardId int) (*BoardConfiguration, error)
+	GetFilter(filterId string) (*Filter, error)
 	Close()
 	GetApiUrl() string
 }
@@ -164,6 +165,12 @@ type BoardConfiguration struct {
 	Ranking struct {
 		RankCustomFieldId int `json:"rankCustomFieldId"`
 	} `json:"ranking"`
+}
+
+type Filter struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	JQL  string `json:"jql"`
 }
 
 type ApiCredentials struct {
