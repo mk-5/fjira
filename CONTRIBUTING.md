@@ -29,6 +29,7 @@ Internal structure looks like this:
 │   └── ...
 |   📂 jira 
 │   └── ...
+│   └── ...
 ```
 
 #### app
@@ -45,3 +46,11 @@ The heart of application - the main context - business logic of our application.
 ##### jira
 
 Everything that's related to Jira, and Jira REST API.
+
+##### other packages
+
+Packages should reflect purpose/domain of the package. Packages like `controllers` are fine if you like lasagne in your code 🤞.
+Example:
+
+- `views/users_view.go` ⛔️
+- `users/view.go` ✅
