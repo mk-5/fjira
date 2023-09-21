@@ -1,5 +1,9 @@
-on: [ push ]
 name: Test
+on:
+  push:
+    tags:
+    branches:
+
 jobs:
   test:
     strategy:
