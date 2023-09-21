@@ -1,8 +1,4 @@
 on:
-  push:
-    branches:
-      - master
-      - main
   pull_request:
 
 name: Goreleaser - Check
