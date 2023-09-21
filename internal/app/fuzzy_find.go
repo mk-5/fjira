@@ -166,11 +166,13 @@ func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
 		}
 		f.dirty = true
 	}
-	if ev.Key() == tcell.KeyUp {
+	if ev.Key() == tcell.KeyUp || ev.Key() == tcell.KeyTab {
 		f.selected = ClampInt(f.selected+1, 0, f.matches.Len()-1)
+		return
 	}
-	if ev.Key() == tcell.KeyDown {
+	if ev.Key() == tcell.KeyDown || ev.Key() == tcell.KeyBacktab {
 		f.selected = ClampInt(f.selected-1, 0, f.matches.Len()-1)
+		return
 	}
 	if f.isEventWritable(ev) {
 		f.buffer.WriteRune(ev.Rune())
