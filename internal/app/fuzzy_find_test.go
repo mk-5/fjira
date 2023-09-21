@@ -53,3 +53,42 @@ func TestFuzzyFind_Draw(t *testing.T) {
 		})
 	}
 }
+
+func TestFuzzyFind_HandleKeyEvent(t *testing.T) {
+	type args struct {
+		ev []*tcell.EventKey
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{"should go up, and go down", args{ev: []*tcell.EventKey{
+			tcell.NewEventKey(tcell.KeyUp, 0, tcell.ModNone),
+			tcell.NewEventKey(tcell.KeyUp, 0, tcell.ModNone),
+			tcell.NewEventKey(tcell.KeyUp, 0, tcell.ModNone),
+			tcell.NewEventKey(tcell.KeyDown, 0, tcell.ModNone),
+		}}},
+		{"should go up, and go down using tab/tab-shift", args{ev: []*tcell.EventKey{
+			tcell.NewEventKey(tcell.KeyTab, 0, tcell.ModNone),
+			tcell.NewEventKey(tcell.KeyTab, 0, tcell.ModNone),
+			tcell.NewEventKey(tcell.KeyTab, 0, tcell.ModNone),
+			tcell.NewEventKey(tcell.KeyBacktab, 0, tcell.ModNone),
+		}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			fuzzyFind := NewFuzzyFind("test", []string{"test1", "test2", "test3", "test4"})
+			fuzzyFind.HandleKeyEvent(tcell.NewEventKey(0, 't', tcell.ModNone))
+			fuzzyFind.Update()
+
+			// when
+			for _, key := range tt.args.ev {
+				fuzzyFind.HandleKeyEvent(key)
+			}
+
+			// then
+			assert.Equal(t, 2, fuzzyFind.selected)
+		})
+	}
+}

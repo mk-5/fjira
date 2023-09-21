@@ -11,6 +11,10 @@ import (
 
 const (
 	topMargin = 2 // 1 for navigation
+	vimLeft   = 'h'
+	vimDown   = 'j'
+	vimUp     = 'k'
+	vimRight  = 'l'
 )
 
 var (
@@ -204,7 +208,7 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 	} else {
 		b.selectedIssueBottomBar.HandleKeyEvent(ev)
 	}
-	if ev.Key() == tcell.KeyRight {
+	if ev.Key() == tcell.KeyRight || ev.Rune() == vimRight {
 		newColumn := b.statusesColumnsMap[b.highlightedIssue.Fields.Status.Id] + 1
 		if newColumn > len(b.statusesColumnsMap) {
 			return
@@ -217,7 +221,7 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 		}
 		b.refreshHighlightedIssue()
 	}
-	if ev.Key() == tcell.KeyLeft {
+	if ev.Key() == tcell.KeyLeft || ev.Rune() == vimLeft {
 		newColumn := b.statusesColumnsMap[b.highlightedIssue.Fields.Status.Id] - 1
 		if newColumn < 0 {
 			return
@@ -230,11 +234,11 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 		}
 		b.refreshHighlightedIssue()
 	}
-	if ev.Key() == tcell.KeyUp {
+	if ev.Key() == tcell.KeyUp || ev.Rune() == vimUp {
 		b.cursorY = app.MaxInt(0, b.cursorY-1)
 		b.refreshHighlightedIssue()
 	}
-	if ev.Key() == tcell.KeyDown {
+	if ev.Key() == tcell.KeyDown || ev.Rune() == vimDown {
 		// TODO - get number of issues in column
 		b.cursorY = app.MinInt(1000, b.cursorY+1)
 		b.refreshHighlightedIssue()
@@ -271,7 +275,7 @@ func (b *boardView) handleActions() {
 }
 
 func (b *boardView) reopen() {
-	app.GetApp().SetView(b) // TODO - does it work?
+	app.GetApp().SetView(b)
 }
 
 func (b *boardView) refreshIssueTopBar() {
