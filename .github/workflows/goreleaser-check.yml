@@ -1,7 +1,9 @@
-on:
-  pull_request:
-
 name: Goreleaser - Check
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 permissions:
   contents: read
