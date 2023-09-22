@@ -1,13 +1,17 @@
 name: Check Commit
 on:
   push:
+    tags:
     branches:
+      - master
+  pull_request:
+
 jobs:
   build:
     name: Check Commit
     runs-on: ubuntu-latest
     steps:
-      - name: Verify commit message
+      - name: Verify commit message [push]
         id: verify_commit_message
         run: |
           if [[ ! "${{ github.event.head_commit.message }}" =~ ^(feat\(*[a-z0-9#]*\)*:)|(fix\(*[a-z0-9#]*\)*:)|(docs\(*[a-z0-9#]*\)*:)|(build\(*[a-z0-9#]*\)*:)|(refactor\(*[a-z0-9#]*\)*:)|(misc\(*[a-z0-9#]*\)*:).* ]]; then 
@@ -15,3 +19,19 @@ jobs:
             echo "${{ github.event.head_commit.message }}"
             exit 1
           fi
+        if: ${{ github.event_name == 'push' }}
+      - name: Verify commit message [pr] - get repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+        if: ${{ github.event_name == 'pull_request' }}
+      - name: Verify commit message [pr] - verify
+        id: get_head_commit_message
+        run: |
+          export commit=$(git show -s --format=%s)
+          if [[ ! "$commit" =~ ^(feat\(*[a-z0-9#]*\)*:)|(fix\(*[a-z0-9#]*\)*:)|(docs\(*[a-z0-9#]*\)*:)|(build\(*[a-z0-9#]*\)*:)|(refactor\(*[a-z0-9#]*\)*:)|(misc\(*[a-z0-9#]*\)*:).* ]]; then 
+            echo "Invalid commit message: "
+            echo "$commit"
+            exit 1
+          fi
+        if: ${{ github.event_name == 'pull_request' }}
