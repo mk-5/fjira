@@ -6,11 +6,11 @@ In short - everyone is welcomed. Feel free to open PR with feature request or a 
 
 ### Branch name convention
 
-`feature|fix|misc|docs/short-branch-name`
+`feature|fix|misc|docs|refactor|build/short-branch-name`
 
 ### Commit message convention
 
-`feat|fix|misc|docs: my commit message goes here`
+`feat|fix|misc|docs|refactor|build: my commit message goes here`
 
 ### Project structure
 
