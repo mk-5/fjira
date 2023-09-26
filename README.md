@@ -16,11 +16,13 @@
 ## Features
 
 - Search for Jira Projects, and Issues
-- Changes Jira Issue assignee
-- Changes Jira Issue status
-- Supports multiple workspaces
-- Search for Jira Issues using custom JQL
-- Runs on MacOS, Linux and Windows
+- Change Jira Issue assignee
+- Update Jira Issue status
+- Append comments to Jira Issue
+- Multi-Workspace support
+- Perform custom searches using JQL
+- Access Jira Issues Directly via Command Line 
+- Cross-Platform Compatibility: macOS, Linux, and Windows
 
 ## Install
 
@@ -121,9 +123,10 @@ You can edit existing workspace using `--edit` flag.
 fjira workspace --edit abc
 ```
 
-### Jira Token Type 
+### Jira Token Type
 
-Jira Server, and Jira Cloud are using different kinds of tokens for authorization. Please check, which token do you have before 
+Jira Server, and Jira Cloud are using different kinds of tokens for authorization. Please check, which token do you have
+before
 workspace configuration. Fjira will ask you about Jira Token Type:
 
 ```shell
@@ -168,7 +171,6 @@ The app will skip all the screens, and it'll go to the issue view directly.
 You can open board-like view using the navigation buttons from the project menu.
 First open the project, and then press F4.
 
-
 ## Custom JQL View
 
 ![Fjira Custom JQL](demo_custom_jql.png)
@@ -179,7 +181,6 @@ You can write your custom JQLs, and use them to search for Jira issues.
 fjira jql
 ```
 
-
 ## The Future (TODO)
 
 - More docs
@@ -188,11 +189,14 @@ fjira jql
 
 #### Motivation
 
-I designed this tool with personal convenience in mind, motivated by a touch of laziness (and a genuine fondness for terminal tools).
+I designed this tool with personal convenience in mind, motivated by a touch of laziness (and a genuine fondness for
+terminal tools).
 
-It's a common scenario where you think to yourself, 'I just need to transition issue 123 to the next status.' While opening Jira, locating the ticket on the board, and navigating the Jira issue modal are all perfectly fine, they do consume a fair amount of time.
+It's a common scenario where you think to yourself, 'I just need to transition issue 123 to the next status.' While
+opening Jira, locating the ticket on the board, and navigating the Jira issue modal are all perfectly fine, they do
+consume a fair amount of time.
 
-I found it incredibly useful to execute such tasks directly from the terminal, especially since I'm likely to be working there anyway! 😝"
-
+I found it incredibly useful to execute such tasks directly from the terminal, especially since I'm likely to be working
+there anyway! 😝"
 
 Sooo, if you feel it the same way as me - I'd love to get some star from you 🤜🤛
