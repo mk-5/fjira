@@ -69,6 +69,45 @@ nfpms:
     deb:
       signature:
         key_file: '{{ .Env.HOME }}/.key'
+snapcrafts:
+  -
+    id: fjira
+    builds:
+      - fjira
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name: fjira
+    title: Fjira
+    icon: ./fjira.png
+    summary: Fuzzy finder and TUI application for Jira.
+    description: |
+          Fjira is a powerful terminal user interface (TUI) application designed to streamline your Jira workflow.
+          With its fuzzy-find capabilities, it simplifies the process of searching and accessing Jira issues,
+          making it easier than ever to locate and manage your tasks and projects efficiently.
+          Say goodbye to manual searching and hello to increased productivity with fjira.
+    channel_templates:
+      - edge
+      - beta
+      - candidate
+      - stable
+      - "{{ .Major }}.{{ .Minor }}/edge"
+      - "{{ .Major }}.{{ .Minor }}/beta"
+      - "{{ .Major }}.{{ .Minor }}/candidate"
+      - "{{ .Major }}.{{ .Minor }}/stable"
+    grade: stable
+    confinement: strict
+    license: "AGPL-3.0"
+    base: core18
+    assumes:
+      - snapd2.38
+    hooks:
+      install:
+        - network
+    plugs:
+      personal-files:
+        read:
+          - $HOME/.fjira
+        write:
+          - $HOME/.fjira
 chocolateys:
   -
     name: fjira
