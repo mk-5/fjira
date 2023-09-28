@@ -28,6 +28,8 @@ jobs:
           chmod +x /usr/local/bin/choco
         env:
           CHOCOLATEY_VERSION: 2.2.2
+      - name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v2
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
@@ -38,6 +40,8 @@ jobs:
         run: |
           echo $GPG_KEY | base64 --decode > "$HOME/.key"
           stat "$HOME/.key"
+          mkdir -p $HOME/.cache/snapcraft/download
+          mkdir -p $HOME/.cache/snapcraft/stage-packages
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v3
         with:
@@ -48,6 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
           CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
       - shell: bash
         run: |
           rm -rf "$HOME/.key"
