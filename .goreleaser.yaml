@@ -77,7 +77,6 @@ snapcrafts:
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     name: fjira
     title: Fjira
-    icon: ./fjira.png
     disable: false
     publish: true
     summary: Fuzzy finder and TUI application for Jira.
@@ -104,7 +103,7 @@ snapcrafts:
         # You can read the documentation about the available plugs and the
         # things they allow:
         # https://snapcraft.io/docs/supported-interfaces.
-        plugs: ["home", "network", "network-bind", personal-files"]
+        plugs: ["home", "network", "network-bind", "personal-files"]
 
     plugs:
       personal-files:
