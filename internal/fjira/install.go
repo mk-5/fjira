@@ -178,7 +178,7 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 		JiraRestUrl:   strings.TrimSpace(url),
 		JiraTokenType: jira.JiraTokenType(tokenTypeStr),
 	}
-	if existingSettings != nil && existingSettings.JiraUsername == "" {
+	if existingSettings != nil && settings.JiraUsername == "" {
 		settings.JiraUsername = existingSettings.JiraUsername
 	}
 	if existingSettings != nil && settings.JiraToken == "" {
