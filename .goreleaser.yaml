@@ -78,6 +78,8 @@ snapcrafts:
     name: fjira
     title: Fjira
     icon: ./fjira.png
+    disable: false
+    publish: true
     summary: Fuzzy finder and TUI application for Jira.
     description: |
           Fjira is a powerful terminal user interface (TUI) application designed to streamline your Jira workflow.
@@ -89,19 +91,21 @@ snapcrafts:
       - beta
       - candidate
       - stable
-      - "{{ .Major }}.{{ .Minor }}/edge"
-      - "{{ .Major }}.{{ .Minor }}/beta"
-      - "{{ .Major }}.{{ .Minor }}/candidate"
-      - "{{ .Major }}.{{ .Minor }}/stable"
     grade: stable
     confinement: strict
     license: "AGPL-3.0"
     base: core18
     assumes:
       - snapd2.38
-    hooks:
-      install:
-        - network
+    apps:
+      fjira:
+        # If your app requires extra permissions to work outside of its default
+        # confined space, declare them here.
+        # You can read the documentation about the available plugs and the
+        # things they allow:
+        # https://snapcraft.io/docs/supported-interfaces.
+        plugs: ["home", "network", "network-bind", personal-files"]
+
     plugs:
       personal-files:
         read:
