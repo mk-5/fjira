@@ -210,30 +210,10 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 		b.selectedIssueBottomBar.HandleKeyEvent(ev)
 	}
 	if ev.Key() == tcell.KeyRight || ev.Rune() == vimRight {
-		newColumn := b.statusesColumnsMap[b.highlightedIssue.Fields.Status.Id] + 1
-		if newColumn > len(b.statusesColumnsMap) {
-			return
-		}
-		b.cursorX = app.MinInt(len(b.columns), b.cursorX+1)
-		b.cursorY = 0
-		if b.issueSelected {
-			b.moveIssue(b.highlightedIssue, 1)
-			return
-		}
-		b.refreshHighlightedIssue()
+		b.moveCursorRight()
 	}
 	if ev.Key() == tcell.KeyLeft || ev.Rune() == vimLeft {
-		newColumn := b.statusesColumnsMap[b.highlightedIssue.Fields.Status.Id] - 1
-		if newColumn < 0 {
-			return
-		}
-		b.cursorX = app.MaxInt(0, b.cursorX-1)
-		b.cursorY = 0
-		if b.issueSelected {
-			b.moveIssue(b.highlightedIssue, -1)
-			return
-		}
-		b.refreshHighlightedIssue()
+		b.moveCursorLeft()
 	}
 	if ev.Key() == tcell.KeyUp || ev.Rune() == vimUp {
 		b.cursorY = app.MaxInt(0, b.cursorY-1)
@@ -243,6 +223,38 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 		// TODO - get number of issues in column
 		b.cursorY = app.MinInt(1000, b.cursorY+1)
 		b.refreshHighlightedIssue()
+	}
+}
+
+func (b *boardView) moveCursorRight() {
+	if b.cursorX+1 >= len(b.statusesColumnsMap) {
+		return
+	}
+	b.cursorX = app.MinInt(len(b.columns), b.cursorX+1)
+	b.cursorY = 0
+	if b.issueSelected {
+		b.moveIssue(b.highlightedIssue, 1)
+		return
+	}
+	// no issues in a column
+	if f := b.refreshHighlightedIssue(); !f {
+		b.moveCursorRight()
+	}
+}
+
+func (b *boardView) moveCursorLeft() {
+	if b.cursorX-1 < 0 {
+		return
+	}
+	b.cursorX = app.MaxInt(0, b.cursorX-1)
+	b.cursorY = 0
+	if b.issueSelected {
+		b.moveIssue(b.highlightedIssue, -1)
+		return
+	}
+	// no issues in a column
+	if f := b.refreshHighlightedIssue(); !f {
+		b.moveCursorLeft()
 	}
 }
 
@@ -288,16 +300,19 @@ func (b *boardView) refreshIssueTopBar() {
 	b.topBar.Resize(b.screenX, b.screenY)
 }
 
-func (b *boardView) refreshHighlightedIssue() {
+func (b *boardView) refreshHighlightedIssue() bool {
 	for i, issue := range b.issues {
 		y := b.issuesRow[issue.Id]
 		if b.issuesColumn[issue.Id] == b.cursorX && y-1 == b.cursorY {
 			if b.highlightedIssue.Key != issue.Key {
 				b.highlightedIssue = &b.issues[i]
 				b.refreshIssueTopBar()
+				b.ensureHighlightInViewport()
+				return true
 			}
 		}
 	}
+	return false
 }
 
 func (b *boardView) pointCursorTo(issueId string) {

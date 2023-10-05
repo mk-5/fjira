@@ -191,7 +191,7 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 			tcell.NewEventKey(tcell.KeyDown, 0, tcell.ModNone),
 			tcell.NewEventKey(tcell.KeyDown, 0, tcell.ModNone),
 			tcell.NewEventKey(tcell.KeyUp, 0, tcell.ModNone),
-		}}, 2, 1},
+		}}, 1, 1},
 		{"should handle key events and move cursor, and move issue using VIM keys", args{ev: []*tcell.EventKey{
 			tcell.NewEventKey(0, 'l', tcell.ModNone),
 			tcell.NewEventKey(0, 'l', tcell.ModNone),
@@ -200,7 +200,7 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 			tcell.NewEventKey(0, 'j', tcell.ModNone),
 			tcell.NewEventKey(0, 'j', tcell.ModNone),
 			tcell.NewEventKey(0, 'k', tcell.ModNone),
-		}}, 2, 1},
+		}}, 1, 1},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -239,9 +239,14 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 			view.statusesColumnsMap["1"] = 1
 			view.statusesColumnsMap["2"] = 2
 			view.statusesColumnsMap["3"] = 3
-			view.issues = []jira.Issue{{Id: "1", Fields: jira.IssueFields{Status: jira.Status{Id: "1"}}}}
+			view.issues = []jira.Issue{
+				{Id: "1", Key: "I1", Fields: jira.IssueFields{Status: jira.Status{Id: "1"}}},
+				{Id: "2", Key: "I2", Fields: jira.IssueFields{Status: jira.Status{Id: "0"}}},
+				{Id: "3", Key: "I3", Fields: jira.IssueFields{Status: jira.Status{Id: "2"}}},
+			}
 			view.highlightedIssue = &view.issues[0]
 			view.columns = []string{"a", "b", "c", "d"}
+			view.Refresh()
 
 			// when
 			app.GetApp().Loading(false)
