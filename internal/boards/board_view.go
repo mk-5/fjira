@@ -10,11 +10,13 @@ import (
 )
 
 const (
-	topMargin = 2 // 1 for navigation
-	vimLeft   = 'h'
-	vimDown   = 'j'
-	vimUp     = 'k'
-	vimRight  = 'l'
+	topMargin           = 2 // 1 for navigation
+	vimLeft             = 'h'
+	vimDown             = 'j'
+	vimUp               = 'k'
+	vimRight            = 'l'
+	maxIssuesNumber     = 500
+	issueFetchBatchSize = 100
 )
 
 var (
@@ -165,13 +167,22 @@ func (b *boardView) Resize(screenX, screenY int) {
 
 func (b *boardView) Init() {
 	app.GetApp().Loading(true)
-	iss, err := b.api.SearchJql(b.filterJQL)
-	if err != nil {
-		app.GetApp().Loading(false)
-		app.Error(err.Error())
-		return
+	b.issues = make([]jira.Issue, 0, maxIssuesNumber)
+	page := int32(0)
+	// TODO - cursorY scrolling needs to be added in order to scroll long columns
+	for len(b.issues) < maxIssuesNumber {
+		iss, total, _, err := b.api.SearchJqlPageable(b.filterJQL, page, issueFetchBatchSize)
+		if err != nil {
+			app.GetApp().Loading(false)
+			app.Error(err.Error())
+			return
+		}
+		b.issues = append(b.issues, iss...)
+		if len(b.issues) >= int(total) {
+			break
+		}
+		page++
 	}
-	b.issues = iss
 	b.refreshIssuesSummaries()
 	b.refreshIssuesRows()
 	b.refreshHighlightedIssue()
