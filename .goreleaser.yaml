@@ -103,14 +103,8 @@ snapcrafts:
         # You can read the documentation about the available plugs and the
         # things they allow:
         # https://snapcraft.io/docs/supported-interfaces.
-        plugs: ["home", "network", "network-bind", "personal-files"]
+        plugs: ["home", "network", "network-bind"]
 
-    plugs:
-      personal-files:
-        read:
-          - $HOME/.fjira
-        write:
-          - $HOME/.fjira
 chocolateys:
   -
     name: fjira
