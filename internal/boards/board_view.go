@@ -53,6 +53,7 @@ type boardView struct {
 	cursorY                int
 	screenX, screenY       int
 	scrollX                int
+	scrollY                int
 	columnSize             int
 }
 
@@ -109,28 +110,28 @@ func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfigura
 }
 
 func (b *boardView) Draw(screen tcell.Screen) {
-	b.topBar.Draw(screen)
-	b.tmpX = 0
-	for _, column := range b.columns {
-		app.DrawText(screen, b.tmpX-b.scrollX, topMargin, columnHeaderStyle, centerString(column, b.columnSize))
-		b.tmpX += b.columnSize + 1
-	}
 	if len(b.issues) == 0 {
+		b.drawColumnsHeaders(screen)
+		b.topBar.Draw(screen)
 		return
 	}
 	for _, issue := range b.issues {
 		column := b.statusesColumnsMap[issue.Fields.Status.Id]
 		x := b.columnsX[column]
 		y := b.issuesRow[issue.Id]
+		// do not draw issues at the bottom of top-bar&headers
+		if y+topMargin-b.scrollY < topMargin {
+			continue
+		}
 		if b.highlightedIssue.Id == issue.Id {
 			var style = &cursorIssueStyle
 			if b.issueSelected {
 				style = &selectedIssueStyle
 			}
-			app.DrawTextLimited(screen, x-b.scrollX, y+topMargin, x+b.columnSize-b.scrollX, y+1+topMargin, *style, b.issuesSummaries[issue.Id])
+			app.DrawTextLimited(screen, x-b.scrollX, y+topMargin-b.scrollY, x+b.columnSize-b.scrollX, y+1+topMargin, *style, b.issuesSummaries[issue.Id])
 			continue
 		}
-		app.DrawTextLimited(screen, x-b.scrollX, y+topMargin, x+b.columnSize-b.scrollX, y+1+topMargin, issueStyle, b.issuesSummaries[issue.Id])
+		app.DrawTextLimited(screen, x-b.scrollX, y+topMargin-b.scrollY, x+b.columnSize-b.scrollX, y+1+topMargin, issueStyle, b.issuesSummaries[issue.Id])
 	}
 	if b.highlightedIssue != nil {
 		app.DrawText(screen, 0, 1, titleStyle, app.WriteIndicator)
@@ -141,6 +142,8 @@ func (b *boardView) Draw(screen tcell.Screen) {
 	} else {
 		b.selectedIssueBottomBar.Draw(screen)
 	}
+	b.drawColumnsHeaders(screen)
+	b.topBar.Draw(screen)
 	b.ensureHighlightInViewport()
 }
 
@@ -169,7 +172,6 @@ func (b *boardView) Init() {
 	app.GetApp().Loading(true)
 	b.issues = make([]jira.Issue, 0, maxIssuesNumber)
 	page := int32(0)
-	// TODO - cursorY scrolling needs to be added in order to scroll long columns
 	for len(b.issues) < maxIssuesNumber {
 		iss, total, _, err := b.api.SearchJqlPageable(b.filterJQL, page, issueFetchBatchSize)
 		if err != nil {
@@ -237,6 +239,14 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 	}
 }
 
+func (b *boardView) drawColumnsHeaders(screen tcell.Screen) {
+	b.tmpX = 0
+	for _, column := range b.columns {
+		app.DrawText(screen, b.tmpX-b.scrollX, topMargin, columnHeaderStyle, centerString(column, b.columnSize))
+		b.tmpX += b.columnSize + 1
+	}
+}
+
 func (b *boardView) moveCursorRight() {
 	if b.cursorX+1 >= len(b.statusesColumnsMap) {
 		return
@@ -250,7 +260,9 @@ func (b *boardView) moveCursorRight() {
 	// no issues in a column
 	if f := b.refreshHighlightedIssue(); !f {
 		b.moveCursorRight()
+		return
 	}
+	b.scrollY = 0
 }
 
 func (b *boardView) moveCursorLeft() {
@@ -266,7 +278,9 @@ func (b *boardView) moveCursorLeft() {
 	// no issues in a column
 	if f := b.refreshHighlightedIssue(); !f {
 		b.moveCursorLeft()
+		return
 	}
+	b.scrollY = 0
 }
 
 func (b *boardView) handleActions() {
@@ -398,6 +412,9 @@ func (b *boardView) ensureHighlightInViewport() {
 	}
 	if b.scrollX+(b.cursorX*b.columnSize)+b.columnSize > b.screenX { // highlighted issue out of screen
 		b.scrollX = app.MaxInt(0, (b.cursorX-2)*b.columnSize)
+	}
+	if b.scrollY+b.cursorY > b.scrollY { // highlighted issue out of screen
+		b.scrollY = app.MaxInt(0, b.cursorY-2)
 	}
 }
 
