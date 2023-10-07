@@ -9,7 +9,7 @@ import (
 func GetIssueCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "[issueKey]",
-		Short: "Open jira issue directly from the cli",
+		Short: "Open a Jira issue directly from the CLI",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			s := cmd.Context().Value(CtxWorkspaceSettings).(*workspaces.WorkspaceSettings)

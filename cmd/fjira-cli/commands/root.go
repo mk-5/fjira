@@ -57,7 +57,7 @@ Say goodbye to manual searching and hello to increased productivity with fjira.`
 			return nil
 		},
 	}
-	cmd.AddCommand(&cobra.Command{Use: "", Short: "Open fuzzy-find for projects as a default action"})
-	cmd.LocalFlags().StringP("project", "p", "", "Open project directly from cli")
+	cmd.AddCommand(&cobra.Command{Use: "", Short: "Open a fuzzy finder for projects as a default action"})
+	cmd.LocalFlags().StringP("project", "p", "", "Open a project directly from CLI")
 	return cmd
 }

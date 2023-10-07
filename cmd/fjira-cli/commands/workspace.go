@@ -11,7 +11,7 @@ import (
 func GetWorkspaceCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workspace",
-		Short: "Switch workspace to another",
+		Short: "Switch to a different workspace",
 		Run: func(cmd *cobra.Command, args []string) {
 			edit, _ := cmd.Flags().GetString("edit")
 			n, _ := cmd.Flags().GetString("new")

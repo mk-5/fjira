@@ -1,4 +1,4 @@
-# Fjira - the fuzziest Jira command line tool in the world.
+# Fjira - Fuzzy finder and TUI application for Jira.
 
 <img src="fjira.png" alt="drawing" width="256"/>
 
@@ -9,24 +9,26 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/mk-5/fjira.svg)](https://pkg.go.dev/github.com/mk-5/fjira)
 [![codecov](https://codecov.io/gh/mk-5/fjira/branch/master/graph/badge.svg?token=MJBTMYGQQW)](https://codecov.io/gh/mk-5/fjira)
 
-## Demo
+## Introduction
+
+Fjira is a powerful command-line tool designed to simplify your interactions with Jira. Whether you're a developer, project manager, or just a Jira enthusiast, Fjira streamlines your workflow, making Jira tasks more efficient than ever before.
 
 ![Fjira Demo](demo.gif)
 
-## Features
+## Key Features
 
-- Search for Jira Projects, and Issues
-- Change Jira Issue assignee
-- Update Jira Issue status
-- Append comments to Jira Issue
-- Multi-Workspace support
-- Perform custom searches using JQL
-- Access Jira Issues Directly via Command Line 
-- Cross-Platform Compatibility: macOS, Linux, and Windows
+- **Fuzzy-find like interface:** Search for Jira projects and issues with ease.
+- **Assignee Control:** Quickly change issue assignees without navigating the Jira interface.
+- **Status Updates:** Update Jira issue statuses directly from your terminal.
+- **Efficient Comments:** Easily append comments to Jira issues.
+- **Multi-Workspace Support:** Manage multiple Jira workspaces effortlessly.
+- **Custom Searches:** Use Jira Query Language (JQL) for tailored searches.
+- **Direct CLI Access:** Access Jira issues directly from the command line.
+- **Cross-Platform Compatibility:** Works seamlessly on macOS, Linux, and Windows.
 
-## Install
+## Installation
 
-### Mac OS
+### macOS
 
 ```shell
 brew tap mk-5/mk-5
@@ -35,9 +37,6 @@ brew install fjira
 
 ### Linux
 
-Go to [https://github.com/mk-5/fjira/releases/latest](https://github.com/mk-5/fjira/releases/latest), and check the
-latest release version.
-
 #### Ubuntu/Snap
 
 ```shell
@@ -45,6 +44,9 @@ snap install fjira
 ```
 
 #### Deb
+
+Visit [https://github.com/mk-5/fjira/releases/latest](https://github.com/mk-5/fjira/releases/latest), and grab the
+latest release version.
 
 ```shell
 sudo dpkg -i fjira_0.4.0_linux_amd64.deb
@@ -78,12 +80,12 @@ Usage:
   fjira [command]
 
 Available Commands:
-  [issueKey]  Open jira issue directly from the cli
+  [issueKey]  Open a Jira issue directly from the CLI
   completion  Generate the autocompletion script for the specified shell
   help        Help about any command
-  jql         Search using custom-jql
+  jql         Search using custom JQL queries
   version     Print the version number of fjira
-  workspace   Switch workspace to another
+  workspace   Switch to a different workspace
 
 Flags:
   -h, --help             help for fjira
@@ -97,7 +99,7 @@ Use "fjira [command] --help" for more information about a command.
 
 ## Getting Started
 
-The CLI Jira interface is pretty straightforward. Just run `fjira` in your terminal.
+Using the Fjira CLI is straightforward. Simply run fjira in your terminal.
 
 ```shell
 fjira
@@ -105,25 +107,23 @@ fjira
 
 ## Workspaces
 
-Fjira will ask you about Jira API url, and token if you run fjira for the very first time.
+The first time you run Fjira, it will prompt you for your Jira API URL and token.
 
 ![Fjira First Run](demo_first_run.gif)
 
-Fjira workspace is a set of jira configuration data, and it's kept in simple yaml file under `~/.fjira` directory.
-You can switch within multiple workspaces using `fjira workspace` command.
+Fjira workspaces store Jira configuration data in a simple YAML file located at `~/.fjira`. You can switch between multiple workspaces using the `fjira workspace` command.
 
 ```shell
 fjira workspace
 ```
 
-It will open a fuzzy finder with all available workspaces.
-In order to create a new workspace you need to use following command:
+To create a new workspace, use the following command:
 
 ```shell
 fjira workspace --new abc
 ```
 
-You can edit existing workspace using `--edit` flag.
+You can edit an existing workspace using the `--edit` flag:
 
 ```shell
 fjira workspace --edit abc
@@ -131,9 +131,7 @@ fjira workspace --edit abc
 
 ### Jira Token Type
 
-Jira Server, and Jira Cloud are using different kinds of tokens for authorization. Please check, which token do you have
-before
-workspace configuration. Fjira will ask you about Jira Token Type:
+Fjira supports both Jira Server and Jira Cloud, which use different token types for authorization. The tool will prompt you to select the appropriate token type during workspace configuration.
 
 ```shell
 ? Jira Token Type:
@@ -146,63 +144,58 @@ Enter a number (Default is 1):
 
 ## Projects search
 
-The projects search is a default view, just run `fjra` in order to open it.
+The default view when you run `fjira` is the project search screen.
 
 ```shell
 fjira
 ```
 
-## Open concrete project directly from cli
+## Opening a Specific Project
 
-You can open a project directly from cli.
+You can open a project directly from the CLI:
 
 ```shell
 fjira --project=PROJ
 ```
 
-The fjira app will skip projects search screen, and it'll go to the next screen with issues search.
+This will skip the project search screen and take you directly to the issues search screen.
 
-## Open issue directly from cli
+## Opening an Issue Directly
+
+To open an issue directly from the CLI:
 
 ```shell
 fjira PROJ-123
 ```
 
-The app will skip all the screens, and it'll go to the issue view directly.
+Fjira will skip all intermediate screens and take you directly to the issue view.
 
-## Board View
+
+## Boards View
+
+Fjira also offers a board-like view. After opening a project, press F4 to access this view.
 
 ![Fjira Board View](demo_board_view.png)
 
-You can open board-like view using the navigation buttons from the project menu.
-First open the project, and then press F4.
+## Custom JQL Queries
 
-## Custom JQL View
+You can create and execute custom JQL queries with Fjira:
 
 ![Fjira Custom JQL](demo_custom_jql.png)
 
-You can write your custom JQLs, and use them to search for Jira issues.
+## Roadmap (TODO)
 
-```shell
-fjira jql
-```
+- Expand Documentation
+- Support Additional Linux Package Managers (Apt, AUR, YUM)
+- Introduce More Jira Features
 
-## The Future (TODO)
+## Motivation
 
-- More docs
-- Support Linux packages managers nonsense aka. Snapcraft, Deb, AUR
-- More Jira features ;)
+Fjira was designed for personal convenience, born out of a desire for efficiency and a love for terminal tools.
+Often, we find ourselves in "I just need to transition issue 123 to the next status." While opening Jira, locating the ticket on the board, and navigating the Jira issue modal are all perfectly fine, they do consume a fair amount of time.
 
-#### Motivation
+Fjira empowers you to execute such tasks directly from the terminal, where you're likely already working! 😄
 
-I designed this tool with personal convenience in mind, motivated by a touch of laziness (and a genuine fondness for
-terminal tools).
+If Fjira enhances your Jira experience as it did mine, please consider giving it a star on GitHub. 🌟 It will power-up me for a future work.
 
-It's a common scenario where you think to yourself, 'I just need to transition issue 123 to the next status.' While
-opening Jira, locating the ticket on the board, and navigating the Jira issue modal are all perfectly fine, they do
-consume a fair amount of time.
-
-I found it incredibly useful to execute such tasks directly from the terminal, especially since I'm likely to be working
-there anyway! 😝"
-
-Sooo, if you feel it the same way as me - I'd love to get some star from you 🤜🤛
+Feel free to contribute to this project and help shape its future! Your feedback and contributions are highly appreciated.

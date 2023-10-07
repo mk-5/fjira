@@ -9,7 +9,7 @@ import (
 func GetJqlCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "jql",
-		Short: "Search using custom-jql",
+		Short: "Search using custom JQL queries",
 		Run: func(cmd *cobra.Command, args []string) {
 			s := cmd.Context().Value(CtxWorkspaceSettings).(*workspaces.WorkspaceSettings)
 			f := fjira.CreateNewFjira(s)
