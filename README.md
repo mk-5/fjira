@@ -38,6 +38,12 @@ brew install fjira
 Go to [https://github.com/mk-5/fjira/releases/latest](https://github.com/mk-5/fjira/releases/latest), and check the
 latest release version.
 
+#### Ubuntu/Snap
+
+```shell
+snap install fjira
+```
+
 #### Deb
 
 ```shell
