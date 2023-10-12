@@ -626,3 +626,37 @@ func TestNewIssuesSearchView_fjiraIssueView_goIntoIssueVIew(t *testing.T) {
 		})
 	}
 }
+
+func Test_fjiraSearchIssuesView_reopen(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+	RegisterGoTo()
+
+	type args struct {
+		customJql string
+	}
+
+	tests := []struct {
+		name           string
+		args           args
+		expectedScreen string
+	}{
+		{"should find project labels", args{customJql: ""}, "issues-search"},
+		{"should find project labels", args{customJql: "abc"}, "issues-search-jql"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			app.InitTestApp(screen)
+			api := jira.NewJiraApiMock(nil)
+			view := NewIssuesSearchView(&jira.Project{Id: "TEST", Key: "TEST", Name: "TEST"}, nil, api).(*searchIssuesView)
+			view.customJql = tt.args.customJql
+
+			// when
+			view.reopen()
+
+			assert.Equal(t, tt.expectedScreen, app.CurrentScreenName())
+		})
+	}
+}

@@ -83,6 +83,7 @@ Usage:
 Available Commands:
   [issueKey]  Open a Jira issue directly from the CLI
   completion  Generate the autocompletion script for the specified shell
+  filters     Search using Jira filters
   help        Help about any command
   jql         Search using custom JQL queries
   version     Print the version number of fjira
@@ -90,10 +91,10 @@ Available Commands:
 
 Flags:
   -h, --help             help for fjira
-  -p, --project string   Open project directly from cli
+  -p, --project string   Open a project directly from CLI
 
 Additional help topics:
-  fjira            Open fuzzy-find for projects as a default action
+  fjira            Open a fuzzy finder for projects as a default action
 
 Use "fjira [command] --help" for more information about a command.
 ```
@@ -182,11 +183,24 @@ Fjira also offers a board-like view. After opening a project, press F4 to access
 
 You can create and execute custom JQL queries with Fjira:
 
+```shell
+fjira jql
+```
+
 ![Fjira Custom JQL](demo_custom_jql.png)
+
+## My Jira Filters
+
+You can search using your stored Jira Filters:
+
+```shell
+fjira filters
+```
 
 ## Roadmap (TODO)
 
 - Expand Documentation
+- Create&Delete Jira Filters 
 - Support Additional Linux Package Managers (Apt, AUR, YUM)
 - Introduce More Jira Features
 

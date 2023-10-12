@@ -20,6 +20,7 @@ func initCli() {
 	rootCmd.AddCommand(commands.GetIssueCmd())
 	rootCmd.AddCommand(commands.GetWorkspaceCmd())
 	rootCmd.AddCommand(commands.GetJqlCmd())
+	rootCmd.AddCommand(commands.GetFiltersCmd())
 	rootCmd.AddCommand(commands.GetVersionCmd(version))
 
 	if err := rootCmd.Execute(); err != nil {
