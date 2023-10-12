@@ -49,6 +49,12 @@ func TestFjira_bootstrap(t *testing.T) {
 				return app.CurrentScreenName() == "jql"
 			},
 		}},
+		{"should switch to filters view", args{
+			cliArgs: CliArgs{FiltersMode: true},
+			viewPredicate: func() bool {
+				return app.CurrentScreenName() == "filters"
+			},
+		}},
 		{"should switch to projects search by default", args{
 			cliArgs: CliArgs{},
 			viewPredicate: func() bool {

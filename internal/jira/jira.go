@@ -25,6 +25,7 @@ type Api interface {
 	FindBoards(projectKeyOrId string) ([]BoardItem, error)
 	GetBoardConfiguration(boardId int) (*BoardConfiguration, error)
 	GetFilter(filterId string) (*Filter, error)
+	GetMyFilters() ([]Filter, error)
 	Close()
 	GetApiUrl() string
 }
@@ -168,9 +169,10 @@ type BoardConfiguration struct {
 }
 
 type Filter struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-	JQL  string `json:"jql"`
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	JQL       string `json:"jql"`
+	Favourite bool   `json:"favourite"`
 }
 
 type ApiCredentials struct {

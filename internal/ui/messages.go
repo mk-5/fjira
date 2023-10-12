@@ -26,6 +26,7 @@ const (
 	MessageSelectUser                = "Select user or ESC to cancel"
 	MessageSelectLabel               = "Select label or ESC to cancel"
 	MessageSelectBoard               = "Select board or ESC to cancel"
+	MessageSelectFilter              = "Select filter or ESC to cancel"
 	MessageSearchProjectsLoading     = "Fetching projects"
 	MessageSelectProject             = "Select project or ESC to exit"
 	MessageChangingAssigneeTo        = "Are you sure about changing %s assignee to [%s]?"

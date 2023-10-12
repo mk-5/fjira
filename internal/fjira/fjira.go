@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/boards"
+	"github.com/mk-5/fjira/internal/filters"
 	"github.com/mk-5/fjira/internal/issues"
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/labels"
@@ -46,6 +47,7 @@ type CliArgs struct {
 	WorkspaceSwitch bool
 	WorkspaceEdit   bool
 	JqlMode         bool
+	FiltersMode     bool
 }
 
 var (
@@ -99,6 +101,7 @@ func (f *Fjira) registerGoTos() {
 	workspaces.RegisterGoTo()
 	boards.RegisterGoTo()
 	ui.RegisterGoTo()
+	filters.RegisterGoTo()
 }
 
 func (f *Fjira) bootstrap(args *CliArgs) {
@@ -119,6 +122,10 @@ func (f *Fjira) bootstrap(args *CliArgs) {
 	}
 	if args.JqlMode {
 		app.GoTo("jql", f.api)
+		return
+	}
+	if args.FiltersMode {
+		app.GoTo("filters", f.api)
 		return
 	}
 	time.Sleep(350 * time.Millisecond)

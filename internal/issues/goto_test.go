@@ -38,7 +38,7 @@ func TestGoIntoIssues(t *testing.T) {
 			},
 		}},
 		{"should switch view into issues view with jql", args{
-			gotoMethod: func() { app.GoTo("issues-search-jql", "test jql", jira.NewJiraApiMock(nil)) },
+			gotoMethod: func() { app.GoTo("issues-search-jql", "test jql", func() {}, jira.NewJiraApiMock(nil)) },
 			viewPredicate: func() bool {
 				return app.CurrentScreenName() == "issues-search-jql"
 			},

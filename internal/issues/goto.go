@@ -71,10 +71,12 @@ func RegisterGoTo() {
 	app.RegisterGoto(issuesSearchJql, func(args ...interface{}) {
 		defer app.GetApp().PanicRecover()
 		jql := args[0].(string)
-		api := args[1].(jira.Api)
-		issuesSearchView := NewIssuesSearchViewWithCustomJql(jql, func() {
-			app.GoTo("jql", api)
-		}, api)
+		var goBackFn func()
+		if fn, ok := args[1].(func()); ok {
+			goBackFn = fn
+		}
+		api := args[2].(jira.Api)
+		issuesSearchView := NewIssuesSearchViewWithCustomJql(jql, goBackFn, api)
 		app.GetApp().SetView(issuesSearchView)
 	})
 	app.RegisterGoto(jql, func(args ...interface{}) {

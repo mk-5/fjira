@@ -281,7 +281,7 @@ func (view *searchIssuesView) runSelectBoard() {
 
 func (view *searchIssuesView) reopen() {
 	if view.customJql != "" {
-		app.GoTo("issues-search-jql", view.customJql, view.api)
+		app.GoTo("issues-search-jql", view.customJql, view.goBackFn, view.api)
 		return
 	}
 	app.GoTo("issues-search", view.project.Id, view.goBackFn, view.api)
