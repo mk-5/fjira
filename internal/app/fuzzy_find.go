@@ -12,23 +12,24 @@ import (
 )
 
 type FuzzyFind struct {
-	MarginTop        int
-	MarginBottom     int
-	Complete         chan FuzzyFindResult
-	records          []string
-	recordsProvider  func(query string) []string
-	query            string
-	fuzzyStatus      string
-	title            string
-	matches          fuzzy.Matches
-	matchesAll       fuzzy.Matches
-	buffer           bytes.Buffer
-	dirty            bool
-	selected         int
-	screenX          int
-	screenY          int
-	supplierDebounce func(f func())
-	debounceDisabled bool
+	MarginTop         int
+	MarginBottom      int
+	Complete          chan FuzzyFindResult
+	records           []string
+	recordsProvider   func(query string) []string
+	query             string
+	fuzzyStatus       string
+	title             string
+	matches           fuzzy.Matches
+	matchesAll        fuzzy.Matches
+	buffer            bytes.Buffer
+	dirty             bool
+	selected          int
+	screenX           int
+	screenY           int
+	supplierDebounce  func(f func())
+	debounceDisabled  bool
+	disableFuzzyMatch bool
 }
 
 type FuzzyFindResult struct {
@@ -40,7 +41,7 @@ const (
 	ResultsMarginBottom     = 3
 	WriteIndicator          = "> "
 	MaxResults              = 4096
-	DynamicSupplierDebounce = 50 * time.Millisecond
+	DefaultSupplierDebounce = 50 * time.Millisecond
 	SearchResultsPivot      = 6
 )
 
@@ -63,38 +64,40 @@ func NewFuzzyFind(title string, records []string) *FuzzyFind {
 		})
 	}
 	return &FuzzyFind{
-		Complete:         make(chan FuzzyFindResult),
-		records:          records,
-		query:            EmptyLine,
-		fuzzyStatus:      "0/0",
-		matches:          nil,
-		selected:         0,
-		dirty:            true,
-		matchesAll:       matchesAll,
-		recordsProvider:  nil,
-		title:            title,
-		MarginTop:        0,
-		MarginBottom:     1,
-		debounceDisabled: false,
+		Complete:          make(chan FuzzyFindResult),
+		records:           records,
+		query:             EmptyLine,
+		fuzzyStatus:       "0/0",
+		matches:           nil,
+		selected:          0,
+		dirty:             true,
+		matchesAll:        matchesAll,
+		recordsProvider:   nil,
+		title:             title,
+		MarginTop:         0,
+		MarginBottom:      1,
+		debounceDisabled:  false,
+		disableFuzzyMatch: false,
 	}
 }
 
 func NewFuzzyFindWithProvider(title string, recordsProvider func(query string) []string) *FuzzyFind {
 	return &FuzzyFind{
-		Complete:         make(chan FuzzyFindResult),
-		records:          nil,
-		query:            "init",
-		fuzzyStatus:      "0/0",
-		matches:          nil,
-		selected:         0,
-		dirty:            true,
-		matchesAll:       make(fuzzy.Matches, 0, MaxResults),
-		recordsProvider:  recordsProvider,
-		supplierDebounce: debounce.New(DynamicSupplierDebounce),
-		title:            title,
-		MarginTop:        0,
-		MarginBottom:     1,
-		debounceDisabled: false,
+		Complete:          make(chan FuzzyFindResult),
+		records:           nil,
+		query:             "init",
+		fuzzyStatus:       "0/0",
+		matches:           nil,
+		selected:          0,
+		dirty:             true,
+		matchesAll:        make(fuzzy.Matches, 0, MaxResults),
+		recordsProvider:   recordsProvider,
+		supplierDebounce:  debounce.New(DefaultSupplierDebounce),
+		title:             title,
+		MarginTop:         0,
+		MarginBottom:      1,
+		debounceDisabled:  false,
+		disableFuzzyMatch: false,
 	}
 }
 
@@ -130,7 +133,7 @@ func (f *FuzzyFind) Update() {
 		}
 	}
 	f.query = buff
-	if len(f.query) == 0 {
+	if len(f.query) == 0 || f.disableFuzzyMatch {
 		f.matches = f.matchesAll
 	} else {
 		f.matches = fuzzy.Find(f.query, f.records)
@@ -189,6 +192,19 @@ func (f *FuzzyFind) GetQuery() string {
 	return f.query
 }
 
+func (f *FuzzyFind) SetQuery(q string) {
+	f.buffer.WriteString(q)
+	f.dirty = true
+}
+
+func (f *FuzzyFind) AlwaysShowAllResults() {
+	// it's a bit weird feature ... to disable fuzzy match in fuzzy finder
+	// maybe part of the logic should be extracted from that fuzzy finder
+	// and then simple "records table" could be displayed without fuzzy-find functionality, and
+	// without such a weird stuff
+	f.disableFuzzyMatch = true
+}
+
 func (f *FuzzyFind) GetSelectedItem() string {
 	if len(f.records) == 0 {
 		return ""
@@ -198,6 +214,10 @@ func (f *FuzzyFind) GetSelectedItem() string {
 
 func (f *FuzzyFind) SetDebounceDisabled(b bool) {
 	f.debounceDisabled = b
+}
+
+func (f *FuzzyFind) SetDebounceMs(d time.Duration) {
+	f.supplierDebounce = debounce.New(d)
 }
 
 func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
