@@ -6,8 +6,8 @@ import (
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	os2 "github.com/mk-5/fjira/internal/os"
-	"github.com/mk-5/fjira/internal/ui"
 	"github.com/stretchr/testify/assert"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -26,15 +26,115 @@ func TestNewJqlSearchView(t *testing.T) {
 	tests := []struct {
 		name string
 	}{
-		{"should render the view"},
+		{"should render issues returned by jql query"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
 			screen := prepareTestScreen(t)
 			defer screen.Fini()
-			view := NewJqlSearchView(jira.NewJiraApiMock(nil)).(*jqlSearchView)
-			err := view.jqlStorage.addNew("test jql query")
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				_, _ = w.Write([]byte(`{
+    "expand": "schema,names",
+    "startAt": 0,
+    "maxResults": 100,
+    "total": 3,
+    "issues": [
+        {
+            "key": "ISSUE-1",
+            "fields": {
+                "summary": "Issue summary 1",
+                "issuetype": {
+                    "name": "Task"
+                },
+                "project": {
+                    "key": "ISSUE",
+                    "name": "Issues"
+                },
+                "reporter": {
+                    "emailAddress": "test@test.pl",
+                    "displayName": "Test",
+                    "active": true,
+                    "timeZone": "Europe/Warsaw",
+                    "accountType": "atlassian"
+                },
+                "assignee": {
+                    "emailAddress": "test@test.pl",
+                    "displayName": "Test",
+                    "active": true,
+                    "timeZone": "Europe/Warsaw",
+                    "accountType": "atlassian"
+                },
+                "status": {
+                    "name": "In Progress"
+                }
+            }
+        },
+        {
+            "key": "ISSUE-2",
+            "fields": {
+                "summary": "Issue summary 2",
+                "issuetype": {
+                    "name": "Task"
+                },
+                "project": {
+                    "key": "ISSUE",
+                    "name": "Issues"
+                },
+                "reporter": {
+                    "emailAddress": "test@test.pl",
+                    "displayName": "Test",
+                    "active": true,
+                    "timeZone": "Europe/Warsaw",
+                    "accountType": "atlassian"
+                },
+                "assignee": {
+					"emailAddress": "test@test.pl",
+                    "displayName": "Test",
+                    "active": true,
+                    "timeZone": "Europe/Warsaw",
+                    "accountType": "atlassian"
+                },
+                "status": {
+                    "name": "In Progress"
+                }
+            }
+        },
+        {
+            "key": "ISSUE-3",
+            "fields": {
+                "summary": "Issue test 3",
+                "issuetype": {
+                    "name": "Task"
+                },
+                "project": {
+                    "key": "ISSUE",
+                    "name": "Issues"
+                },
+                "reporter": {
+                    "emailAddress": "test@test.pl",
+                    "displayName": "Test",
+                    "active": true,
+                    "timeZone": "Europe/Warsaw",
+                    "accountType": "atlassian"
+                },
+                "assignee": {
+					"emailAddress": "test@test.pl",
+                    "displayName": "Test",
+                    "active": true,
+                    "timeZone": "Europe/Warsaw",
+                    "accountType": "atlassian"
+                },
+                "status": {
+                    "name": "In Progress"
+                }
+            }
+        }
+    ]
+}`)) //nolint:errcheck
+			})
+			view := NewJqlSearchView(api).(*jqlSearchView)
 
 			// when
 			view.Init()
@@ -61,166 +161,12 @@ func TestNewJqlSearchView(t *testing.T) {
 			result := strings.TrimSpace(buffer.String())
 
 			// then
-			assert.Nil(t, err)
-			assert.Contains(t, result, "test jql query", "should contain jql from storage")
+			assert.Contains(t, result, "ISSUE-1")
+			assert.Contains(t, result, "ISSUE-2")
+			assert.Contains(t, result, "ISSUE-3")
 
 			// and then
 			view.Destroy()
-		})
-	}
-}
-
-func Test_fjiraJqlSearchView_confirmJqlDelete(t *testing.T) {
-	type args struct {
-		jql string
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{"should confirm jql delete", args{jql: "test jql"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// given
-			screen := prepareTestScreen(t)
-			defer screen.Fini()
-			view := NewJqlSearchView(jira.NewJiraApiMock(nil)).(*jqlSearchView)
-			_ = view.jqlStorage.addNew(tt.args.jql)
-			jqls, _ := view.jqlStorage.readAll()
-			assert.Contains(t, jqls, tt.args.jql) // ensure that jql is added
-
-			// when
-			done := make(chan struct{})
-			started := make(chan struct{})
-			go func() {
-				started <- struct{}{}
-				view.confirmJqlDelete(tt.args.jql)
-				done <- struct{}{}
-			}()
-			<-started
-			<-time.After(200 * time.Millisecond)
-			if confirmation, ok := (app.GetApp().LastDrawable()).(app.KeyListener); ok {
-				confirmation.HandleKeyEvent(tcell.NewEventKey(tcell.KeyACK, 'y', tcell.ModNone))
-			}
-			view.Update()
-			<-done
-
-			// then
-			jqls2, _ := view.jqlStorage.readAll()
-			assert.NotContains(t, jqls2, tt.args.jql)
-		})
-	}
-}
-
-func Test_fjiraJqlSearchView_handleCancelActionWithQuit(t *testing.T) {
-	type args struct {
-		fuzzyFind *app.FuzzyFind
-		appQuit   bool
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{"should handle CANCEL and quit", args{fuzzyFind: nil, appQuit: false}},
-		{"should handle CANCEL stay in the app", args{fuzzyFind: app.NewFuzzyFind("test", []string{}), appQuit: true}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// given
-			screen := prepareTestScreen(t)
-			defer screen.Fini()
-
-			view := NewJqlSearchView(jira.NewJiraApiMock(nil)).(*jqlSearchView)
-			view.fuzzyFind = tt.args.fuzzyFind
-
-			// when
-			go view.handleBottomBarActions()
-			<-time.After(100 * time.Millisecond)
-			go view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEscape, 'e', tcell.ModNone))
-
-			// then
-			<-time.After(100 * time.Millisecond)
-			assert.Equal(t, tt.args.appQuit, app.GetApp().IsQuit())
-		})
-	}
-}
-
-func Test_fjiraJqlSearchView_handleNewJqlAction(t *testing.T) {
-	tests := []struct {
-		name string
-	}{
-		{"should handle new JQL action"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// given
-			screen := prepareTestScreen(t)
-			defer screen.Fini()
-			view := NewJqlSearchView(jira.NewJiraApiMock(nil)).(*jqlSearchView)
-
-			// when
-			go view.handleBottomBarActions()
-			<-time.After(100 * time.Millisecond)
-			go view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyF1, 'e', tcell.ModNone))
-
-			// then
-			<-time.After(100 * time.Millisecond)
-			_, ok := app.GetApp().CurrentView().(*ui.TextWriterView)
-			assert.True(t, ok)
-		})
-	}
-}
-
-func Test_fjiraJqlSearchView_handleDeleteJqlAction(t *testing.T) {
-	tests := []struct {
-		name string
-	}{
-		{"should handle delete JQL action"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// given
-			screen := prepareTestScreen(t)
-			defer screen.Fini()
-			view := NewJqlSearchView(jira.NewJiraApiMock(nil)).(*jqlSearchView)
-			view.fuzzyFind = app.NewFuzzyFind("test", []string{})
-
-			// when
-			go view.handleBottomBarActions()
-			<-time.After(100 * time.Millisecond)
-			go view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyF2, 'e', tcell.ModNone))
-
-			// then
-			<-time.After(100 * time.Millisecond)
-			assert.Nil(t, view.fuzzyFind)
-		})
-	}
-}
-
-func Test_fjiraJqlSearchView_startJqlFuzzyFind(t *testing.T) {
-	tests := []struct {
-		name string
-	}{
-		{"should start jql fuzzy find"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// given
-			screen := prepareTestScreen(t)
-			defer screen.Fini()
-			view := NewJqlSearchView(jira.NewJiraApiMock(nil)).(*jqlSearchView)
-
-			// when
-			go view.startJqlFuzzyFind()
-			for view.fuzzyFind == nil {
-				<-time.After(10 * time.Millisecond)
-			}
-			<-time.After(100 * time.Millisecond)
-			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, 'e', tcell.ModNone))
-
-			// then
-			assert.NotNil(t, view.fuzzyFind)
 		})
 	}
 }
