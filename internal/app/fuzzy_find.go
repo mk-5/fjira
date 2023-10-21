@@ -144,7 +144,7 @@ func (f *FuzzyFind) Update() {
 }
 
 func (f *FuzzyFind) ForceUpdate() {
-	f.dirty = true
+	f.markAsDirty()
 	f.Update()
 }
 
@@ -153,7 +153,7 @@ func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
 		f.Complete <- FuzzyFindResult{Index: -1, Match: ""}
 	}
 	if ev.Key() == tcell.KeyEnter {
-		f.dirty = true
+		f.markAsDirty()
 		f.Update()
 		if len(f.matches) > 0 && f.selected >= 0 {
 			match := f.matches[f.selected].Str
@@ -167,7 +167,7 @@ func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
 		if f.buffer.Len() > 0 {
 			f.buffer.Truncate(f.buffer.Len() - 1)
 		}
-		f.dirty = true
+		f.markAsDirty()
 	}
 	if ev.Key() == tcell.KeyUp || ev.Key() == tcell.KeyTab {
 		f.selected = ClampInt(f.selected+1, 0, f.matches.Len()-1)
@@ -179,7 +179,7 @@ func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
 	}
 	if f.isEventWritable(ev) {
 		f.buffer.WriteRune(ev.Rune())
-		f.dirty = true
+		f.markAsDirty()
 	}
 }
 
@@ -194,7 +194,7 @@ func (f *FuzzyFind) GetQuery() string {
 
 func (f *FuzzyFind) SetQuery(q string) {
 	f.buffer.WriteString(q)
-	f.dirty = true
+	f.markAsDirty()
 }
 
 func (f *FuzzyFind) AlwaysShowAllResults() {
@@ -260,7 +260,7 @@ func (f *FuzzyFind) updateRecordsFromSupplier() {
 			Index: i,
 		})
 	}
-	f.dirty = true
+	f.markAsDirty()
 }
 
 func (f *FuzzyFind) isEventWritable(ev *tcell.EventKey) bool {
@@ -268,6 +268,18 @@ func (f *FuzzyFind) isEventWritable(ev *tcell.EventKey) bool {
 		ev.Rune() == '-' || ev.Rune() == '"' || ev.Rune() == '\'' || ev.Rune() == '&' ||
 		ev.Rune() == ';' || ev.Rune() == '|' || ev.Rune() == '>' || ev.Rune() == '<' || ev.Rune() == '=' ||
 		ev.Rune() == '!'
+}
+
+func (f *FuzzyFind) markAsDirty() {
+	f.dirty = true
+	// it couples fuzzyFinder with app ... which is not nice,
+	// but it's the easy way to make sure that app is re-rendered
+	// whenever fuzzy search is updated. Another solution would be to
+	// expose dirty channel from here... and handle it from every place
+	// which is using fuzzy finder. Let's stick to that one for a time being...
+	GetApp().RunOnAppRoutine(func() {
+		GetApp().SetDirty()
+	})
 }
 
 func contains(needle int, haystack []int) bool {
