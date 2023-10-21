@@ -172,7 +172,7 @@ func (a *App) Close() {
 func (a *App) Loading(flag bool) {
 	a.spinner.text = "Fetching"
 	a.loading = flag
-	a.dirty = true
+	a.setDirty()
 }
 
 func (a *App) IsLoading() bool {
@@ -190,7 +190,7 @@ func (a *App) LoadingWithText(flag bool, text string) {
 
 func (a *App) SetView(view View) {
 	a.viewMutex.Lock()
-	a.dirty = true
+	a.setDirty()
 	if a.view != nil {
 		a.view.Destroy()
 		delete(a.keepAlive, a.view)
@@ -258,14 +258,14 @@ func (a *App) AddFlash(flash Drawable, duration time.Duration) {
 		resizable.Resize(a.ScreenX, a.ScreenY)
 	}
 	timer := time.NewTimer(duration)
-	a.dirty = true
+	a.setDirty()
 	go func() {
 		defer a.PanicRecover()
 		<-timer.C
 		a.changeMutex.Lock()
 		a.flash = nil // it could lead to removing just-added flash message. For now, it's a good-enough solution
 		a.changeMutex.Unlock()
-		a.dirty = true
+		a.setDirty()
 	}()
 }
 
@@ -305,7 +305,7 @@ func (a *App) SetDirty() {
 }
 
 func (a *App) ClearNow() {
-	a.dirty = true
+	a.setDirty()
 	a.clear()
 	// a.screen.Clear() is preserving terminal buffer (not alternate screen buffer) :/ different then in 1.3
 	//a.screen.Clear()
@@ -327,6 +327,13 @@ func (a *App) PanicRecover() {
 		a.Close()
 		panic(rec)
 	}
+}
+
+func (a *App) setDirty() {
+	a.dirty = true
+	a.RunOnAppRoutine(func() {
+		a.dirty = true
+	})
 }
 
 func (a *App) clear() {
@@ -357,7 +364,7 @@ func (a *App) processTerminalEvents() {
 		ev := a.screen.PollEvent()
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
-			a.dirty = true
+			a.setDirty()
 			a.screen.Sync()
 			x, y := a.screen.Size()
 			a.ScreenX = x
@@ -368,7 +375,7 @@ func (a *App) processTerminalEvents() {
 				}
 			}
 		case *tcell.EventKey:
-			a.dirty = true
+			a.setDirty()
 			if ev.Key() == tcell.KeyCtrlC {
 				a.Quit()
 				return
