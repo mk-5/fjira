@@ -25,7 +25,7 @@ func GetRootCmd() *cobra.Command {
 With its fuzzy-find capabilities, it simplifies the process of searching and accessing Jira issues, 
 making it easier than ever to locate and manage your tasks and projects efficiently.
 Say goodbye to manual searching and hello to increased productivity with fjira.`,
-		Args: cobra.MaximumNArgs(1),
+		Args: cobra.MaximumNArgs(2),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// it's initializing fjira before every command
 			s, err := fjira.Install("")
@@ -58,6 +58,6 @@ Say goodbye to manual searching and hello to increased productivity with fjira.`
 		},
 	}
 	cmd.AddCommand(&cobra.Command{Use: "", Short: "Open a fuzzy finder for projects as a default action"})
-	cmd.LocalFlags().StringP("project", "p", "", "Open a project directly from CLI")
+	cmd.Flags().StringP("project", "p", "", "Open a project directly from CLI")
 	return cmd
 }
