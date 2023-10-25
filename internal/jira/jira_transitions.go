@@ -10,6 +10,27 @@ import (
 // https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-transitions-post
 //
 
+type Status struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type IssueTransition struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	To   struct {
+		StatusUrl string `json:"self"`
+		StatusId  string `json:"id"`
+		Name      string `json:"name"`
+	} `json:"to"`
+}
+
+type IssueStatus struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 const (
 	GetTransitions = "/rest/api/2/issue/{issue}/transitions"
 )

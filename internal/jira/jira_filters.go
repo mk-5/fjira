@@ -5,6 +5,13 @@ import (
 	"fmt"
 )
 
+type Filter struct {
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	JQL       string `json:"jql"`
+	Favourite bool   `json:"favourite"`
+}
+
 const (
 	FilterUrl   = "/rest/api/2/filter/%s"
 	MyFilterUrl = "/rest/api/2/filter/my"
