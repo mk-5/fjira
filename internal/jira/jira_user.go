@@ -6,6 +6,19 @@ import (
 	"github.com/mk-5/fjira/internal/app"
 )
 
+type User struct {
+	AccountId    string            `json:"accountId"`
+	Active       bool              `json:"active"`
+	AvatarUrls   map[string]string `json:"avatarUrls"`
+	DisplayName  string            `json:"displayName"`
+	EmailAddress string            `json:"emailAddress"`
+	Locale       string            `json:"locale"`
+	Self         string            `json:"self"`
+	TimeZone     string            `json:"timeZone"`
+	Key          string            `json:"key"`  // field used by on-premise installation
+	Name         string            `json:"name"` // field used by on-premise installation
+}
+
 const (
 	FindUser = "/rest/api/2/user/assignable/search"
 )

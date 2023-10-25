@@ -12,6 +12,12 @@ const (
 	ProjectsByKeyJira = "/rest/api/2/project/%s"
 )
 
+type Project struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Key  string `json:"key"`
+}
+
 var (
 	ProjectNotFoundError = errors.New("Project not found.")
 )

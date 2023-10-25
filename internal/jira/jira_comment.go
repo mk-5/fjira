@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+type Comment struct {
+	Author  User   `json:"author"`
+	Body    string `json:"body"`
+	Created string `json:"created"`
+}
+
 type commentRequestBody struct {
 	Body string `json:"body"`
 }

@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+type LabelsSuggestionsResponseBody struct {
+	Token       string `json:"token"`
+	Suggestions []struct {
+		Label string `json:"label"`
+		Html  string `json:"html"`
+	} `json:"suggestions"`
+}
+
 type labelRequestBody struct {
 	Update struct {
 		Labels []labelAdd `json:"labels"`

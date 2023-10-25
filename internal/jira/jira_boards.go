@@ -5,6 +5,55 @@ import (
 	"fmt"
 )
 
+type BoardItem struct {
+	Id   int    `json:"id"`
+	Self string `json:"self"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+type BoardsResponse struct {
+	MaxResults int         `json:"maxResults"`
+	StartAt    int         `json:"startAt"`
+	Total      int         `json:"total"`
+	IsLast     bool        `json:"isLast"`
+	Values     []BoardItem `json:"values"`
+}
+
+type BoardConfiguration struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	Self     string `json:"self"`
+	Location struct {
+		Type string `json:"type"`
+		Key  string `json:"key"`
+		Id   string `json:"id"`
+		Self string `json:"self"`
+		Name string `json:"name"`
+	} `json:"location"`
+	Filter struct {
+		Id   string `json:"id"`
+		Self string `json:"self"`
+	} `json:"filter"`
+	SubQuery struct {
+		Query string `json:"query"`
+	} `json:"subQuery"`
+	ColumnConfig struct {
+		Columns []struct {
+			Name     string `json:"name"`
+			Statuses []struct {
+				Id   string `json:"id"`
+				Self string `json:"self"`
+			} `json:"statuses"`
+		} `json:"columns"`
+		ConstraintType string `json:"constraintType"`
+	} `json:"columnConfig"`
+	Ranking struct {
+		RankCustomFieldId int `json:"rankCustomFieldId"`
+	} `json:"ranking"`
+}
+
 const (
 	FindAllBoardsUrl          = "/rest/agile/1.0/board"
 	FindBoardConfigurationUrl = "/rest/agile/1.0/board/%d/configuration"
