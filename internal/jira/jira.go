@@ -66,7 +66,7 @@ func NewApi(apiUrl string, username string, token string, tokenType JiraTokenTyp
 	return &httpApi{
 		apiUrl: apiUrl,
 		client: &http.Client{
-			Transport: &authInterceptor{core: http.DefaultTransport, token: authToken, authType: authType},
+			Transport: &authInterceptor{core: defaultHttpTransport, token: authToken, authType: authType},
 		},
 		restUrl: baseUrl,
 	}, nil
