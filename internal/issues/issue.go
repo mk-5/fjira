@@ -41,7 +41,7 @@ var (
 		ui.NavItemConfig{Action: ui.ActionComment, Text1: ui.MessageComment, Text2: "[c]", Rune: 'c'},
 		ui.NavItemConfig{Action: ui.ActionAddLabel, Text1: ui.MessageLabel, Text2: "[l]", Rune: 'l'},
 		ui.NavItemConfig{Action: ui.ActionOpen, Text1: ui.MessageOpen, Text2: "[o]", Rune: 'o'},
-    ui.NavItemConfig{Action: ui.ActionCopyIssue, Text1: ui.MessageCopyIssue, Text2: "[y]", Rune: 'y'},
+		ui.NavItemConfig{Action: ui.ActionCopyIssue, Text1: ui.MessageCopyIssue, Text2: "[y]", Rune: 'y'},
 	}
 )
 
