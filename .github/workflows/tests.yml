@@ -15,14 +15,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install xsel
-        run: sudo apt-get update && sudo apt-get install -y xsel
+        run: sudo apt-get update && sudo apt-get install -y xsel xvfb
         if: matrix.os == 'ubuntu-latest'
       - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
       - uses: actions/checkout@v3
       - run: | 
-          go test  -coverprofile=coverage.out -coverpkg=./... -covermode=count ./internal/... 
+          $( which xvfb-run || echo ) go test  -coverprofile=coverage.out -coverpkg=./... -covermode=count ./internal/...
           COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
           echo "Total coverage: $COVERAGE"
       - name: Upload coverage to Codecov
