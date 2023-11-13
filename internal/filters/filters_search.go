@@ -5,7 +5,6 @@ import (
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/ui"
-	"strings"
 )
 
 type filtersSearchView struct {
@@ -74,9 +73,8 @@ func (view *filtersSearchView) startFiltersFuzzyFind() {
 	app.GetApp().Loading(false)
 	if chosen := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
-		query := view.fuzzyFind.GetQuery()
-		if chosen.Index < 0 && strings.TrimSpace(query) == "" {
-			// do nothing
+		if chosen.Index < 0 {
+			view.reopen()
 			return
 		}
 		if chosen.Index >= 0 {
