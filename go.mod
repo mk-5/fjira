@@ -1,6 +1,6 @@
 module github.com/mk-5/fjira
 
-go 1.18
+go 1.21
 
 require (
 	github.com/bep/debounce v1.2.1
