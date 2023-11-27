@@ -41,7 +41,6 @@ type boardView struct {
 	columnStatusesMap      map[int][]string
 	columnsX               map[int]int
 	issuesRow              map[string]int
-	issuesX                map[string]int
 	issuesColumn           map[string]int
 	issuesSummaries        map[string]string
 	goBackFn               func()
@@ -307,7 +306,7 @@ func (b *boardView) handleActions() {
 			case ui.ActionOpen:
 				app.GoTo("issue", b.highlightedIssue.Id, b.reopen, b.api)
 			}
-		default:
+		default: //nolint
 		}
 	}
 }
