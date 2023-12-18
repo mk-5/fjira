@@ -113,6 +113,8 @@ aurs:
       - 'Mateusz Kulawik <mateusz+aur@mk5.pl>'
       - 'Jonathan Neidel <aur at jneidel dot com>'
     license: 'AGPL3'
+    depends:
+      - go
     private_key: '{{ .Env.AUR_KEY }}'
     git_url: 'ssh://aur@aur.archlinux.org/fjira-bin.git'
     package: |-
