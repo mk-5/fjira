@@ -106,7 +106,7 @@ snapcrafts:
         plugs: ["home", "network", "network-bind"]
 
 aurs:
-  - name: fjira
+  - name: fjira-bin
     homepage: https://github.com/mk-5/fjira
     description: Fjira - the fuzziest Jira command line tool in the world
     maintainers:
@@ -114,9 +114,9 @@ aurs:
       - 'Jonathan Neidel <aur at jneidel dot com>'
     license: 'AGPL3'
     private_key: '{{ .Env.AUR_KEY }}'
-    git_url: 'ssh://aur@aur.archlinux.org/fjira.git'
+    git_url: 'ssh://aur@aur.archlinux.org/fjira-bin.git'
     package: |-
-      install -Dm755 "./fjira" "${pkgdir}/usr/bin/fjira"
+      install -Dm755 "./fjira-bin" "${pkgdir}/usr/bin/fjira"
 
 chocolateys:
   -
