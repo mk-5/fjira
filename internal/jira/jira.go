@@ -12,6 +12,7 @@ type Api interface {
 	SearchJql(query string) ([]Issue, error)
 	SearchJqlPageable(query string, page int32, pageSize int32) ([]Issue, int32, int32, error)
 	FindUsers(project string) ([]User, error)
+	FindUsersWithQuery(project string, query string) ([]User, error)
 	FindProjects() ([]Project, error)
 	FindLabels(issue *Issue, query string) ([]string, error)
 	AddLabel(issueId string, label string) error

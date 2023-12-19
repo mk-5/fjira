@@ -1,6 +1,7 @@
 package jira
 
 import (
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"reflect"
 	"testing"
@@ -9,6 +10,7 @@ import (
 func Test_httpJiraApi_FindUsers(t *testing.T) {
 	type args struct {
 		project string
+		query   string
 	}
 	tests := []struct {
 		name    string
@@ -18,6 +20,14 @@ func Test_httpJiraApi_FindUsers(t *testing.T) {
 	}{
 		{"should find users without error",
 			args{project: "FJIR"},
+			[]User{
+				{AccountId: "456", EmailAddress: "test@test.pl", DisplayName: "Mateusz Kulawik", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_GB", AvatarUrls: nil},
+				{AccountId: "123", EmailAddress: "", DisplayName: "mateusz.test", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_US", AvatarUrls: nil},
+			},
+			false,
+		},
+		{"should find users with query without error",
+			args{project: "FJIR", query: "test"},
 			[]User{
 				{AccountId: "456", EmailAddress: "test@test.pl", DisplayName: "Mateusz Kulawik", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_GB", AvatarUrls: nil},
 				{AccountId: "123", EmailAddress: "", DisplayName: "mateusz.test", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_US", AvatarUrls: nil},
@@ -53,7 +63,13 @@ func Test_httpJiraApi_FindUsers(t *testing.T) {
 `
 				w.Write([]byte(body)) //nolint:errcheck
 			})
-			got, err := api.FindUsers(tt.args.project)
+			var got []User
+			var err error
+			if tt.args.query == "" {
+				got, err = api.FindUsers(tt.args.project)
+			} else {
+				got, err = api.FindUsersWithQuery(tt.args.project, tt.args.query)
+			}
 			if (err != nil) != tt.wantErr {
 				t.Errorf("FindUsers() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -61,6 +77,37 @@ func Test_httpJiraApi_FindUsers(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("FindUsers() got = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func Test_httpJiraApi_FindUsers_returnError(t *testing.T) {
+	type args struct {
+		project string
+		query   string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"should return error when search failed",
+			args{project: "FJIR"},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// given
+			api := NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(500)
+			})
+
+			// when
+			_, err := api.FindUsersWithQuery(tt.args.project, tt.args.query)
+
+			// then
+			assert.Error(t, err)
 		})
 	}
 }

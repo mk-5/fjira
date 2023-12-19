@@ -26,14 +26,22 @@ const (
 var UserSearchDeserializeErr = errors.New("Cannot deserialize jira user search response.")
 
 type findUserQueryParams struct {
-	Project    string `url:"project"`
-	MaxResults int    `url:"maxResults"`
+	Project    string  `url:"project"`
+	MaxResults int     `url:"maxResults"`
+	Query      *string `url:"query"`
 }
 
 func (api *httpApi) FindUsers(project string) ([]User, error) {
+	return api.FindUsersWithQuery(project, "")
+}
+
+func (api *httpApi) FindUsersWithQuery(project string, query string) ([]User, error) {
 	queryParams := &findUserQueryParams{
 		Project:    project,
 		MaxResults: 10000,
+	}
+	if query != "" {
+		queryParams.Query = &query
 	}
 	response, err := api.jiraRequest("GET", FindUser, queryParams, nil)
 	if err != nil {

@@ -118,6 +118,7 @@ func Test_fjiraAssignChangeView_assignUserToTicket(t *testing.T) {
 			for view.fuzzyFind == nil {
 				<-time.After(10 * time.Millisecond)
 			}
+			view.fuzzyFind.SetDebounceDisabled(true)
 			view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, 'B', tcell.ModNone))
 			view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(tcell.KeyEnter, -1, tcell.ModNone))
 			// wait for confirmation
