@@ -295,12 +295,11 @@ func Test_fjiraSearchIssuesView_runSelectUser(t *testing.T) {
 				view.runSelectUser()
 				done <- struct{}{}
 			}()
-			for {
-				if view.fuzzyFind != nil {
-					break
-				}
-				<-time.NewTimer(10 * time.Millisecond).C
+			for view.fuzzyFind == nil {
+				<-time.After(10 * time.Millisecond)
 			}
+			view.fuzzyFind.SetDebounceDisabled(true)
+			view.fuzzyFind.Update()
 			query := "John"
 			for _, key := range query {
 				view.fuzzyFind.HandleKeyEvent(tcell.NewEventKey(-1, key, tcell.ModNone))

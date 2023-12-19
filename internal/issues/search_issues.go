@@ -229,15 +229,13 @@ func (view *searchIssuesView) runSelectStatus() {
 func (view *searchIssuesView) runSelectUser() {
 	app.GetApp().ClearNow()
 	app.GetApp().Loading(true)
-	us := view.fetchUsers(view.project.Key)
-	us = append(us, jira.User{DisplayName: ui.MessageAll})
-	usersStrings := users.FormatJiraUsers(us)
-	view.fuzzyFind = app.NewFuzzyFind(ui.MessageSelectUser, usersStrings)
+	var us *[]jira.User
+	view.fuzzyFind, us = users.NewFuzzyFind(view.project.Key, view.api)
 	app.GetApp().Loading(false)
 	if user := <-view.fuzzyFind.Complete; true {
 		app.GetApp().ClearNow()
-		if user.Index >= 0 && len(us) > 0 {
-			searchForUser = &us[user.Index]
+		if user.Index >= 0 && len(*us) > 0 {
+			searchForUser = &(*us)[user.Index]
 			view.dirty = true
 		}
 		go view.runIssuesFuzzyFind()
@@ -309,14 +307,6 @@ func (view *searchIssuesView) fetchStatuses(projectId string) []jira.IssueStatus
 	}
 	app.GetApp().Loading(false)
 	return ss
-}
-
-func (view *searchIssuesView) fetchUsers(projectKey string) []jira.User {
-	us, err := view.api.FindUsers(projectKey)
-	if err != nil {
-		app.Error(err.Error())
-	}
-	return us
 }
 
 func (view *searchIssuesView) findLabels(query string) []string {

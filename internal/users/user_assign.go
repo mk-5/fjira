@@ -68,9 +68,8 @@ func (view *userAssignChangeView) HandleKeyEvent(ev *tcell.EventKey) {
 func (view *userAssignChangeView) startUsersSearching() {
 	app.GetApp().ClearNow()
 	app.GetApp().Loading(true)
-	users := view.findUser(view.issue.Fields.Project.Key)
-	usersStrings := FormatJiraUsers(users)
-	view.fuzzyFind = app.NewFuzzyFind(ui.MessageUsersFuzzyFind, usersStrings)
+	var us *[]jira.User
+	view.fuzzyFind, us = NewFuzzyFind(view.issue.Fields.Project.Key, view.api)
 	view.fuzzyFind.MarginBottom = 0
 	app.GetApp().Loading(false)
 	if user := <-view.fuzzyFind.Complete; true {
@@ -82,16 +81,8 @@ func (view *userAssignChangeView) startUsersSearching() {
 			return
 		}
 		view.fuzzyFind = nil
-		view.assignUserToTicket(view.issue, &users[user.Index])
+		view.assignUserToTicket(view.issue, &(*us)[user.Index])
 	}
-}
-
-func (view *userAssignChangeView) findUser(project string) []jira.User {
-	users, err := view.api.FindUsers(project)
-	if err != nil {
-		app.Error(err.Error())
-	}
-	return users
 }
 
 func (view *userAssignChangeView) assignUserToTicket(issue *jira.Issue, user *jira.User) {
