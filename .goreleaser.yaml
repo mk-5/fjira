@@ -118,7 +118,7 @@ aurs:
     private_key: '{{ .Env.AUR_KEY }}'
     git_url: 'ssh://aur@aur.archlinux.org/fjira-bin.git'
     package: |-
-      install -Dm755 "./fjira-bin" "${pkgdir}/usr/bin/fjira"
+      install -Dm755 "./fjira" "${pkgdir}/usr/bin/fjira"
 
 chocolateys:
   -
