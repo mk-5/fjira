@@ -9,8 +9,9 @@ import (
 
 func Test_httpJiraApi_FindUsers(t *testing.T) {
 	type args struct {
-		project string
-		query   string
+		project   string
+		query     string
+		tokenType JiraTokenType
 	}
 	tests := []struct {
 		name    string
@@ -19,7 +20,7 @@ func Test_httpJiraApi_FindUsers(t *testing.T) {
 		wantErr bool
 	}{
 		{"should find users without error",
-			args{project: "FJIR"},
+			args{project: "FJIR", tokenType: ApiToken},
 			[]User{
 				{AccountId: "456", EmailAddress: "test@test.pl", DisplayName: "Mateusz Kulawik", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_GB", AvatarUrls: nil},
 				{AccountId: "123", EmailAddress: "", DisplayName: "mateusz.test", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_US", AvatarUrls: nil},
@@ -27,7 +28,15 @@ func Test_httpJiraApi_FindUsers(t *testing.T) {
 			false,
 		},
 		{"should find users with query without error",
-			args{project: "FJIR", query: "test"},
+			args{project: "FJIR", query: "test", tokenType: ApiToken},
+			[]User{
+				{AccountId: "456", EmailAddress: "test@test.pl", DisplayName: "Mateusz Kulawik", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_GB", AvatarUrls: nil},
+				{AccountId: "123", EmailAddress: "", DisplayName: "mateusz.test", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_US", AvatarUrls: nil},
+			},
+			false,
+		},
+		{"should find users with query without error",
+			args{project: "FJIR", query: "test", tokenType: PersonalToken},
 			[]User{
 				{AccountId: "456", EmailAddress: "test@test.pl", DisplayName: "Mateusz Kulawik", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_GB", AvatarUrls: nil},
 				{AccountId: "123", EmailAddress: "", DisplayName: "mateusz.test", Active: true, TimeZone: "Europe/Warsaw", Locale: "en_US", AvatarUrls: nil},
@@ -37,7 +46,7 @@ func Test_httpJiraApi_FindUsers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			api := NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+			api := NewJiraApiMockWithTokenType(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				body := `
 [
@@ -62,7 +71,7 @@ func Test_httpJiraApi_FindUsers(t *testing.T) {
 ]
 `
 				w.Write([]byte(body)) //nolint:errcheck
-			})
+			}, tt.args.tokenType)
 			var got []User
 			var err error
 			if tt.args.query == "" {
