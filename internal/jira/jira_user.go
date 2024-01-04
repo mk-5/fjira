@@ -29,6 +29,7 @@ type findUserQueryParams struct {
 	Project    string  `url:"project"`
 	MaxResults int     `url:"maxResults"`
 	Query      *string `url:"query"`
+	Username   *string `url:"username"`
 }
 
 func (api *httpApi) FindUsers(project string) ([]User, error) {
@@ -40,8 +41,11 @@ func (api *httpApi) FindUsersWithQuery(project string, query string) ([]User, er
 		Project:    project,
 		MaxResults: 10000,
 	}
-	if query != "" {
+	if query != "" && !api.IsJiraServer() {
 		queryParams.Query = &query
+	}
+	if query != "" && api.IsJiraServer() {
+		queryParams.Username = &query
 	}
 	response, err := api.jiraRequest("GET", FindUser, queryParams, nil)
 	if err != nil {

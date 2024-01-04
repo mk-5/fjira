@@ -29,6 +29,8 @@ type Api interface {
 	GetMyFilters() ([]Filter, error)
 	Close()
 	GetApiUrl() string
+
+	IsJiraServer() bool
 }
 
 type ApiCredentials struct {
@@ -44,9 +46,10 @@ const (
 )
 
 type httpApi struct {
-	apiUrl  string
-	client  *http.Client
-	restUrl *url.URL
+	apiUrl    string
+	tokenType JiraTokenType
+	client    *http.Client
+	restUrl   *url.URL
 }
 
 func NewApi(apiUrl string, username string, token string, tokenType JiraTokenType) (Api, error) {
@@ -65,7 +68,8 @@ func NewApi(apiUrl string, username string, token string, tokenType JiraTokenTyp
 		authType = Basic
 	}
 	return &httpApi{
-		apiUrl: apiUrl,
+		apiUrl:    apiUrl,
+		tokenType: tokenType,
 		client: &http.Client{
 			Transport: &authInterceptor{core: defaultHttpTransport, token: authToken, authType: authType},
 		},
@@ -75,6 +79,11 @@ func NewApi(apiUrl string, username string, token string, tokenType JiraTokenTyp
 
 func (api *httpApi) GetApiUrl() string {
 	return api.apiUrl
+}
+
+func (api *httpApi) IsJiraServer() bool {
+	// for now - just a stupid impl like this
+	return api.tokenType == PersonalToken
 }
 
 func (api *httpApi) Close() {
