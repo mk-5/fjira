@@ -267,7 +267,7 @@ func (f *FuzzyFind) isEventWritable(ev *tcell.EventKey) bool {
 	return unicode.IsLetter(ev.Rune()) || unicode.IsSpace(ev.Rune()) || unicode.IsDigit(ev.Rune()) ||
 		ev.Rune() == '-' || ev.Rune() == '"' || ev.Rune() == '\'' || ev.Rune() == '&' ||
 		ev.Rune() == ';' || ev.Rune() == '|' || ev.Rune() == '>' || ev.Rune() == '<' || ev.Rune() == '=' ||
-		ev.Rune() == '!'
+		ev.Rune() == '!' || ev.Rune() == '.'
 }
 
 func (f *FuzzyFind) markAsDirty() {
