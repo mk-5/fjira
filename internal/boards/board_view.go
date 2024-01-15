@@ -19,14 +19,6 @@ const (
 	issueFetchBatchSize = 100
 )
 
-var (
-	columnHeaderStyle  = ui.TopBarItemDefault
-	issueStyle         = app.DefaultStyle.Background(tcell.NewRGBColor(35, 35, 35)).Foreground(tcell.ColorWhite)
-	cursorIssueStyle   = app.DefaultStyle.Foreground(tcell.ColorWhite).Background(tcell.NewRGBColor(72, 72, 72))
-	selectedIssueStyle = app.DefaultStyle.Background(tcell.ColorDarkRed).Foreground(tcell.ColorWhite).Bold(true)
-	titleStyle         = app.DefaultStyle.Italic(true).Foreground(tcell.NewRGBColor(236, 206, 88))
-)
-
 type boardView struct {
 	app.View
 	api                    jira.Api
@@ -54,6 +46,11 @@ type boardView struct {
 	scrollX                int
 	scrollY                int
 	columnSize             int
+	columnHeaderStyle      tcell.Style
+	issueStyle             tcell.Style
+	highlightIssueStyle    tcell.Style
+	selectedIssueStyle     tcell.Style
+	titleStyle             tcell.Style
 }
 
 func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfiguration, filterJQL string, api jira.Api) app.View {
@@ -105,6 +102,11 @@ func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfigura
 		scrollX:                0,
 		highlightedIssue:       &jira.Issue{},
 		columnSize:             28,
+		columnHeaderStyle:      app.DefaultStyle().Background(app.Color("boards.headers.background")).Foreground(app.Color("boards.headers.foreground")),
+		issueStyle:             app.DefaultStyle().Background(app.Color("boards.column.background")).Foreground(app.Color("boards.column.foreground")),
+		highlightIssueStyle:    app.DefaultStyle().Foreground(app.Color("boards.highlight.foreground")).Background(app.Color("boards.highlight.background")),
+		selectedIssueStyle:     app.DefaultStyle().Background(app.Color("boards.selection.background")).Foreground(app.Color("boards.selection.foreground")).Bold(true),
+		titleStyle:             app.DefaultStyle().Italic(true).Foreground(app.Color("boards.title.foreground")),
 	}
 }
 
@@ -123,18 +125,18 @@ func (b *boardView) Draw(screen tcell.Screen) {
 			continue
 		}
 		if b.highlightedIssue.Id == issue.Id {
-			var style = &cursorIssueStyle
+			var style = &b.highlightIssueStyle
 			if b.issueSelected {
-				style = &selectedIssueStyle
+				style = &b.selectedIssueStyle
 			}
 			app.DrawTextLimited(screen, x-b.scrollX, y+topMargin-b.scrollY, x+b.columnSize-b.scrollX, y+1+topMargin, *style, b.issuesSummaries[issue.Id])
 			continue
 		}
-		app.DrawTextLimited(screen, x-b.scrollX, y+topMargin-b.scrollY, x+b.columnSize-b.scrollX, y+1+topMargin, issueStyle, b.issuesSummaries[issue.Id])
+		app.DrawTextLimited(screen, x-b.scrollX, y+topMargin-b.scrollY, x+b.columnSize-b.scrollX, y+1+topMargin, b.issueStyle, b.issuesSummaries[issue.Id])
 	}
 	if b.highlightedIssue != nil {
-		app.DrawText(screen, 0, 1, titleStyle, app.WriteIndicator)
-		app.DrawText(screen, 2, 1, titleStyle, b.issuesSummaries[b.highlightedIssue.Id])
+		app.DrawText(screen, 0, 1, b.titleStyle, app.WriteIndicator)
+		app.DrawText(screen, 2, 1, b.titleStyle, b.issuesSummaries[b.highlightedIssue.Id])
 	}
 	if !b.issueSelected {
 		b.bottomBar.Draw(screen)
@@ -241,7 +243,7 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 func (b *boardView) drawColumnsHeaders(screen tcell.Screen) {
 	b.tmpX = 0
 	for _, column := range b.columns {
-		app.DrawText(screen, b.tmpX-b.scrollX, topMargin, columnHeaderStyle, centerString(column, b.columnSize))
+		app.DrawText(screen, b.tmpX-b.scrollX, topMargin, b.columnHeaderStyle, centerString(column, b.columnSize))
 		b.tmpX += b.columnSize + 1
 	}
 }

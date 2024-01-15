@@ -1,0 +1,53 @@
+default:
+  background: "#161616"
+  foreground: "#c7c7c7"
+  foreground2: "#FFFFFF"
+
+finder:
+  cursor: "#8B0000"
+  title: "#E9CE58"
+  match: "#90EE90"
+  highlight:
+    background: "#3A3A3A"
+    foreground: "#FFFFFF"
+    match: "#E0FFFF"
+
+navigation:
+  top:
+    background: "#5F875f"
+    foreground1: "#FFFFFF"
+    foreground2: "#151515"
+  bottom:
+    background: "#5F87AF"
+    foreground1: "#FFFFFF"
+    foreground2: "#151515"
+
+details:
+  foreground: "#696969"
+
+boards:
+  title:
+    foreground: "#ecce58"
+  headers:
+    background: "#5F87AF"
+    foreground: "#FFFFFF"
+  column:
+    background: "#232323"
+    foreground: "#ffffff"
+  highlight:
+    background: "#484848"
+    foreground: "#ffffff"
+  selection:
+    background: "#8B0000"
+    foreground: "#ffffff"
+
+spinner:
+  accent: "#FF0000"
+
+alerts:
+  success:
+    background: "#F5F5F5"
+    foreground: "#006400"
+  error:
+    background: "#F5F5F5"
+    foreground: "#8B0000"

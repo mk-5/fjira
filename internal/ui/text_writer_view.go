@@ -14,6 +14,7 @@ type TextWriterView struct {
 	buffer      bytes.Buffer
 	text        string
 	headerStyle tcell.Style
+	style       tcell.Style
 	args        TextWriterArgs
 }
 
@@ -43,7 +44,8 @@ func NewTextWriterView(args *TextWriterArgs) app.View {
 		bottomBar:   bottomBar,
 		text:        "",
 		args:        *args,
-		headerStyle: app.DefaultStyle.Foreground(tcell.ColorWhite).Underline(true),
+		headerStyle: app.DefaultStyle().Foreground(app.Color("default.foreground2")).Underline(true),
+		style:       app.DefaultStyle(),
 	}
 }
 
@@ -57,7 +59,7 @@ func (view *TextWriterView) Destroy() {
 
 func (view *TextWriterView) Draw(screen tcell.Screen) {
 	app.DrawText(screen, 1, 2, view.headerStyle, view.args.Header)
-	app.DrawTextLimited(screen, 1, 4, view.args.MaxLength, 100, app.DefaultStyle, view.text)
+	app.DrawTextLimited(screen, 1, 4, view.args.MaxLength, 100, view.style, view.text)
 	view.bottomBar.Draw(screen)
 }
 

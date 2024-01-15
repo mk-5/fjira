@@ -5,20 +5,18 @@ import (
 )
 
 type Confirmation struct {
-	Complete chan bool
-	message  string
-	screenX  int
-	screenY  int
+	Complete          chan bool
+	message           string
+	screenX           int
+	screenY           int
+	style             tcell.Style
+	questionMarkStyle tcell.Style
 }
 
 const (
 	Yes          = 'y'
 	No           = 'n'
 	QuestionMark = "? "
-)
-
-var (
-	QuestionMarkStyle = DefaultStyle.Bold(true).Foreground(tcell.ColorYellowGreen)
 )
 
 func Confirm(app *App, message string) bool {
@@ -33,14 +31,16 @@ func Confirm(app *App, message string) bool {
 
 func newConfirmation(message string) *Confirmation {
 	return &Confirmation{
-		Complete: make(chan bool),
-		message:  message,
+		Complete:          make(chan bool),
+		message:           message,
+		style:             DefaultStyle(),
+		questionMarkStyle: DefaultStyle().Bold(true).Foreground(Color("finder.title")),
 	}
 }
 
 func (c *Confirmation) Draw(screen tcell.Screen) {
-	DrawText(screen, 0, c.screenY-2, QuestionMarkStyle, QuestionMark)
-	DrawText(screen, 2, c.screenY-2, DefaultStyle, c.message)
+	DrawText(screen, 0, c.screenY-2, c.questionMarkStyle, QuestionMark)
+	DrawText(screen, 2, c.screenY-2, c.style, c.message)
 }
 
 func (c *Confirmation) Resize(screenX, screenY int) {

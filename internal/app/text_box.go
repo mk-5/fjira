@@ -21,7 +21,7 @@ func NewTextBox(x, y int, style tcell.Style, borderStyle tcell.Style, text strin
 		textStyle:   style,
 		borderStyle: borderStyle,
 		text:        text,
-		bgStyle:     DefaultStyle,
+		bgStyle:     DefaultStyle(),
 	}
 }
 

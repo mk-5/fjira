@@ -16,6 +16,7 @@ type ActionBar struct {
 	items            []ActionBarItem
 	vAlign           int
 	hAlign           int
+	style            tcell.Style
 }
 
 const (
@@ -37,6 +38,7 @@ func NewActionBar(vAlign int, hAlign int) *ActionBar {
 		vAlign:  vAlign,
 		hAlign:  hAlign,
 		items:   make([]ActionBarItem, 0, ActionBarMaxItems),
+		style:   DefaultStyle(),
 	}
 }
 
@@ -104,7 +106,7 @@ func (b *ActionBar) Draw(screen tcell.Screen) {
 	for _, item := range b.items {
 		DrawText(screen, item.x, item.y, item.Text1Style, item.Text1)
 		DrawText(screen, item.x+len(item.Text1), item.y, item.Text2Style, item.Text2)
-		DrawText(screen, item.x+len(item.Text1)+len(item.Text2), item.y, DefaultStyle, " ")
+		DrawText(screen, item.x+len(item.Text1)+len(item.Text2), item.y, b.style, " ")
 	}
 }
 

@@ -23,16 +23,6 @@ const (
 	ActionAddLabel
 	ActionSelect
 	ActionUnselect
-	ActionNew
-	ActionDelete
-)
-
-var (
-	BottomBarItemDefaultStyle  = app.DefaultStyle.Background(tcell.NewRGBColor(95, 135, 175)).Foreground(tcell.ColorWhite)
-	BottomBarActionBarItemBold = app.DefaultStyle.Bold(true).Foreground(tcell.ColorDarkKhaki)
-	BottomBarActionBarKeyBold  = BottomBarItemDefaultStyle.Foreground(tcell.NewRGBColor(21, 21, 21))
-	TopBarItemDefault          = app.DefaultStyle.Background(tcell.NewRGBColor(95, 135, 95)).Foreground(tcell.ColorWhite)
-	TopBarItemBold             = TopBarItemDefault.Foreground(app.AppBackground) // DarkOrange looks good here as well
 )
 
 type NavItemConfig struct {
@@ -48,8 +38,8 @@ func CreateBottomActionBar(text1 string, text2 string) *app.ActionBar {
 	actionBar.AddItemWithStyles(
 		text1,
 		text2,
-		BottomBarItemDefaultStyle,
-		BottomBarActionBarItemBold,
+		bottomBarItemDefaultStyle(),
+		bottomBarActionBarItemBold(),
 	)
 	return actionBar
 }
@@ -59,7 +49,7 @@ func CreateTopActionBar(text1 string, text2 string) *app.ActionBar {
 	actionBar.AddItemWithStyles(
 		text1,
 		text2,
-		TopBarItemDefault, TopBarItemBold,
+		topBarItemDefault(), topBarItemBold(),
 	)
 	return actionBar
 }
@@ -71,8 +61,8 @@ func CreateBottomActionBarWithItems(items []NavItemConfig) *app.ActionBar {
 			Id:          int(i.Action),
 			Text1:       i.Text1,
 			Text2:       i.Text2,
-			Text1Style:  BottomBarItemDefaultStyle,
-			Text2Style:  BottomBarActionBarKeyBold,
+			Text1Style:  bottomBarItemDefaultStyle(),
+			Text2Style:  bottomBarActionBarKeyBold(),
 			TriggerKey:  i.Key,
 			TriggerRune: i.Rune,
 		})
@@ -87,8 +77,8 @@ func CreateTopActionBarWithItems(items []NavItemConfig) *app.ActionBar {
 			Id:          int(i.Action),
 			Text1:       i.Text1,
 			Text2:       i.Text2,
-			Text1Style:  TopBarItemDefault,
-			Text2Style:  TopBarItemBold,
+			Text1Style:  topBarItemDefault(),
+			Text2Style:  topBarItemBold(),
 			TriggerKey:  i.Key,
 			TriggerRune: i.Rune,
 		})
@@ -116,8 +106,8 @@ func NewCancelBarItem() *app.ActionBarItem {
 		Id:         int(ActionCancel),
 		Text1:      "Cancel ",
 		Text2:      "[ESC]",
-		Text1Style: BottomBarItemDefaultStyle,
-		Text2Style: BottomBarActionBarKeyBold,
+		Text1Style: bottomBarItemDefaultStyle(),
+		Text2Style: bottomBarActionBarKeyBold(),
 		TriggerKey: tcell.KeyEscape,
 	}
 }
@@ -126,8 +116,8 @@ func CreateScrollBarItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Text1:       MessageScroll,
 		Text2:       "[↑↓]",
-		Text1Style:  BottomBarItemDefaultStyle,
-		Text2Style:  BottomBarActionBarKeyBold,
+		Text1Style:  bottomBarItemDefaultStyle(),
+		Text2Style:  bottomBarActionBarKeyBold(),
 		TriggerKey:  -1,
 		TriggerRune: -1,
 	}
@@ -137,8 +127,8 @@ func CreateArrowsNavigateItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Text1:       MessageNavigate,
 		Text2:       "[←→↑↓]",
-		Text1Style:  BottomBarItemDefaultStyle,
-		Text2Style:  BottomBarActionBarKeyBold,
+		Text1Style:  bottomBarItemDefaultStyle(),
+		Text2Style:  bottomBarActionBarKeyBold(),
 		TriggerKey:  -1,
 		TriggerRune: -1,
 	}
@@ -148,8 +138,8 @@ func CreateMoveArrowsItem() *app.ActionBarItem {
 	return &app.ActionBarItem{
 		Text1:       MessageMoveIssue,
 		Text2:       "[←→]",
-		Text1Style:  BottomBarItemDefaultStyle,
-		Text2Style:  BottomBarActionBarKeyBold,
+		Text1Style:  bottomBarItemDefaultStyle(),
+		Text2Style:  bottomBarActionBarKeyBold(),
 		TriggerKey:  -1,
 		TriggerRune: -1,
 	}
@@ -160,8 +150,8 @@ func CreateSelectItem() *app.ActionBarItem {
 		Id:          int(ActionSelect),
 		Text1:       MessageSelect,
 		Text2:       "[enter]",
-		Text1Style:  BottomBarItemDefaultStyle,
-		Text2Style:  BottomBarActionBarKeyBold,
+		Text1Style:  bottomBarItemDefaultStyle(),
+		Text2Style:  bottomBarActionBarKeyBold(),
 		TriggerKey:  tcell.KeyEnter,
 		TriggerRune: -1,
 	}
@@ -172,8 +162,8 @@ func CreateUnSelectItem() *app.ActionBarItem {
 		Id:          int(ActionUnselect),
 		Text1:       MessageUnselect,
 		Text2:       "[enter]",
-		Text1Style:  BottomBarItemDefaultStyle,
-		Text2Style:  BottomBarActionBarKeyBold,
+		Text1Style:  bottomBarItemDefaultStyle(),
+		Text2Style:  bottomBarActionBarKeyBold(),
 		TriggerKey:  tcell.KeyEnter,
 		TriggerRune: -1,
 	}
@@ -184,8 +174,8 @@ func NewYesBarItem() *app.ActionBarItem {
 		Id:          int(ActionYes),
 		Text1:       MessageYes,
 		Text2:       "[y]",
-		Text1Style:  BottomBarItemDefaultStyle,
-		Text2Style:  BottomBarActionBarKeyBold,
+		Text1Style:  bottomBarItemDefaultStyle(),
+		Text2Style:  bottomBarActionBarKeyBold(),
 		TriggerRune: 'y',
 	}
 }
@@ -195,8 +185,8 @@ func NewOpenBarItem() *app.ActionBarItem {
 		Id:          int(ActionOpen),
 		Text1:       MessageOpen,
 		Text2:       "[o]",
-		Text1Style:  BottomBarItemDefaultStyle,
-		Text2Style:  BottomBarActionBarKeyBold,
+		Text1Style:  bottomBarItemDefaultStyle(),
+		Text2Style:  bottomBarActionBarKeyBold(),
 		TriggerRune: 'o',
 	}
 }
@@ -206,19 +196,28 @@ func NewSaveBarItem() *app.ActionBarItem {
 		Id:         int(ActionYes),
 		Text1:      MessageSave,
 		Text2:      "[F1]",
-		Text1Style: BottomBarItemDefaultStyle,
-		Text2Style: BottomBarActionBarKeyBold,
+		Text1Style: bottomBarItemDefaultStyle(),
+		Text2Style: bottomBarActionBarKeyBold(),
 		TriggerKey: tcell.KeyF1,
 	}
 }
 
-func NewDeleteItem() *app.ActionBarItem {
-	return &app.ActionBarItem{
-		Id:         int(ActionDelete),
-		Text1:      MessageDelete,
-		Text2:      "[F2]",
-		Text1Style: BottomBarItemDefaultStyle,
-		Text2Style: BottomBarActionBarKeyBold,
-		TriggerKey: tcell.KeyF2,
-	}
+func bottomBarItemDefaultStyle() tcell.Style {
+	return app.DefaultStyle().Background(app.Color("navigation.bottom.background")).Foreground(app.Color("navigation.bottom.foreground1"))
+}
+
+func bottomBarActionBarItemBold() tcell.Style {
+	return app.DefaultStyle().Bold(true).Foreground(app.Color("navigation.bottom.foreground2"))
+}
+
+func bottomBarActionBarKeyBold() tcell.Style {
+	return bottomBarItemDefaultStyle().Foreground(app.Color("navigation.bottom.foreground2"))
+}
+
+func topBarItemDefault() tcell.Style {
+	return app.DefaultStyle().Background(app.Color("navigation.top.background")).Foreground(app.Color("navigation.top.foreground1"))
+}
+
+func topBarItemBold() tcell.Style {
+	return topBarItemDefault().Foreground(app.Color("navigation.top.foreground2")) // DarkOrange looks good here as well
 }
