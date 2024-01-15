@@ -15,7 +15,7 @@ func ParseCommentsFromIssue(issue *jira.Issue, limitX, limitY int) []Comment {
 		for _, comment := range issue.Fields.Comment.Comments {
 			title := fmt.Sprintf("%s, %s", comment.Created, comment.Author.DisplayName)
 			body := fmt.Sprintf("\n%s", comment.Body)
-			lines := app.DrawTextLimited(nil, 0, 0, limitX, limitY, app.DefaultStyle, comment.Body) + 2
+			lines := app.DrawTextLimited(nil, 0, 0, limitX, limitY, app.DefaultStyle(), comment.Body) + 2
 			cs = append(cs, Comment{
 				Title: title,
 				Body:  body,

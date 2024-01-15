@@ -36,6 +36,7 @@ type App struct {
 	runOnAppRoutine []func()
 	spinner         *SpinnerTCell
 	view            View
+	style           tcell.Style
 }
 
 const (
@@ -44,10 +45,8 @@ const (
 )
 
 var (
-	AppBackground = tcell.NewRGBColor(22, 22, 22)
-	DefaultStyle  = tcell.StyleDefault.Background(AppBackground).Foreground(tcell.NewRGBColor(199, 199, 199))
-	appInstance   *App
-	once          sync.Once
+	appInstance *App
+	once        sync.Once
 )
 
 func CreateNewApp() *App {
@@ -68,6 +67,10 @@ func GetApp() *App {
 	return appInstance
 }
 
+func DefaultStyle() tcell.Style {
+	return tcell.StyleDefault.Background(Color("default.background")).Foreground(Color("default.foreground"))
+}
+
 func initApp() {
 	screen, err := tcell.NewScreen()
 	if err != nil {
@@ -82,10 +85,11 @@ func initAppWithScreen(screen tcell.Screen) {
 	}
 	encoding.Register()
 	tcell.SetEncodingFallback(tcell.EncodingFallbackUTF8)
+	MustLoadColorScheme()
 	if err := screen.Init(); err != nil {
 		log.Fatalf("%+v", err)
 	}
-	screen.SetStyle(DefaultStyle)
+	screen.SetStyle(DefaultStyle())
 	screen.EnableMouse()
 	screen.EnablePaste()
 	screen.Clear()
@@ -105,6 +109,7 @@ func initAppWithScreen(screen tcell.Screen) {
 		keepAlive:       make(map[interface{}]bool),
 		dirty:           true,
 		spinner:         s,
+		style:           DefaultStyle(),
 	}
 }
 
@@ -144,7 +149,7 @@ func (a *App) Render() {
 		time.Sleep(FPSMilliseconds)
 		return
 	}
-	a.screen.Fill(' ', DefaultStyle)
+	a.screen.Fill(' ', a.style)
 	if a.loading {
 		a.spinner.Draw(a.screen)
 	}
@@ -163,7 +168,7 @@ func (a *App) Close() {
 	}
 	a.closed = true
 	a.screen.DisableMouse()
-	a.screen.Fill(' ', DefaultStyle)
+	a.screen.Fill(' ', a.style)
 	a.screen.Show()
 	a.screen.Fini()
 	close(a.keyEvent)
@@ -309,7 +314,7 @@ func (a *App) ClearNow() {
 	a.clear()
 	// a.screen.Clear() is preserving terminal buffer (not alternate screen buffer) :/ different then in 1.3
 	//a.screen.Clear()
-	a.screen.Fill(' ', DefaultStyle)
+	a.screen.Fill(' ', a.style)
 	a.screen.HideCursor()
 }
 

@@ -78,7 +78,7 @@ func CreateNewFjira(settings *workspaces.WorkspaceSettings) *Fjira {
 func (f *Fjira) Run(args *CliArgs) {
 	x := app.ClampInt(f.app.ScreenX/2-18, 0, f.app.ScreenX)
 	y := app.ClampInt(f.app.ScreenY/2-4, 0, f.app.ScreenY)
-	welcomeText := app.NewText(x, y, app.DefaultStyle, WelcomeMessage)
+	welcomeText := app.NewText(x, y, app.DefaultStyle(), WelcomeMessage)
 	f.app.AddDrawable(welcomeText)
 	f.registerGoTos()
 	go f.bootstrap(args)

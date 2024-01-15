@@ -31,10 +31,11 @@ type issueView struct {
 	labelsLen         int
 	comments          []comments.Comment
 	lastY             int
+	boxTitleStyle     tcell.Style
+	defaultStyle      tcell.Style
 }
 
 var (
-	boxTitleStyle = app.DefaultStyle.Foreground(tcell.ColorDimGrey)
 	issueNavItems = []ui.NavItemConfig{
 		ui.NavItemConfig{Action: ui.ActionStatusChange, Text1: ui.MessageChangeStatus, Text2: "[s]", Rune: 's'},
 		ui.NavItemConfig{Action: ui.ActionAssigneeChange, Text1: ui.MessageAssignUser, Text2: "[a]", Rune: 'a'},
@@ -60,17 +61,19 @@ func NewIssueView(issue *jira.Issue, goBackFn func(), api jira.Api) app.View {
 	labelsLen := len(ls)
 
 	return &issueView{
-		api:        api,
-		bottomBar:  bottomBar,
-		topBar:     issueActionBar,
-		issue:      issue,
-		scrollY:    0,
-		body:       issue.Fields.Description,
-		comments:   cs,
-		labels:     ls,
-		labelsLen:  labelsLen,
-		summaryLen: len(issue.Fields.Summary),
-		goBackFn:   goBackFn,
+		api:           api,
+		bottomBar:     bottomBar,
+		topBar:        issueActionBar,
+		issue:         issue,
+		scrollY:       0,
+		body:          issue.Fields.Description,
+		comments:      cs,
+		labels:        ls,
+		labelsLen:     labelsLen,
+		summaryLen:    len(issue.Fields.Summary),
+		goBackFn:      goBackFn,
+		boxTitleStyle: app.DefaultStyle().Foreground(app.Color("details.foreground")),
+		defaultStyle:  app.DefaultStyle(),
 	}
 }
 
@@ -83,29 +86,29 @@ func (view *issueView) Destroy() {
 
 func (view *issueView) Draw(screen tcell.Screen) {
 	if view.fuzzyFind == nil {
-		app.DrawBox(screen, 1, 2-view.scrollY, view.summaryLen+4, 4-view.scrollY, boxTitleStyle)
-		app.DrawText(screen, 2, 2-view.scrollY, boxTitleStyle, ui.MessageSummary)
-		app.DrawText(screen, 3, 3-view.scrollY, app.DefaultStyle, view.issue.Fields.Summary)
+		app.DrawBox(screen, 1, 2-view.scrollY, view.summaryLen+4, 4-view.scrollY, view.boxTitleStyle)
+		app.DrawText(screen, 2, 2-view.scrollY, view.boxTitleStyle, ui.MessageSummary)
+		app.DrawText(screen, 3, 3-view.scrollY, view.defaultStyle, view.issue.Fields.Summary)
 
 		view.lastY = 2 - view.scrollY + 2
 
 		if view.labels != "" {
-			app.DrawBox(screen, 1, view.lastY+1, view.labelsLen+4, view.lastY+3, boxTitleStyle)
-			app.DrawText(screen, 2, view.lastY+1, boxTitleStyle, ui.MessageLabels)
-			app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.lastY+2, app.DefaultStyle, view.labels)
+			app.DrawBox(screen, 1, view.lastY+1, view.labelsLen+4, view.lastY+3, view.boxTitleStyle)
+			app.DrawText(screen, 2, view.lastY+1, view.boxTitleStyle, ui.MessageLabels)
+			app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.lastY+2, view.defaultStyle, view.labels)
 			view.lastY = view.lastY + 3
 		}
 
-		app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+view.descriptionLines+4, boxTitleStyle)
-		app.DrawText(screen, 2, view.lastY+1, boxTitleStyle, ui.MessageDescription)
-		app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, view.body)
+		app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+view.descriptionLines+4, view.boxTitleStyle)
+		app.DrawText(screen, 2, view.lastY+1, view.boxTitleStyle, ui.MessageDescription)
+		app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, view.defaultStyle, view.body)
 
 		view.lastY = view.lastY + view.descriptionLines + 6
 
 		for _, comment := range view.comments {
-			app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+comment.Lines+2, boxTitleStyle)
-			app.DrawText(screen, 2, view.lastY+1, boxTitleStyle, comment.Title)
-			app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, comment.Body)
+			app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+comment.Lines+2, view.boxTitleStyle)
+			app.DrawText(screen, 2, view.lastY+1, view.boxTitleStyle, comment.Title)
+			app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, view.defaultStyle, comment.Body)
 			view.lastY = view.lastY + 1 + comment.Lines + 3
 		}
 	}
@@ -127,7 +130,7 @@ func (view *issueView) Update() {
 func (view *issueView) Resize(screenX, screenY int) {
 	view.descriptionLimitX = app.ClampInt(int(math.Floor(float64(screenX)*0.9)), 1, 10000)
 	view.descriptionLimitY = 1000
-	view.descriptionLines = app.DrawTextLimited(nil, 0, 0, view.descriptionLimitX, view.descriptionLimitY, app.DefaultStyle, view.body) + 1
+	view.descriptionLines = app.DrawTextLimited(nil, 0, 0, view.descriptionLimitX, view.descriptionLimitY, view.defaultStyle, view.body) + 1
 	commentsLines := 0
 	view.comments = comments.ParseCommentsFromIssue(view.issue, view.descriptionLimitX, view.descriptionLimitY)
 	for _, comment := range view.comments {

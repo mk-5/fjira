@@ -14,9 +14,9 @@ func NewSimpleSpinner() *SpinnerTCell {
 	return &SpinnerTCell{
 		spinner: []string{".....", "....", ".."},
 		styles: []tcell.Style{
-			DefaultStyle, DefaultStyle.Foreground(tcell.ColorRed).Bold(true), DefaultStyle,
+			DefaultStyle(), DefaultStyle().Foreground(Color("spinner.accent")).Bold(true), DefaultStyle(),
 		},
-		textStyle:    DefaultStyle.Italic(true).Blink(true),
+		textStyle:    DefaultStyle().Italic(true).Blink(true),
 		spinnerIndex: new(int),
 	}
 }

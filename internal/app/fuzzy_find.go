@@ -30,6 +30,14 @@ type FuzzyFind struct {
 	supplierDebounce  func(f func())
 	debounceDisabled  bool
 	disableFuzzyMatch bool
+
+	boldMatchStyle   tcell.Style
+	cursorStyle      tcell.Style
+	highlightDefault tcell.Style
+	highlightBold    tcell.Style
+	boldStyle        tcell.Style
+	titleStyle       tcell.Style
+	defaultStyle     tcell.Style
 }
 
 type FuzzyFindResult struct {
@@ -45,15 +53,6 @@ const (
 	SearchResultsPivot      = 6
 )
 
-var (
-	boldMatchStyle   = DefaultStyle.Foreground(tcell.ColorLightGreen).Underline(true).Bold(true)
-	boldRedStyle     = DefaultStyle.Foreground(tcell.ColorDarkRed).Bold(true)
-	highlightDefault = DefaultStyle.Foreground(tcell.ColorWhite).Background(tcell.NewRGBColor(58, 58, 58))
-	highlightBold    = highlightDefault.Foreground(tcell.ColorLightCyan).Bold(true)
-	boldStyle        = DefaultStyle.Bold(true)
-	titleStyle       = DefaultStyle.Italic(true).Foreground(tcell.NewRGBColor(236, 206, 88))
-)
-
 func NewFuzzyFind(title string, records []string) *FuzzyFind {
 	matchesAll := make(fuzzy.Matches, 0, MaxResults)
 	// TODO - not super optimize way to store results..
@@ -63,6 +62,7 @@ func NewFuzzyFind(title string, records []string) *FuzzyFind {
 			Index: i,
 		})
 	}
+	highlightDefaultStyle := DefaultStyle().Foreground(Color("finder.highlight.foreground")).Background(Color("finder.highlight.background"))
 	return &FuzzyFind{
 		Complete:          make(chan FuzzyFindResult),
 		records:           records,
@@ -78,10 +78,19 @@ func NewFuzzyFind(title string, records []string) *FuzzyFind {
 		MarginBottom:      1,
 		debounceDisabled:  false,
 		disableFuzzyMatch: false,
+
+		boldMatchStyle:   DefaultStyle().Foreground(Color("finder.match")).Underline(true).Bold(true),
+		cursorStyle:      DefaultStyle().Foreground(Color("finder.cursor")).Bold(true),
+		highlightDefault: highlightDefaultStyle,
+		highlightBold:    highlightDefaultStyle.Foreground(Color("finder.highlight.match")).Bold(true),
+		boldStyle:        DefaultStyle().Bold(true),
+		titleStyle:       DefaultStyle().Italic(true).Foreground(Color("finder.title")),
+		defaultStyle:     DefaultStyle(),
 	}
 }
 
 func NewFuzzyFindWithProvider(title string, recordsProvider func(query string) []string) *FuzzyFind {
+	highlightDefaultStyle := DefaultStyle().Foreground(Color("finder.highlight.foreground")).Background(Color("finder.highlight.background"))
 	return &FuzzyFind{
 		Complete:          make(chan FuzzyFindResult),
 		records:           nil,
@@ -98,6 +107,14 @@ func NewFuzzyFindWithProvider(title string, recordsProvider func(query string) [
 		MarginBottom:      1,
 		debounceDisabled:  false,
 		disableFuzzyMatch: false,
+
+		boldMatchStyle:   DefaultStyle().Foreground(Color("finder.match")).Underline(true).Bold(true),
+		cursorStyle:      DefaultStyle().Foreground(Color("finder.cursor")).Bold(true),
+		highlightDefault: highlightDefaultStyle,
+		highlightBold:    highlightDefaultStyle.Foreground(Color("finder.highlight.match")).Bold(true),
+		boldStyle:        DefaultStyle().Bold(true),
+		titleStyle:       DefaultStyle().Italic(true).Foreground(Color("finder.title")),
+		defaultStyle:     DefaultStyle(),
 	}
 }
 
@@ -109,11 +126,11 @@ func (f *FuzzyFind) Draw(screen tcell.Screen) {
 	}
 	f.drawRecords(screen)
 	if f.title != "" {
-		DrawText(screen, 2, f.screenY-ResultsMarginBottom-f.MarginBottom+1, titleStyle, f.title)
+		DrawText(screen, 2, f.screenY-ResultsMarginBottom-f.MarginBottom+1, f.titleStyle, f.title)
 	}
-	DrawText(screen, f.screenX-len(f.fuzzyStatus)-2, f.screenY-ResultsMarginBottom-f.MarginBottom+1, titleStyle, f.fuzzyStatus)
-	DrawText(screen, 0, f.screenY-1-f.MarginBottom, boldStyle, WriteIndicator)
-	DrawText(screen, 2, f.screenY-1-f.MarginBottom, DefaultStyle, f.query)
+	DrawText(screen, f.screenX-len(f.fuzzyStatus)-2, f.screenY-ResultsMarginBottom-f.MarginBottom+1, f.titleStyle, f.fuzzyStatus)
+	DrawText(screen, 0, f.screenY-1-f.MarginBottom, f.boldStyle, WriteIndicator)
+	DrawText(screen, 2, f.screenY-1-f.MarginBottom, f.defaultStyle, f.query)
 	screen.ShowCursor(2+len(f.query), f.screenY-1-f.MarginBottom)
 }
 
@@ -231,12 +248,12 @@ func (f *FuzzyFind) drawRecords(screen tcell.Screen) {
 	indexDelta := ClampInt(f.selected-row+SearchResultsPivot, 0, matchesLen-1)
 	for index := indexDelta; index < matchesLen && row > f.MarginTop; index++ {
 		match := f.matches[index]
-		currentStyleDefault = DefaultStyle
-		currentStyleBold = boldMatchStyle
+		currentStyleDefault = f.defaultStyle
+		currentStyleBold = f.boldMatchStyle
 		if index == f.selected {
-			DrawText(screen, 0, row, boldRedStyle, WriteIndicator)
-			currentStyleDefault = highlightDefault
-			currentStyleBold = highlightBold
+			DrawText(screen, 0, row, f.cursorStyle, WriteIndicator)
+			currentStyleDefault = f.highlightDefault
+			currentStyleBold = f.highlightBold
 		}
 		runeI := 0
 		for i, s := range match.Str {

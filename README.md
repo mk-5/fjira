@@ -178,6 +178,8 @@ fjira PROJ-123
 
 Fjira will skip all intermediate screens and take you directly to the issue view.
 
+![Fjira Issue View](demo_issue.png)
+
 
 ## Boards View
 
@@ -202,6 +204,11 @@ You can search using your stored Jira Filters:
 ```shell
 fjira filters
 ```
+
+## Custom Color Scheme
+
+Tailor the fjira color scheme to match your preferences by creating a custom `~/.fjira/colors.yml` file. This file allows you to personalize the colors according to your unique style. 
+Refer to the example file, located here: [colors.yml](assets/colors.yml)
 
 ## Roadmap (TODO)
 
