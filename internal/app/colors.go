@@ -5,7 +5,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"gopkg.in/yaml.v3"
 	"os"
-	"strings"
 )
 
 var (
@@ -14,24 +13,13 @@ var (
 )
 
 func Color(c string) tcell.Color {
+	if len(colorsMap) == 0 {
+		MustLoadColorScheme()
+	}
 	if color, ok := colorsMap[c]; ok {
 		return color
 	}
-	parts := strings.Split(c, ".")
-	var t interface{}
-	var hex string
-	t = schemeMap
-	for _, p := range parts {
-		if m, ok := t.(map[string]interface{}); ok {
-			t = m[p]
-		}
-		if h, ok := t.(string); ok {
-			hex = h
-		}
-	}
-	color := tcell.GetColor(hex)
-	colorsMap[c] = color
-	return color
+	panic("unknown color " + c)
 }
 
 func MustLoadColorScheme() map[string]interface{} {
@@ -40,10 +28,29 @@ func MustLoadColorScheme() map[string]interface{} {
 	b, err := os.ReadFile(p)
 	if err != nil {
 		schemeMap = parseYMLStr(defaultColorsYML())
-		return schemeMap
+	} else {
+		schemeMap = parseYMLStr(string(b))
 	}
-	schemeMap = parseYMLStr(string(b))
+	colorsMap = parseYamlToDotNotationMap("", schemeMap, colorsMap)
 	return schemeMap
+}
+
+func parseYamlToDotNotationMap(prefix string, yml map[string]interface{}, targetMap map[string]tcell.Color) map[string]tcell.Color {
+	var key string
+	for k, v := range yml {
+		if prefix == "" {
+			key = k
+		} else {
+			key = fmt.Sprintf("%s.%s", prefix, k)
+		}
+		if m, ok := v.(map[string]interface{}); ok {
+			targetMap = parseYamlToDotNotationMap(key, m, targetMap)
+		}
+		if h, ok := v.(string); ok {
+			targetMap[key] = tcell.GetColor(h)
+		}
+	}
+	return targetMap
 }
 
 func parseYMLStr(y string) map[string]interface{} {
