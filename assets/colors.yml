@@ -29,7 +29,7 @@ boards:
   title:
     foreground: "#ecce58"
   headers:
-    background: "#5F87AF"
+    background: "#5F875f"
     foreground: "#FFFFFF"
   column:
     background: "#232323"
