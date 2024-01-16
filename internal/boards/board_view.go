@@ -188,6 +188,7 @@ func (b *boardView) Init() {
 	}
 	b.refreshIssuesSummaries()
 	b.refreshIssuesRows()
+	b.setInitialCursorX()
 	b.refreshHighlightedIssue()
 	app.GetApp().Loading(false)
 	go b.handleActions()
@@ -360,6 +361,18 @@ func (b *boardView) refreshIssuesRows() {
 func (b *boardView) refreshIssuesSummaries() {
 	for _, issue := range b.issues {
 		b.issuesSummaries[issue.Id] = fmt.Sprintf("%s %s", issue.Key, issue.Fields.Summary)
+	}
+}
+
+func (b *boardView) setInitialCursorX() {
+	if len(b.issuesColumn) == 0 {
+		return
+	}
+	b.cursorX = len(b.columnsX)
+	for _, v := range b.issuesColumn {
+		if v < b.cursorX {
+			b.cursorX = v
+		}
 	}
 }
 
