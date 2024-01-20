@@ -8,10 +8,10 @@ import (
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/ui"
 	"github.com/mk-5/fjira/internal/workspaces"
-	goinput "github.com/tcnksm/go-input"
 	"io"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -154,23 +154,37 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(color.HiYellowString(ui.MessageQuestionMark))
-	u := &goinput.UI{
-		Writer: os.Stdout,
-		Reader: input,
-	}
-	tokenType := jira.ApiToken
-	if existingSettings != nil && existingSettings.JiraTokenType != "" {
-		tokenType = existingSettings.JiraTokenType
-	}
 	tokenTypeOptions := []string{string(jira.ApiToken), string(jira.PersonalToken)}
-	tokenTypeStr, err := u.Select(ui.MessageEnterJiraTokenType, tokenTypeOptions, &goinput.Options{
-		Default:  string(tokenType),
-		Required: true,
-		Loop:     true,
-	})
-	if err != nil {
-		return nil, err
+	fmt.Print(color.HiYellowString(ui.MessageQuestionMark))
+	fmt.Print(ui.MessageEnterJiraTokenType)
+	if existingSettings != nil && existingSettings.JiraTokenType != "" {
+		fmt.Print(color.BlueString("[%s] ", existingSettings.JiraTokenType))
+	}
+	fmt.Println("")
+	fmt.Println("1. api token")
+	fmt.Println("2. personal token")
+	fmt.Println("")
+	var tokenOption int
+	for {
+		fmt.Print(ui.MessageEnterJiraTokenNumber)
+		tokenOptionStr, err := reader.ReadString('\n')
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		tokenOption, err = strconv.Atoi(strings.TrimSpace(tokenOptionStr))
+		if err == nil && tokenOption > 0 && tokenOption <= len(tokenTypeOptions) {
+			break
+		}
+		fmt.Println("")
+	}
+	var tokenTypeStr string
+	if tokenOption == 0 && existingSettings != nil && existingSettings.JiraTokenType != "" {
+		tokenTypeStr = string(existingSettings.JiraTokenType)
+	} else {
+		tokenTypeStr = tokenTypeOptions[tokenOption-1]
 	}
 	settings := &workspaces.WorkspaceSettings{
 		JiraToken:     strings.TrimSpace(token),

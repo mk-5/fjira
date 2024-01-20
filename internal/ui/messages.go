@@ -11,6 +11,7 @@ const (
 	MessageQuestionMark              = "? "
 	MessageEnterJiraApiToken         = "Jira Api Token: "
 	MessageEnterJiraTokenType        = "Jira Token Type: "
+	MessageEnterJiraTokenNumber      = "Enter a number (Default is 1): "
 	MessageProjectLabel              = "Project: "
 	MessageIssueLabel                = "Issue: "
 	MessageLabelStatus               = "Status: "
