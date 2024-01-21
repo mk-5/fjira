@@ -40,6 +40,10 @@ brews:
     license: "AGPL-3.0"
 archives:
   - id: fjira
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
     name_template: >-
       {{- .ProjectName }}_
       {{- title .Os }}_
