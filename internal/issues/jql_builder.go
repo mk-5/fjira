@@ -21,7 +21,11 @@ func BuildSearchIssuesJql(project *jira.Project, query string, status *jira.Issu
 		jql = jql + fmt.Sprintf(" AND status=%s", status.Id)
 	}
 	if user != nil && user.DisplayName != ui.MessageAll {
-		jql = jql + fmt.Sprintf(" AND assignee=%s", user.AccountId)
+		userId := user.AccountId
+		if userId == "" {
+			userId = user.Name
+		}
+		jql = jql + fmt.Sprintf(" AND assignee=%s", userId)
 	}
 	// TODO - would be safer to check the index of inserted all message, instead of checking it like this / same for all All checks
 	if label != "" && label != ui.MessageAll {

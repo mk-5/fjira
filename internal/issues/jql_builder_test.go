@@ -32,6 +32,7 @@ func Test_buildSearchIssuesJql(t *testing.T) {
 			"project=123 AND summary~\"abc*\" AND status=st1 AND assignee=us1 ORDER BY status",
 		},
 		{"should create valid jql", args{project: &jira.Project{Id: "123"}, label: "test"}, "project=123 AND labels=test ORDER BY status"},
+		{"should create valid jql", args{project: &jira.Project{Id: "123"}, user: &jira.User{Name: "bob"}}, "project=123 AND assignee=bob ORDER BY status"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
