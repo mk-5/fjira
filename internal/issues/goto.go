@@ -3,6 +3,7 @@ package issues
 import (
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/ui"
 	"time"
 )
 
@@ -56,6 +57,12 @@ func RegisterGoTo() {
 		api := args[2].(jira.Api)
 
 		defer app.GetApp().PanicRecover()
+		if projectKey == ui.MessageAll {
+			project := &jira.Project{Id: ui.MessageAll, Name: ui.MessageAll, Key: ui.MessageAll}
+			projectsView := NewIssuesSearchView(project, goBackFn, api)
+			app.GetApp().SetView(projectsView)
+			return
+		}
 		app.GetApp().Loading(true)
 		project, err := api.FindProject(projectKey)
 		if err != nil {
