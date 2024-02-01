@@ -55,8 +55,13 @@ func TestFuzzyFind_Draw(t *testing.T) {
 }
 
 func TestFuzzyFind_HandleKeyEvent(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	CreateNewAppWithScreen(screen)
+
 	type args struct {
-		ev []*tcell.EventKey
+		ev                []*tcell.EventKey
+		expectedSelection int
 	}
 	tests := []struct {
 		name string
@@ -67,13 +72,20 @@ func TestFuzzyFind_HandleKeyEvent(t *testing.T) {
 			tcell.NewEventKey(tcell.KeyUp, 0, tcell.ModNone),
 			tcell.NewEventKey(tcell.KeyUp, 0, tcell.ModNone),
 			tcell.NewEventKey(tcell.KeyDown, 0, tcell.ModNone),
-		}}},
+		}, expectedSelection: 2}},
 		{"should go up, and go down using tab/tab-shift", args{ev: []*tcell.EventKey{
 			tcell.NewEventKey(tcell.KeyTab, 0, tcell.ModNone),
 			tcell.NewEventKey(tcell.KeyTab, 0, tcell.ModNone),
 			tcell.NewEventKey(tcell.KeyTab, 0, tcell.ModNone),
 			tcell.NewEventKey(tcell.KeyBacktab, 0, tcell.ModNone),
-		}}},
+		}, expectedSelection: 2}},
+		{"should go up with page up", args{ev: []*tcell.EventKey{
+			tcell.NewEventKey(tcell.KeyPgUp, 0, tcell.ModNone),
+		}, expectedSelection: 3}},
+		{"should go down with page down", args{ev: []*tcell.EventKey{
+			tcell.NewEventKey(tcell.KeyPgUp, 0, tcell.ModNone),
+			tcell.NewEventKey(tcell.KeyPgDn, 0, tcell.ModNone),
+		}, expectedSelection: 0}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -88,7 +100,7 @@ func TestFuzzyFind_HandleKeyEvent(t *testing.T) {
 			}
 
 			// then
-			assert.Equal(t, 2, fuzzyFind.selected)
+			assert.Equal(t, tt.args.expectedSelection, fuzzyFind.selected)
 		})
 	}
 }

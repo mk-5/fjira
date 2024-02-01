@@ -194,6 +194,14 @@ func (f *FuzzyFind) HandleKeyEvent(ev *tcell.EventKey) {
 		f.selected = ClampInt(f.selected-1, 0, f.matches.Len()-1)
 		return
 	}
+	if ev.Key() == tcell.KeyPgUp {
+		f.selected = ClampInt(f.selected+10, 0, f.matches.Len()-1)
+		return
+	}
+	if ev.Key() == tcell.KeyPgDn {
+		f.selected = ClampInt(f.selected-10, 0, f.matches.Len()-1)
+		return
+	}
 	if f.isEventWritable(ev) {
 		f.buffer.WriteRune(ev.Rune())
 		f.markAsDirty()
