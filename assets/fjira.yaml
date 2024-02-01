@@ -1,0 +1,12 @@
+current: default
+workspaces:
+    default:
+        jiraRestUrl: https://my-jira.atlassian.net
+        jiraToken: change_me_to_token
+        jiraUsername: change_me_to_user
+        jiraTokenType: api token
+    local:
+        jiraRestUrl: http://localhost:8080
+        jiraToken: change_me_to_token
+        jiraUsername: change_me_to_user
+        jiraTokenType: personal token

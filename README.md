@@ -12,7 +12,9 @@
 
 ## Introduction
 
-Fjira is a powerful command-line tool designed to simplify your interactions with Jira. Whether you're a developer, project manager, or just a Jira enthusiast, Fjira streamlines your workflow, making Jira tasks more efficient than ever before.
+Fjira is a powerful command-line tool designed to simplify your interactions with Jira. Whether you're a developer,
+project manager, or just a Jira enthusiast, Fjira streamlines your workflow, making Jira tasks more efficient than ever
+before.
 
 ![Fjira Demo](demo.gif)
 
@@ -119,7 +121,8 @@ The first time you run Fjira, it will prompt you for your Jira API URL and token
 
 ![Fjira First Run](demo_first_run.gif)
 
-Fjira workspaces store Jira configuration data in a simple YAML file located at `~/.fjira`. You can switch between multiple workspaces using the `fjira workspace` command.
+Fjira workspaces store Jira configuration data in a simple YAML file located at `~/.fjira`. You can switch between
+multiple workspaces using the `fjira workspace` command.
 
 ```shell
 fjira workspace
@@ -139,7 +142,8 @@ fjira workspace --edit abc
 
 ### Jira Token Type
 
-Fjira supports both Jira Server and Jira Cloud, which use different token types for authorization. The tool will prompt you to select the appropriate token type during workspace configuration.
+Fjira supports both Jira Server and Jira Cloud, which use different token types for authorization. The tool will prompt
+you to select the appropriate token type during workspace configuration.
 
 ```shell
 ? Jira Token Type:
@@ -149,6 +153,11 @@ Fjira supports both Jira Server and Jira Cloud, which use different token types 
 
 Enter a number (Default is 1):
 ```
+
+### YAML configuration
+
+If you prefer a manual approach, you have the option to add workspace configurations by creating a `fjira.yaml` file in the `~/.fjira/` directory. 
+For your convenience, an example configuration file is here: [fjira.yml](assets/fjira.yaml)
 
 ## Projects search
 
@@ -180,7 +189,6 @@ Fjira will skip all intermediate screens and take you directly to the issue view
 
 ![Fjira Issue View](demo_issue.png)
 
-
 ## Boards View
 
 Fjira also offers a board-like view. After opening a project, press F4 to access this view.
@@ -205,9 +213,12 @@ You can search using your stored Jira Filters:
 fjira filters
 ```
 
+![Fjira Filters](demo_filters.png)
+
 ## Custom Color Scheme
 
-Tailor the fjira color scheme to match your preferences by creating a custom `~/.fjira/colors.yml` file. This file allows you to personalize the colors according to your unique style. 
+Tailor the fjira color scheme to match your preferences by creating a custom `~/.fjira/colors.yml` file. This file
+allows you to personalize the colors according to your unique style.
 Refer to the example file, located here: [colors.yml](assets/colors.yml)
 
 ## Roadmap (TODO)
@@ -220,10 +231,13 @@ Refer to the example file, located here: [colors.yml](assets/colors.yml)
 ## Motivation
 
 Fjira was designed for personal convenience, born out of a desire for efficiency and a love for terminal tools.
-Often, we find ourselves in "I just need to transition issue 123 to the next status." While opening Jira, locating the ticket on the board, and navigating the Jira issue modal are all perfectly fine, they do consume a fair amount of time.
+Often, we find ourselves in "I just need to transition issue 123 to the next status." While opening Jira, locating the
+ticket on the board, and navigating the Jira issue modal are all perfectly fine, they do consume a fair amount of time.
 
 Fjira empowers you to execute such tasks directly from the terminal, where you're likely already working! 😄
 
-If Fjira enhances your Jira experience as it did mine, please consider giving it a star on GitHub. 🌟 It will power-up me for a future work.
+If Fjira enhances your Jira experience as it did mine, please consider giving it a star on GitHub. 🌟 It will power-up me
+for a future work.
 
-Feel free to contribute to this project and help shape its future! Your feedback and contributions are highly appreciated.
+Feel free to contribute to this project and help shape its future! Your feedback and contributions are highly
+appreciated.
