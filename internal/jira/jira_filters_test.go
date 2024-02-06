@@ -8,15 +8,17 @@ import (
 
 func Test_httpApi_GetFilter(t *testing.T) {
 	tests := []struct {
-		name    string
-		want    *Filter
-		wantErr bool
+		name      string
+		want      *Filter
+		tokenType JiraTokenType
+		wantErr   bool
 	}{
-		{"should get filter", &Filter{Name: "Filter for FJIR board"}, false},
+		{"should get filter", &Filter{Name: "Filter for FJIR board"}, ApiToken, false},
+		{"should get filter", &Filter{Name: "Filter for FJIR board"}, PersonalToken, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			api := NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+			api := NewJiraApiMockWithTokenType(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				body := `
 {
@@ -85,7 +87,7 @@ func Test_httpApi_GetFilter(t *testing.T) {
 }
 `
 				w.Write([]byte(body)) //nolint:errcheck
-			})
+			}, tt.tokenType)
 			got, err := api.GetFilter("10006")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetFilter() error = %v, wantErr %v", err, tt.wantErr)

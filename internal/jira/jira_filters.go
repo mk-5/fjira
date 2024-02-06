@@ -13,8 +13,9 @@ type Filter struct {
 }
 
 const (
-	FilterUrl   = "/rest/api/2/filter/%s"
-	MyFilterUrl = "/rest/api/2/filter/my"
+	FilterUrl             = "/rest/api/2/filter/%s"
+	MyFilterUrl           = "/rest/api/2/filter/my"
+	MyFilterUrlJiraServer = "/rest/api/2/filter/favourite"
 )
 
 func (api *httpApi) GetFilter(filterId string) (*Filter, error) {
@@ -31,7 +32,11 @@ func (api *httpApi) GetFilter(filterId string) (*Filter, error) {
 }
 
 func (api *httpApi) GetMyFilters() ([]Filter, error) {
-	resultBytes, err := api.jiraRequest("GET", MyFilterUrl, &nilParams{}, nil)
+	url := MyFilterUrl
+	if api.IsJiraServer() {
+		url = MyFilterUrlJiraServer
+	}
+	resultBytes, err := api.jiraRequest("GET", url, &nilParams{}, nil)
 	if err != nil {
 		return nil, err
 	}

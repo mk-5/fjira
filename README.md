@@ -207,7 +207,7 @@ fjira jql
 
 ## My Jira Filters
 
-You can search using your stored Jira Filters:
+You can search using your stored (favourites) Jira Filters:
 
 ```shell
 fjira filters
