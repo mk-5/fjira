@@ -294,6 +294,18 @@ func Test_fjiraIssueView_HandleKeyEvent(t *testing.T) {
 
 			// then
 			assert2.Equal(t, 0, view.scrollY)
+
+			// when
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyBacktab, 'k', tcell.ModNone))
+
+			// then
+			assert2.Equal(t, 1, view.scrollY)
+
+			// and when
+			view.HandleKeyEvent(tcell.NewEventKey(tcell.KeyTab, 'k', tcell.ModNone))
+
+			// then
+			assert2.Equal(t, 0, view.scrollY)
 		})
 	}
 }
