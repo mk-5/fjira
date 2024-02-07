@@ -152,10 +152,10 @@ func (view *issueView) HandleKeyEvent(ev *tcell.EventKey) {
 	if view.fuzzyFind != nil {
 		view.fuzzyFind.HandleKeyEvent(ev)
 	}
-	if ev.Key() == tcell.KeyUp {
+	if ev.Key() == tcell.KeyUp || ev.Key() == tcell.KeyTab {
 		view.scrollY = app.ClampInt(view.scrollY-1, 0, view.maxScrollY)
 	}
-	if ev.Key() == tcell.KeyDown {
+	if ev.Key() == tcell.KeyDown || ev.Key() == tcell.KeyBacktab {
 		view.scrollY = app.ClampInt(view.scrollY+1, 0, view.maxScrollY)
 	}
 }
