@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/gdamore/tcell/v2/encoding"
+	_ "github.com/gdamore/tcell/v2/encoding"
 )
 
 type App struct {
@@ -83,7 +83,6 @@ func initAppWithScreen(screen tcell.Screen) {
 	if os.Getenv("TERM") == "cygwin" {
 		os.Setenv("TERM", "")
 	}
-	encoding.Register()
 	tcell.SetEncodingFallback(tcell.EncodingFallbackUTF8)
 	MustLoadColorScheme()
 	if err := screen.Init(); err != nil {
