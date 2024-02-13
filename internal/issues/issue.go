@@ -78,6 +78,10 @@ func NewIssueView(issue *jira.Issue, goBackFn func(), api jira.Api) app.View {
 }
 
 func (view *issueView) Init() {
+	view.body = app.PrepareRichText(view.body)
+	for i := range view.comments {
+		view.comments[i].Body = app.PrepareRichText(view.comments[i].Body)
+	}
 	go view.handleIssueAction()
 }
 
@@ -101,14 +105,14 @@ func (view *issueView) Draw(screen tcell.Screen) {
 
 		app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+view.descriptionLines+4, view.boxTitleStyle)
 		app.DrawText(screen, 2, view.lastY+1, view.boxTitleStyle, ui.MessageDescription)
-		app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, view.defaultStyle, view.body)
+		app.DrawTextLimitedMarkdown(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, view.defaultStyle, view.body)
 
 		view.lastY = view.lastY + view.descriptionLines + 6
 
 		for _, comment := range view.comments {
 			app.DrawBox(screen, 1, view.lastY+1, view.descriptionLimitX+4, view.lastY+1+comment.Lines+2, view.boxTitleStyle)
 			app.DrawText(screen, 2, view.lastY+1, view.boxTitleStyle, comment.Title)
-			app.DrawTextLimited(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, view.defaultStyle, comment.Body)
+			app.DrawTextLimitedMarkdown(screen, 3, view.lastY+2, view.descriptionLimitX, view.descriptionLimitY, view.defaultStyle, comment.Body)
 			view.lastY = view.lastY + 1 + comment.Lines + 3
 		}
 	}
