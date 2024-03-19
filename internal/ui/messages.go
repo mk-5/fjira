@@ -61,6 +61,7 @@ const (
 	MessageBoards                    = "boards"
 	MessageAssignUser                = "Assign user "
 	MessageComment                   = "Comment "
+	MessageCopyIssue                 = "Copy issue "
 	MessageLabel                     = "Label "
 	MessageYes                       = "Yes "
 	MessageOpen                      = "Open "
@@ -79,4 +80,5 @@ const (
 	MessageJqlAddSuccess             = "New JQL has been successfully added to your workspace."
 	MessageJqlRemoveSuccess          = "JQL has been successfully removed from your workspace."
 	MessageCustomJql                 = "Custom JQL"
+	MessageCopyIssueSuccess          = "Issue %s has been successfully copied to clipboard."
 )
