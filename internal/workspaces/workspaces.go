@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	os2 "github.com/mk-5/fjira/internal/os"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,10 +33,7 @@ func NewDeprecatedUserHomeWorkspaces() DeprecatedUserHomeWorkspaces {
 }
 
 func (u *userHomeWorkspaces) readCurrentWorkspace() (string, error) {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
+	userHomeDir := os2.MustGetUserHomeDir()
 	linkPath := fmt.Sprintf(CurrentWorkspaceFilePattern, userHomeDir)
 	workspaceFilePath, err := os.Readlink(linkPath)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
@@ -49,10 +47,7 @@ func (u *userHomeWorkspaces) readCurrentWorkspace() (string, error) {
 }
 
 func (u *userHomeWorkspaces) readAllWorkspaces() ([]string, error) {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
+	userHomeDir := os2.MustGetUserHomeDir()
 	pattern := fmt.Sprintf(AvailableWorkspacesPattern, userHomeDir)
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
@@ -83,10 +78,7 @@ func (*userHomeWorkspaces) normalizeWorkspaceFilename(workspace string) string {
 // There is a problem with symlinks for windows platform, so it was not super future-proof solution.
 // That method is migrating from the old to the new .yml settings approach
 func (u *userHomeWorkspaces) MigrateFromGlobWorkspacesToYaml() error {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err.Error())
-	}
+	userHomeDir := os2.MustGetUserHomeDir()
 	oldCurrentWorkspacePointerLink := fmt.Sprintf(CurrentWorkspaceFilePattern, userHomeDir)
 	if _, err := os.Lstat(oldCurrentWorkspacePointerLink); errors.Is(err, os.ErrNotExist) {
 		// nothing to do

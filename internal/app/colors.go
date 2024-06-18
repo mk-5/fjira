@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/gdamore/tcell/v2"
+	os2 "github.com/mk-5/fjira/internal/os"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -23,7 +24,7 @@ func Color(c string) tcell.Color {
 }
 
 func MustLoadColorScheme() map[string]interface{} {
-	d, _ := os.UserHomeDir()
+	d := os2.MustGetUserHomeDir()
 	p := fmt.Sprintf("%s/.fjira/colors.yml", d)
 	b, err := os.ReadFile(p)
 	if err != nil {

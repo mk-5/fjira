@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/mk-5/fjira/internal/jira"
+	os2 "github.com/mk-5/fjira/internal/os"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -148,10 +149,7 @@ func (s *userHomeSettingsStorage) ReadAllWorkspaces() ([]string, error) {
 }
 
 func (s *userHomeSettingsStorage) ConfigDir() (string, error) {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
+	userHomeDir := os2.MustGetUserHomeDir()
 	configDir := fmt.Sprintf("%s/.fjira", userHomeDir)
 	if _, err := os.Stat(configDir); errors.Is(err, os.ErrNotExist) {
 		err := os.Mkdir(configDir, os.ModePerm)

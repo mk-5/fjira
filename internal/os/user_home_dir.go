@@ -16,3 +16,15 @@ func SetUserHomeDir(dir string) error {
 	}
 	return os.Setenv(env, dir)
 }
+
+func MustGetUserHomeDir() string {
+	xdx := os.Getenv("XDX_CONFIG_HOME")
+	if xdx != "" {
+		return xdx
+	}
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	return dir
+}
