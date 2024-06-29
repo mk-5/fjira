@@ -17,6 +17,7 @@ const (
 	ActionSearchByLabel
 	ActionBoards
 	ActionComment
+	ActionCopyIssue
 	ActionCancel
 	ActionOpen
 	ActionYes
