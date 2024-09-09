@@ -149,8 +149,7 @@ func (s *userHomeSettingsStorage) ReadAllWorkspaces() ([]string, error) {
 }
 
 func (s *userHomeSettingsStorage) ConfigDir() (string, error) {
-	userHomeDir := os2.MustGetUserHomeDir()
-	configDir := fmt.Sprintf("%s/.fjira", userHomeDir)
+	configDir := os2.MustGetFjiraHomeDir()
 	if _, err := os.Stat(configDir); errors.Is(err, os.ErrNotExist) {
 		err := os.Mkdir(configDir, os.ModePerm)
 		if err != nil {

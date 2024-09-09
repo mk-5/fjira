@@ -18,7 +18,8 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - uses: actions/checkout@v3
-      - run: | 
+      - run: |
+          export XDG_CONFIG_HOME=""
           go test  -coverprofile=coverage.out -coverpkg=./... -covermode=count ./internal/... 
           COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
           echo "Total coverage: $COVERAGE"
