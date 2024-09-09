@@ -24,8 +24,8 @@ func Color(c string) tcell.Color {
 }
 
 func MustLoadColorScheme() map[string]interface{} {
-	d := os2.MustGetUserHomeDir()
-	p := fmt.Sprintf("%s/.fjira/colors.yml", d)
+	d := os2.MustGetFjiraHomeDir()
+	p := fmt.Sprintf("%s/colors.yml", d)
 	b, err := os.ReadFile(p)
 	if err != nil {
 		schemeMap = parseYMLStr(defaultColorsYML())

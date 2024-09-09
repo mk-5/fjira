@@ -29,10 +29,6 @@ var (
 )
 
 func Install(workspace string) (*workspaces.WorkspaceSettings, error) {
-	// it will be removed after a few version
-	u := workspaces.NewDeprecatedUserHomeWorkspaces()
-	_ = u.MigrateFromGlobWorkspacesToYaml()
-
 	err := validateWorkspaceName(workspace)
 	if err != nil {
 		return nil, err
