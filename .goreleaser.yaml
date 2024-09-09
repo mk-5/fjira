@@ -13,6 +13,8 @@ builds:
       - linux
       - windows
       - darwin
+      - openbsd
+      - freebsd
     id: fjira
     main: ./cmd/fjira-cli
     binary: fjira
