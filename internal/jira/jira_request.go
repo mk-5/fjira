@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"path"
 )
 
 func (api *httpApi) jiraRequest(method string, restPath string, queryParams interface{}, reqBody io.Reader) ([]byte, error) {
@@ -13,7 +14,7 @@ func (api *httpApi) jiraRequest(method string, restPath string, queryParams inte
 	if err != nil {
 		return nil, err
 	}
-	u := api.restUrl.ResolveReference(&url.URL{Path: restPath, RawQuery: queryParamsValues.Encode()})
+	u := api.restUrl.ResolveReference(&url.URL{Path: path.Join(api.restUrl.Path, restPath), RawQuery: queryParamsValues.Encode()})
 	req, err := http.NewRequest(method, u.String(), reqBody)
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
