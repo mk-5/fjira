@@ -10,12 +10,11 @@ import (
 )
 
 func (api *httpApi) jiraRequest(method string, restPath string, queryParams interface{}, reqBody io.Reader) ([]byte, error) {
-	queryParamsValues, err := query.Values(queryParams)
+	u, err := api.jiraRequestUrl(restPath, queryParams)
 	if err != nil {
 		return nil, err
 	}
-	u := api.restUrl.ResolveReference(&url.URL{Path: path.Join(api.restUrl.Path, restPath), RawQuery: queryParamsValues.Encode()})
-	req, err := http.NewRequest(method, u.String(), reqBody)
+	req, err := http.NewRequest(method, u, reqBody)
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
@@ -31,4 +30,13 @@ func (api *httpApi) jiraRequest(method string, restPath string, queryParams inte
 	defer response.Body.Close()
 	body, _ := io.ReadAll(response.Body)
 	return body, nil
+}
+
+func (api *httpApi) jiraRequestUrl(restPath string, queryParams interface{}) (string, error) {
+	queryParamsValues, err := query.Values(queryParams)
+	if err != nil {
+		return "", err
+	}
+	u := api.restUrl.ResolveReference(&url.URL{Path: path.Join(api.restUrl.Path, restPath), RawQuery: queryParamsValues.Encode()})
+	return u.String(), err
 }
