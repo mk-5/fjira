@@ -30,7 +30,7 @@ test_coverage:
 	go tool cover -func coverage.out
 
 release:
-	goreleaser release --skip-publish --snapshot --rm-dist
+	goreleaser release --skip publish --snapshot --clean
 
 clean:
 	rm -rf ${BINARY_DIR}
