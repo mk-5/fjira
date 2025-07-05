@@ -21,6 +21,7 @@ jobs:
           fetch-depth: 0
       - name: install chocolatey
         run: |
+          sudo apt install mono-complete -y
           mkdir -p /opt/chocolatey
           wget -q -O - "https://github.com/chocolatey/choco/releases/download/${CHOCOLATEY_VERSION}/chocolatey.v${CHOCOLATEY_VERSION}.tar.gz" | tar -xz -C "/opt/chocolatey"
           echo '#!/bin/bash' >> /usr/local/bin/choco
