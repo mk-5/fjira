@@ -24,15 +24,13 @@ release:
   mode: replace
   header: |
     ## Release ({{ .Version }})
-brews:
+homebrew_casks:
   - name: fjira
     repository:
       owner: mk-5
       name: homebrew-mk-5
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    download_strategy: CurlDownloadStrategy
-    url_template: "https://github.com/mk-5/fjira/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     commit_author:
       name: mk-5
       email: mateusz+goreleaser@mk5.pl
@@ -41,10 +39,6 @@ brews:
     license: "AGPL-3.0"
 archives:
   - id: fjira
-    format: tar.gz
-    format_overrides:
-      - goos: windows
-        format: zip
     name_template: >-
       {{- .ProjectName }}_
       {{- title .Os }}_
@@ -64,8 +58,6 @@ nfpms:
       - deb
       - rpm
       - apk
-    builds:
-      - fjira
     scripts:
       postremove: "scripts/postremove.sh"
     rpm:
@@ -75,10 +67,7 @@ nfpms:
       signature:
         key_file: '{{ .Env.HOME }}/.key'
 snapcrafts:
-  -
-    id: fjira
-    builds:
-      - fjira
+  - id: fjira
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     name: fjira
     title: Fjira
@@ -155,8 +144,7 @@ chocolateys:
 
 checksum:
   name_template: 'checksums.txt'
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+snapshot: {}
 changelog:
   sort: desc
   filters:
