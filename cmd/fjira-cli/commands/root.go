@@ -3,10 +3,11 @@ package commands
 import (
 	"context"
 	"errors"
+	"regexp"
+
 	"github.com/mk-5/fjira/internal/fjira"
 	"github.com/mk-5/fjira/internal/workspaces"
 	"github.com/spf13/cobra"
-	"regexp"
 )
 
 type CtxVarWorkspaceSettings string
@@ -15,7 +16,7 @@ const (
 	CtxWorkspaceSettings CtxVarWorkspaceSettings = "workspace-settings"
 )
 
-var InvalidIssueKeyFormatErr = errors.New("invalid issue key format")
+var ErrInvalidIssueKeyFormat = errors.New("error: invalid issue key format")
 
 // shouldSkipWorkspaceInitialization determines if a command should skip workspace initialization.
 func shouldSkipWorkspaceInitialization(cmd *cobra.Command) bool {
@@ -69,7 +70,7 @@ Say goodbye to manual searching and hello to increased productivity with fjira.`
 				issueRegExp := regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
 				issueKey := args[0]
 				if !issueRegExp.MatchString(issueKey) {
-					return InvalidIssueKeyFormatErr
+					return ErrInvalidIssueKeyFormat
 				}
 				issueCmd := GetIssueCmd()
 				issueCmd.SetArgs([]string{issueKey})

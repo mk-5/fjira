@@ -3,15 +3,16 @@ package fjira
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"testing"
+	"time"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	os2 "github.com/mk-5/fjira/internal/os"
 	"github.com/mk-5/fjira/internal/workspaces"
 	assert2 "github.com/stretchr/testify/assert"
-	"os"
-	"testing"
-	"time"
 )
 
 func Test_shouldReturnErrorWhenNoEnvironments(t *testing.T) {
@@ -168,7 +169,7 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 			assert2.Equal(t, "TestUrl", settings.JiraRestUrl)
 			assert2.Equal(t, "TestUser", settings.JiraUsername)
 			assert2.Equal(t, jira.ApiToken, settings.JiraTokenType)
-			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/fjira.yaml"))
+			assert2.FileExists(t, fmt.Sprintf("%s/.fjira/fjira.yaml", tempDir))
 
 			// and when
 			stdin = bytes.NewBufferString("TestUser2\nTestUrl2\n\n")
@@ -183,7 +184,7 @@ func Test_readFromUserInputAndWorkspaceEdit(t *testing.T) {
 			assert2.Equal(t, "TestUrl2", settings.JiraRestUrl)
 			assert2.Equal(t, "TestUser2", settings.JiraUsername)
 			assert2.Equal(t, jira.ApiToken, settings.JiraTokenType)
-			assert2.FileExists(t, fmt.Sprintf(tempDir+"/.fjira/fjira.yaml"))
+			assert2.FileExists(t, fmt.Sprintf("%s/.fjira/fjira.yaml", tempDir))
 		})
 	}
 }
@@ -199,7 +200,7 @@ func Test_fjira_ValidateWorkspaceName(t *testing.T) {
 	}{
 		{"should validate workspace name", args{workspace: "xyz"}, nil},
 		{"should validate workspace name", args{workspace: ""}, nil},
-		{"should validate workspace name", args{workspace: ";asd;231"}, WorkspaceFormatInvalidErr},
+		{"should validate workspace name", args{workspace: ";asd;231"}, ErrWorkspaceFormatInvalid},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

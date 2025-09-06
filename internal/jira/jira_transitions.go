@@ -60,7 +60,7 @@ func (a *httpApi) FindTransitions(issueId string) ([]IssueTransition, error) {
 	var sResponse transitionsResponse
 	if err := json.Unmarshal(responseBody, &sResponse); err != nil {
 		app.Error(err.Error())
-		return nil, SearchDeserializeErr
+		return nil, ErrSearchDeserialize
 	}
 	var transitions = make([]IssueTransition, 0, 1000)
 	transitions = append(transitions, sResponse.Transitions...)

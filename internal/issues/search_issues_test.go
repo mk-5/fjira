@@ -2,14 +2,15 @@ package issues
 
 import (
 	"bytes"
+	"net/http"
+	"testing"
+	"time"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/projects"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
-	"time"
 )
 
 func TestNewIssuesSearchView(t *testing.T) {
@@ -248,10 +249,7 @@ func Test_fjiraSearchIssuesView_runSelectStatus(t *testing.T) {
 				view.runSelectStatus()
 				done <- struct{}{}
 			}()
-			for {
-				if view.fuzzyFind != nil {
-					break
-				}
+			for view.fuzzyFind == nil {
 				<-time.NewTimer(10 * time.Millisecond).C
 			}
 			query := "xxx"

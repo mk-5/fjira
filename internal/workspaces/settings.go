@@ -3,10 +3,11 @@ package workspaces
 import (
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/mk-5/fjira/internal/jira"
 	os2 "github.com/mk-5/fjira/internal/os"
 	"gopkg.in/yaml.v3"
-	"os"
 )
 
 type Settings struct {
@@ -32,7 +33,7 @@ type SettingsStorage interface { //nolint
 }
 
 var (
-	WorkspaceNotFoundErr = errors.New("workspace doesn't exist")
+	ErrWorkspaceNotFound = errors.New("workspace doesn't exist")
 )
 
 const (
@@ -56,7 +57,7 @@ func (s *userHomeSettingsStorage) Read(workspace string) (*WorkspaceSettings, er
 		w.Workspace = workspace
 		return &w, nil
 	}
-	return nil, WorkspaceNotFoundErr
+	return nil, ErrWorkspaceNotFound
 }
 
 func (s *userHomeSettingsStorage) Write(workspace string, workspaceSettings *WorkspaceSettings) error {
@@ -133,7 +134,7 @@ func (s *userHomeSettingsStorage) SetCurrentWorkspace(workspace string) error {
 		settings.Current = workspace
 		return s.writeSettings(settings)
 	}
-	return WorkspaceNotFoundErr
+	return ErrWorkspaceNotFound
 }
 
 func (s *userHomeSettingsStorage) ReadAllWorkspaces() ([]string, error) {
