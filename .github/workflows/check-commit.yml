@@ -14,7 +14,7 @@ jobs:
       - name: Verify commit message [push]
         id: verify_commit_message
         run: |
-          if [[ ! "${{ github.event.head_commit.message }}" =~ ^(feat\(*[a-z0-9#]*\)*:)|(fix\(*[a-z0-9#]*\)*:)|(docs\(*[a-z0-9#]*\)*:)|(build\(*[a-z0-9#]*\)*:)|(refactor\(*[a-z0-9#]*\)*:)|(misc\(*[a-z0-9#]*\)*:).* ]]; then 
+          if [[ ! "${{ github.event.head_commit.message }}" =~ ^(feat\(*[a-z0-9#]*\)*:)|(fix\(*[a-z0-9#]*\)*:)|(docs\(*[a-z0-9#]*\)*:)|(build\(*[a-z0-9#]*\)*:)|(refactor\(*[a-z0-9#]*\)*:)|(chore\(*[a-z0-9#]*\)*:)|(misc\(*[a-z0-9#]*\)*:).* ]]; then 
             echo "Invalid commit message: "
             echo "${{ github.event.head_commit.message }}"
             exit 1
@@ -29,7 +29,7 @@ jobs:
         id: get_head_commit_message
         run: |
           export commit=$(git show -s --format=%s)
-          if [[ ! "$commit" =~ ^(feat\(*[a-z0-9#]*\)*:)|(fix\(*[a-z0-9#]*\)*:)|(docs\(*[a-z0-9#]*\)*:)|(build\(*[a-z0-9#]*\)*:)|(refactor\(*[a-z0-9#]*\)*:)|(misc\(*[a-z0-9#]*\)*:).* ]]; then 
+          if [[ ! "$commit" =~ ^(feat\(*[a-z0-9#]*\)*:)|(fix\(*[a-z0-9#]*\)*:)|(docs\(*[a-z0-9#]*\)*:)|(build\(*[a-z0-9#]*\)*:)|(refactor\(*[a-z0-9#]*\)*:)|(chore\(*[a-z0-9#]*\)*:)|(misc\(*[a-z0-9#]*\)*:).* ]]; then 
             echo "Invalid commit message: "
             echo "$commit"
             exit 1
