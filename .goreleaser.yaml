@@ -36,7 +36,7 @@ homebrew_casks:
       email: mateusz+goreleaser@mk5.pl
     commit_msg_template: "misc: brew formula update for {{ .ProjectName }} version {{ .Tag }}"
     homepage: "https://github.com/mk-5/fjira"
-    license: "AGPL-3.0-or-later"
+    license: "AGPL-3.0-only"
 archives:
   - id: fjira
     formats: [tar.gz]
@@ -57,7 +57,7 @@ nfpms:
     homepage: "https://github.com/mk-5/fjira"
     maintainer: "Mateusz <mateusz@mk5.pl>"
     description: "Fjira - the fuzziest Jira command line tool in the world."
-    license: "AGPL-3.0-or-later"
+    license: "AGPL-3.0-only"
     formats:
       - deb
       - rpm
@@ -95,7 +95,7 @@ snapcrafts:
       - stable
     grade: stable
     confinement: strict
-    license: "AGPL-3.0-or-later"
+    license: "AGPL-3.0-only"
     base: core18
     assumes:
       - snapd2.38
@@ -115,7 +115,7 @@ aurs:
     maintainers:
       - 'Mateusz Kulawik <mateusz+aur@mk5.pl>'
       - 'Jonathan Neidel <aur at jneidel dot com>'
-    license: 'AGPL-3.0-or-later'
+    license: 'AGPL-3.0-only'
     private_key: '{{ .Env.AUR_KEY }}'
     git_url: 'ssh://aur@aur.archlinux.org/fjira-bin.git'
     package: |-
