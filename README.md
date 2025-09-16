@@ -4,7 +4,7 @@
 
 [![Mentioned in Awesome Go](https://awesome.re/badge-flat.svg)](https://github.com/avelino/awesome-go)
 ![Test](https://github.com/mk-5/fjira/actions/workflows/tests.yml/badge.svg)
-[![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](https://github.com/mk-5/fjira/blob/master/LICENSE)
+[![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue.svg)](https://github.com/mk-5/fjira/blob/master/LICENSE)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/mk-5/fjira)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mk-5/fjira)](https://goreportcard.com/report/github.com/mk-5/fjira)
 [![Go Reference](https://pkg.go.dev/badge/github.com/mk-5/fjira.svg)](https://pkg.go.dev/github.com/mk-5/fjira)
