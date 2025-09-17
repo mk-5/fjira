@@ -31,11 +31,10 @@ before.
 
 ## Installation
 
-### macOS
+### Homebrew (macOS/Linux)
 
 ```shell
-brew tap mk-5/mk-5
-brew install fjira
+$ brew install fjira
 ```
 
 ### Linux
