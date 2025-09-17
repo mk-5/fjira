@@ -2,13 +2,14 @@ package projects
 
 import (
 	"bytes"
+	"net/http"
+	"testing"
+	"time"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
-	"time"
 )
 
 func TestNewProjectsSearchView(t *testing.T) {
@@ -28,7 +29,7 @@ func TestNewProjectsSearchView(t *testing.T) {
 			app.CreateNewAppWithScreen(screen)
 			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
-				_, _ = w.Write([]byte(`[{"id": "1", "name": "Test", "key": "TEST"}, {"id": "2", "name": "Fjira", "key":"FJIR"}]`))
+				_, _ = w.Write([]byte(`{"values":[{"id": "1", "name": "Test", "key": "TEST"}, {"id": "2", "name": "Fjira", "key":"FJIR"}]}`))
 			})
 			view := NewProjectsSearchView(api).(*searchProjectsView)
 

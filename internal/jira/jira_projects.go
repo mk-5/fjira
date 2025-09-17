@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	ProjectsJira      = "/rest/api/2/project"
-	ProjectsByKeyJira = "/rest/api/2/project/%s"
+	ProjectsJira      = "/rest/api/3/project/search"
+	ProjectsByKeyJira = "/rest/api/3/project/%s"
 )
 
 type Project struct {
@@ -18,20 +18,33 @@ type Project struct {
 	Key  string `json:"key"`
 }
 
+type searchProjectsQueryParams struct {
+	MaxResults int32 `url:"maxResults"`
+	StartAt    int32 `url:"startAt"`
+}
+
+type searchProjectsResponse struct {
+	MaxResults int32     `json:"maxResults"`
+	StartAt    int32     `json:"startAt"`
+	Values     []Project `json:"values"`
+}
+
 var (
 	ProjectNotFoundError = errors.New("Project not found.")
 )
 
 func (api *httpApi) FindProjects() ([]Project, error) {
-	response, err := api.jiraRequest("GET", ProjectsJira, nil, nil)
+	params := &searchProjectsQueryParams{}
+	params.MaxResults = 100
+	response, err := api.jiraRequest("GET", ProjectsJira, params, nil)
 	if err != nil {
 		return nil, err
 	}
-	var projects []Project
+	var projects searchProjectsResponse
 	if err := json.Unmarshal(response, &projects); err != nil {
 		return nil, err
 	}
-	return projects, nil
+	return projects.Values, nil
 }
 
 func (api *httpApi) FindProject(projectKey string) (*Project, error) {
