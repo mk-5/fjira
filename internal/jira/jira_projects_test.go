@@ -22,7 +22,8 @@ func Test_httpJiraApi_FindProjects(t *testing.T) {
 			api := NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
 				body := `
-[
+{
+  "values": [
     {
         "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
         "id": "1",
@@ -48,6 +49,7 @@ func Test_httpJiraApi_FindProjects(t *testing.T) {
         "properties": {}
     }
 ]
+}
 `
 				w.Write([]byte(body)) //nolint:errcheck
 			})

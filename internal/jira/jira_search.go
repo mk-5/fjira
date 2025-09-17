@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mk-5/fjira/internal/app"
 	"regexp"
+
+	"github.com/mk-5/fjira/internal/app"
 )
 
 const (
-	SearchJira      = "/rest/api/2/search"
+	SearchJira      = "/rest/api/3/search/jql"
 	JiraIssueRegexp = "^[a-zA-Z0-9]{1,10}-[0-9]{1,20}$"
 )
 
@@ -26,6 +27,7 @@ type searchResponse struct {
 	Total      int32   `json:"total"`
 	MaxResults int32   `json:"maxResults"`
 	Issues     []Issue `json:"issues"`
+	IsLast     bool    `json:"isLast"`
 }
 
 func (api *httpApi) Search(query string) ([]Issue, int32, error) {
