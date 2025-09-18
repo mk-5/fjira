@@ -220,6 +220,19 @@ Tailor the fjira color scheme to match your preferences by creating a custom `~/
 allows you to personalize the colors according to your unique style.
 Refer to the example file, located here: [colors.yml](assets/colors.yml)
 
+## Homebrew
+
+Fjira has moved from a custom Homebrew tap to Homebrew Core.
+If you previously installed Fjira using the custom tap, you’ll need to remove it before updating to the latest version:
+
+```shell
+brew untap mk-5/mk-5
+brew update
+brew upgrade fjira
+```
+
+Once untapped, you can install or upgrade Fjira from Homebrew Core as usual.
+
 ## Roadmap (TODO)
 
 - Expand Documentation
