@@ -51,7 +51,7 @@ func (api *httpApi) GetIssueDetailed(id string) (*Issue, error) {
 	}
 	var jiraIssue Issue
 	if err := json.Unmarshal(body, &jiraIssue); err != nil {
-		return nil, SearchDeserializeErr
+		return nil, ErrSearchDeserialize
 	}
 	return &jiraIssue, nil
 }

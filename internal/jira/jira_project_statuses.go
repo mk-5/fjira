@@ -24,7 +24,7 @@ func (a *httpApi) FindProjectStatuses(projectId string) ([]IssueStatus, error) {
 	distinct := make(map[string]bool)
 	if err := json.Unmarshal(responseBody, &sResponse); err != nil {
 		app.Error(err.Error())
-		return nil, SearchDeserializeErr
+		return nil, ErrSearchDeserialize
 	}
 	var statuses = make([]IssueStatus, 0, 100)
 	for _, row := range sResponse {

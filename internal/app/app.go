@@ -40,8 +40,8 @@ type App struct {
 }
 
 const (
-	FPS             = 30
-	FPSMilliseconds = time.Second / FPS
+	FPS     = 30
+	FPSMill = time.Second / FPS
 )
 
 var (
@@ -124,7 +124,7 @@ func (a *App) Start() {
 		}
 		a.Render()
 		if len(a.runOnAppRoutine) == 0 {
-			time.Sleep(FPSMilliseconds)
+			time.Sleep(FPSMill)
 			continue
 		}
 		funcsToRun := len(a.runOnAppRoutine) - 1
@@ -145,7 +145,7 @@ func (a *App) Render() {
 		system.Update()
 	}
 	if !a.dirty && !a.loading {
-		time.Sleep(FPSMilliseconds)
+		time.Sleep(FPSMill)
 		return
 	}
 	a.screen.Fill(' ', a.style)

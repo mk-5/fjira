@@ -14,7 +14,7 @@ const (
 	JiraIssueRegexp = "^[a-zA-Z0-9]{1,10}-[0-9]{1,20}$"
 )
 
-var SearchDeserializeErr = errors.New("Cannot deserialize jira search response.")
+var ErrSearchDeserialize = errors.New("cannot deserialize jira search response")
 
 type searchQueryParams struct {
 	Jql        string `url:"jql"`
@@ -59,7 +59,7 @@ func (api *httpApi) SearchJqlPageable(jql string, page int32, pageSize int32) ([
 	var sResponse searchResponse
 	if err := json.Unmarshal(body, &sResponse); err != nil {
 		app.Error(err.Error())
-		return nil, -1, pageSize, SearchDeserializeErr
+		return nil, -1, pageSize, ErrSearchDeserialize
 	}
 	return sResponse.Issues, sResponse.Total, sResponse.MaxResults, err
 }

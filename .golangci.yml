@@ -1,10 +1,26 @@
+version: "2"
 run:
-  timeout: 4m
+  go: "1.25"
+  modules-download-mode: mod
   issues-exit-code: 1
   tests: true
-  skip-dirs:
-    - out
-  skip-dirs-use-default: false
-  modules-download-mode: mod
   allow-parallel-runners: true
-  go: '1.18'
+linters:
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

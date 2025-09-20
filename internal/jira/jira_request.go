@@ -2,11 +2,12 @@ package jira
 
 import (
 	"fmt"
-	"github.com/google/go-querystring/query"
 	"io"
 	"net/http"
 	"net/url"
 	"path"
+
+	"github.com/google/go-querystring/query"
 )
 
 func (api *httpApi) jiraRequest(method string, restPath string, queryParams interface{}, reqBody io.Reader) ([]byte, error) {
@@ -25,7 +26,7 @@ func (api *httpApi) jiraRequest(method string, restPath string, queryParams inte
 		return nil, err
 	}
 	if response.StatusCode >= 400 {
-		return nil, fmt.Errorf("Jira error, status: %s - request: %s", response.Status, req.RequestURI)
+		return nil, fmt.Errorf("jira error, status: %s - request: %s", response.Status, req.RequestURI)
 	}
 	defer response.Body.Close()
 	body, _ := io.ReadAll(response.Body)

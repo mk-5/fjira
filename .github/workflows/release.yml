@@ -11,7 +11,7 @@ jobs:
   goreleaser:
     strategy:
       matrix:
-        go: [ 1.21 ]
+        go: [ 1.25 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
