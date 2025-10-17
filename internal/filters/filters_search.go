@@ -86,7 +86,10 @@ func (view *filtersSearchView) startFiltersFuzzyFind() {
 
 func (view *filtersSearchView) handleBottomBarActions() {
 	for {
-		action := <-view.bottomBar.Action
+		action, ok := <-view.bottomBar.Action
+		if !ok {
+			return
+		}
 		switch action {
 		case ui.ActionCancel:
 			view.cancel()
