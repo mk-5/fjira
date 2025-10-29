@@ -1,9 +1,10 @@
 package jira
 
 import (
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_httpApi_FindBoards(t *testing.T) {
@@ -148,4 +149,86 @@ func Test_httpApi_GetBoardConfiguration(t *testing.T) {
 			assert.Equal(t, 5, len(got.ColumnConfig.Columns), "GetBoardConfiguration()")
 		})
 	}
+}
+
+func Test_httpApi_GetBoardSprints(t *testing.T) {
+	api := NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+		// validate query parameters
+		assert.Contains(t, r.URL.RawQuery, "state=active%2Cfuture")
+
+		w.WriteHeader(200)
+		body := `
+{
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 2,
+  "isLast": true,
+  "values": [
+    {
+      "id": 10,
+      "self": "https://test.net/rest/agile/1.0/sprint/10",
+      "state": "active",
+      "name": "Sprint 10",
+      "startDate": null,
+      "endDate": null,
+      "completeDate": null,
+      "originBoardId": 1,
+      "goal": ""
+    },
+    {
+      "id": 11,
+      "self": "https://test.net/rest/agile/1.0/sprint/11",
+      "state": "future",
+      "name": "Sprint 11",
+      "startDate": null,
+      "endDate": null,
+      "completeDate": null,
+      "originBoardId": 1,
+      "goal": ""
+    }
+  ]
+}
+`
+		w.Write([]byte(body)) //nolint:errcheck
+	})
+
+	got, err := api.GetBoardSprints(1)
+	assert.NoError(t, err)
+	assert.Len(t, got, 2)
+	assert.Equal(t, 10, got[0].Id)
+	assert.Equal(t, "future", got[1].State)
+}
+
+func Test_httpApi_GetBoardSprintIssues(t *testing.T) {
+	page := int32(2)
+	pageSize := int32(25)
+	api := NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+		// validate pagination and fields params
+		q := r.URL.Query()
+		assert.Equal(t, "25", q.Get("maxResults"))
+		assert.Equal(t, "50", q.Get("startAt"))
+		assert.Equal(t, "id,key,summary,issuetype,project,reporter,status,assignee", q.Get("fields"))
+
+		w.WriteHeader(200)
+		body := `
+{
+  "total": 123,
+  "maxResults": 25,
+  "isLast": false,
+  "issues": [
+    { "id": "10001", "key": "GEN-1" },
+    { "id": "10002", "key": "GEN-2" }
+  ]
+}
+`
+		w.Write([]byte(body)) //nolint:errcheck
+	})
+
+	issues, total, max, err := api.GetBoardSprintIssues(1, 10, page, pageSize)
+	assert.NoError(t, err)
+	assert.Equal(t, int32(123), total)
+	assert.Equal(t, int32(25), max)
+	assert.Len(t, issues, 2)
+	assert.Equal(t, "GEN-1", issues[0].Key)
+	assert.Equal(t, "10002", issues[1].Id)
 }

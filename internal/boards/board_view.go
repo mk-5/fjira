@@ -2,11 +2,12 @@ package boards
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/ui"
-	"strings"
 )
 
 const (
@@ -19,6 +20,7 @@ const (
 	issueFetchBatchSize = 100
 )
 
+// TODO - that file is to big already
 type boardView struct {
 	app.View
 	api                    jira.Api
@@ -27,6 +29,7 @@ type boardView struct {
 	topBar                 *app.ActionBar
 	boardConfiguration     *jira.BoardConfiguration
 	filterJQL              string
+	activeSprint           *jira.SprintItem
 	project                *jira.Project
 	issues                 []jira.Issue
 	statusesColumnsMap     map[string]int
@@ -51,6 +54,7 @@ type boardView struct {
 	highlightIssueStyle    tcell.Style
 	selectedIssueStyle     tcell.Style
 	titleStyle             tcell.Style
+	sprints                []jira.SprintItem
 }
 
 func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfiguration, filterJQL string, api jira.Api) app.View {
@@ -81,7 +85,15 @@ func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfigura
 	selectedIssueBottomBar.AddItem(ui.CreateMoveArrowsItem())
 	selectedIssueBottomBar.AddItem(ui.CreateUnSelectItem())
 	selectedIssueBottomBar.AddItem(ui.NewCancelBarItem())
-	topBar := ui.CreateIssueTopBar(&jira.Issue{})
+	items := []ui.NavItemConfig{
+		ui.NavItemConfig{Text1: ui.MessageIssueLabel, Text2: app.ActionBarLabel("")},
+		ui.NavItemConfig{Text1: ui.MessageLabelReporter, Text2: ""},
+		ui.NavItemConfig{Text1: ui.MessageLabelAssignee, Text2: ""},
+		ui.NavItemConfig{Text1: ui.MessageTypeStatus, Text2: ""},
+		ui.NavItemConfig{Text1: ui.MessageLabelStatus, Text2: ""},
+	}
+	topBar := ui.CreateTopActionBarWithItems(items)
+
 	return &boardView{
 		api:                    api,
 		project:                project,
@@ -171,21 +183,7 @@ func (b *boardView) Resize(screenX, screenY int) {
 
 func (b *boardView) Init() {
 	app.GetApp().Loading(true)
-	b.issues = make([]jira.Issue, 0, maxIssuesNumber)
-	page := int32(0)
-	for len(b.issues) < maxIssuesNumber {
-		iss, total, _, err := b.api.SearchJqlPageable(b.filterJQL, page, issueFetchBatchSize)
-		if err != nil {
-			app.GetApp().Loading(false)
-			app.Error(err.Error())
-			return
-		}
-		b.issues = append(b.issues, iss...)
-		if len(b.issues) >= int(total) {
-			break
-		}
-		page++
-	}
+	b.issues, _ = b.fetchIssues()
 	b.refreshIssuesSummaries()
 	b.refreshIssuesRows()
 	b.setInitialCursorX()
@@ -239,6 +237,57 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 		b.cursorY = app.MinInt(1000, b.cursorY+1)
 		b.refreshHighlightedIssue()
 	}
+}
+
+func (b *boardView) SetSprints(sprints []jira.SprintItem) {
+	if len(sprints) == 0 {
+		return
+	}
+	b.sprints = sprints
+	firstActive := sprints[0]
+	for _, sprint := range sprints {
+		if sprint.State == "active" {
+			firstActive = sprint
+		}
+	}
+	b.activeSprint = &firstActive
+
+	b.topBar.AddItem(ui.NewAppTopBarItem(&ui.NavItemConfig{Text1: ui.MessageLabelSprint, Text2: firstActive.Name}))
+	b.topBar.AddItem(ui.NewAppTopBarItem(&ui.NavItemConfig{Text1: ui.MessageLabelSprintType, Text2: firstActive.State}))
+	if firstActive.StartDate != nil {
+		b.topBar.AddItem(ui.NewAppTopBarItem(&ui.NavItemConfig{Text1: ui.MessageLabelSprintStartDate, Text2: firstActive.StartDate.Format("2006-01-02")}))
+	}
+	if firstActive.EndDate != nil {
+		b.topBar.AddItem(ui.NewAppTopBarItem(&ui.NavItemConfig{Text1: ui.MessageLabelSprintEndDate, Text2: firstActive.EndDate.Format("2006-01-02")}))
+	}
+}
+
+func (b *boardView) fetchIssues() ([]jira.Issue, error) {
+	app.GetApp().Loading(true)
+	issues := make([]jira.Issue, 0, maxIssuesNumber)
+	page := int32(0)
+	var iss []jira.Issue
+	var total int32
+	var err error
+	for len(b.issues) < maxIssuesNumber {
+		if b.activeSprint == nil {
+			iss, total, _, err = b.api.SearchJqlPageable(b.filterJQL, page, issueFetchBatchSize)
+		} else {
+			iss, total, _, err = b.api.GetBoardSprintIssues(b.boardConfiguration.Id, b.activeSprint.Id, page, issueFetchBatchSize)
+		}
+		if err != nil {
+			app.GetApp().Loading(false)
+			app.Error(err.Error())
+			return nil, err
+		}
+		issues = append(issues, iss...)
+		if len(issues) >= int(total) {
+			break
+		}
+		page++
+	}
+	app.GetApp().Loading(false)
+	return issues, nil
 }
 
 func (b *boardView) drawColumnsHeaders(screen tcell.Screen) {

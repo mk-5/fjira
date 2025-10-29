@@ -57,31 +57,39 @@ func CreateTopActionBar(text1 string, text2 string) *app.ActionBar {
 func CreateBottomActionBarWithItems(items []NavItemConfig) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Bottom, app.Left)
 	for _, i := range items {
-		actionBar.AddItem(&app.ActionBarItem{
-			Id:          int(i.Action),
-			Text1:       i.Text1,
-			Text2:       i.Text2,
-			Text1Style:  bottomBarItemDefaultStyle(),
-			Text2Style:  bottomBarActionBarKeyBold(),
-			TriggerKey:  i.Key,
-			TriggerRune: i.Rune,
-		})
+		actionBar.AddItem(NewAppBottomBarItem(&i))
 	}
 	return actionBar
+}
+
+func NewAppBottomBarItem(i *NavItemConfig) *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(i.Action),
+		Text1:       i.Text1,
+		Text2:       i.Text2,
+		Text1Style:  bottomBarItemDefaultStyle(),
+		Text2Style:  bottomBarActionBarKeyBold(),
+		TriggerKey:  i.Key,
+		TriggerRune: i.Rune,
+	}
+}
+
+func NewAppTopBarItem(i *NavItemConfig) *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:          int(i.Action),
+		Text1:       i.Text1,
+		Text2:       i.Text2,
+		Text1Style:  topBarItemDefault(),
+		Text2Style:  topBarItemBold(),
+		TriggerKey:  i.Key,
+		TriggerRune: i.Rune,
+	}
 }
 
 func CreateTopActionBarWithItems(items []NavItemConfig) *app.ActionBar {
 	actionBar := app.NewActionBar(app.Top, app.Left)
 	for _, i := range items {
-		actionBar.AddItem(&app.ActionBarItem{
-			Id:          int(i.Action),
-			Text1:       i.Text1,
-			Text2:       i.Text2,
-			Text1Style:  topBarItemDefault(),
-			Text2Style:  topBarItemBold(),
-			TriggerKey:  i.Key,
-			TriggerRune: i.Rune,
-		})
+		actionBar.AddItem(NewAppTopBarItem(&i))
 	}
 	return actionBar
 }

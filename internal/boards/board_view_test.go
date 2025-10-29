@@ -3,13 +3,14 @@ package boards
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+	"regexp"
+	"testing"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"regexp"
-	"testing"
 )
 
 func TestNewBoardView(t *testing.T) {
@@ -332,4 +333,77 @@ func Test_boardView_Init(t *testing.T) {
 			assert.Equal(t, "ISSUE-3", view.issues[2].Key)
 		})
 	}
+}
+
+func Test_boardView_SetSprints_SelectsActiveSprint(t *testing.T) {
+	// given
+	view := NewBoardView(&jira.Project{}, &jira.BoardConfiguration{}, "", nil).(*boardView)
+	sprints := []jira.SprintItem{
+		{Id: 1, Name: "Sprint Future", State: "future"},
+		{Id: 2, Name: "Sprint Active", State: "active"},
+	}
+
+	// when
+	view.SetSprints(sprints)
+
+	// then
+	assert.NotNil(t, view.activeSprint)
+	assert.Equal(t, 2, view.activeSprint.Id)
+	assert.Equal(t, "active", view.activeSprint.State)
+	assert.Equal(t, "Sprint Active", view.activeSprint.Name)
+	assert.Equal(t, 2, len(view.sprints))
+}
+
+func Test_boardView_fetchIssues_WithoutSprint_UsesSearchJql(t *testing.T) {
+	app.InitTestApp(nil)
+	api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		_, _ = w.Write([]byte(`{
+  "startAt": 0,
+  "maxResults": 100,
+  "total": 2,
+  "issues": [
+    { "id": "10001", "key": "K1" },
+    { "id": "10002", "key": "K2" }
+  ]
+}`))
+	})
+
+	view := NewBoardView(&jira.Project{}, &jira.BoardConfiguration{}, "project = GEN", api).(*boardView)
+
+	// when
+	issues, err := view.fetchIssues()
+
+	// then
+	assert.NoError(t, err)
+	assert.Len(t, issues, 2)
+	assert.Equal(t, "K1", issues[0].Key)
+	assert.Equal(t, "K2", issues[1].Key)
+}
+
+func Test_boardView_fetchIssues_WithActiveSprint_UsesSprintIssues(t *testing.T) {
+	app.InitTestApp(nil)
+	api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		_, _ = w.Write([]byte(`{
+  "total": 2,
+  "maxResults": 100,
+  "issues": [
+    { "id": "20001", "key": "S1" },
+    { "id": "20002", "key": "S2" }
+  ]
+}`))
+	})
+
+	view := NewBoardView(&jira.Project{}, &jira.BoardConfiguration{Id: 1}, "project = GEN", api).(*boardView)
+	view.activeSprint = &jira.SprintItem{Id: 7, Name: "Sprint 7", State: "active"}
+
+	// when
+	issues, err := view.fetchIssues()
+
+	// then
+	assert.NoError(t, err)
+	assert.Len(t, issues, 2)
+	assert.Equal(t, "S1", issues[0].Key)
+	assert.Equal(t, "S2", issues[1].Key)
 }

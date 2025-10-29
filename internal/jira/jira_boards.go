@@ -3,6 +3,9 @@ package jira
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
+	"github.com/mk-5/fjira/internal/app"
 )
 
 type BoardItem struct {
@@ -12,12 +15,36 @@ type BoardItem struct {
 	Type string `json:"type"`
 }
 
+type GetAllSprintsQueryParams struct {
+	State string `url:"state,omitempty"`
+}
+
 type BoardsResponse struct {
 	MaxResults int         `json:"maxResults"`
 	StartAt    int         `json:"startAt"`
 	Total      int         `json:"total"`
 	IsLast     bool        `json:"isLast"`
 	Values     []BoardItem `json:"values"`
+}
+
+type SprintsResponse struct {
+	MaxResults int          `json:"maxResults"`
+	StartAt    int          `json:"startAt"`
+	Total      int          `json:"total"`
+	IsLast     bool         `json:"isLast"`
+	Values     []SprintItem `json:"values"`
+}
+
+type SprintItem struct {
+	Id            int        `json:"id"`
+	Self          string     `json:"self"`
+	State         string     `json:"state"`
+	Name          string     `json:"name"`
+	StartDate     *time.Time `json:"startDate"`
+	EndDate       *time.Time `json:"endDate"`
+	CompleteDate  *time.Time `json:"completeDate"`
+	OriginBoardId int        `json:"originBoardId"`
+	Goal          string     `json:"goal"`
 }
 
 type BoardConfiguration struct {
@@ -57,11 +84,26 @@ type BoardConfiguration struct {
 const (
 	FindAllBoardsUrl          = "/rest/agile/1.0/board"
 	FindBoardConfigurationUrl = "/rest/agile/1.0/board/%d/configuration"
+	FindBoardSprintsUrl       = "/rest/agile/1.0/board/%d/sprint"
+	FindBoardSprintsIssuesUrl = "/rest/agile/1.0/board/%d/sprint/%d/issue"
 )
 
 type findBoardsQueryParams struct {
 	ProjectKeyOrId string `url:"projectKeyOrId"`
 	StartAt        int    `url:"startAt"`
+}
+
+type boardsSearchQueryParams struct {
+	MaxResults int32  `url:"maxResults"`
+	Fields     string `url:"fields"`
+	StartAt    int32  `url:"startAt"`
+}
+
+type boardsSearchResponse struct {
+	Total      int32   `json:"total"`
+	MaxResults int32   `json:"maxResults"`
+	Issues     []Issue `json:"issues"`
+	IsLast     bool    `json:"isLast"`
 }
 
 func (api *httpApi) FindBoards(projectKeyOrId string) ([]BoardItem, error) {
@@ -101,4 +143,36 @@ func (api *httpApi) GetBoardConfiguration(boardId int) (*BoardConfiguration, err
 		return nil, err
 	}
 	return &result, nil
+}
+
+func (api *httpApi) GetBoardSprints(boardId int) ([]SprintItem, error) {
+	params := &GetAllSprintsQueryParams{State: "active,future"}
+	resultBytes, err := api.jiraRequest("GET", fmt.Sprintf(FindBoardSprintsUrl, boardId), params, nil)
+	if err != nil {
+		return nil, err
+	}
+	var result SprintsResponse
+	err = json.Unmarshal(resultBytes, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result.Values, nil
+}
+
+func (api *httpApi) GetBoardSprintIssues(boardId int, sprintId int, page int32, pageSize int32) ([]Issue, int32, int32, error) {
+	params := &boardsSearchQueryParams{
+		MaxResults: pageSize,
+		StartAt:    page * pageSize,
+		Fields:     "id,key,summary,issuetype,project,reporter,status,assignee",
+	}
+	body, err := api.jiraRequest("GET", fmt.Sprintf(FindBoardSprintsIssuesUrl, boardId, sprintId), params, nil)
+	if err != nil {
+		return nil, -1, pageSize, err
+	}
+	var sResponse boardsSearchResponse
+	if err := json.Unmarshal(body, &sResponse); err != nil {
+		app.Error(err.Error())
+		return nil, -1, pageSize, SearchDeserializeErr
+	}
+	return sResponse.Issues, sResponse.Total, sResponse.MaxResults, err
 }
