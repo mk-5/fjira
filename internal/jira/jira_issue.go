@@ -37,7 +37,34 @@ type IssueFields struct {
 		Total      int32     `json:"total"`
 		StartAt    int32     `json:"startAt"`
 	} `json:"comment"`
-	Labels []string `json:"labels"`
+	Labels     []string `json:"labels"`
+	Attachment []IssueAttachment
+}
+
+type IssueAttachment struct {
+	Self     string `json:"self"`
+	Id       string `json:"id"`
+	Filename string `json:"filename"`
+	Author   struct {
+		Self         string `json:"self"`
+		AccountId    string `json:"accountId"`
+		EmailAddress string `json:"emailAddress"`
+		AvatarUrls   struct {
+			X48 string `json:"48x48"`
+			X24 string `json:"24x24"`
+			X16 string `json:"16x16"`
+			X32 string `json:"32x32"`
+		} `json:"avatarUrls"`
+		DisplayName string `json:"displayName"`
+		Active      bool   `json:"active"`
+		TimeZone    string `json:"timeZone"`
+		AccountType string `json:"accountType"`
+	} `json:"author"`
+	Created   string `json:"created"`
+	Size      int    `json:"size"`
+	MimeType  string `json:"mimeType"`
+	Content   string `json:"content"`
+	Thumbnail string `json:"thumbnail"`
 }
 
 const (
