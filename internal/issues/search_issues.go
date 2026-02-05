@@ -2,6 +2,9 @@ package issues
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/boards"
@@ -9,8 +12,6 @@ import (
 	"github.com/mk-5/fjira/internal/statuses"
 	"github.com/mk-5/fjira/internal/ui"
 	"github.com/mk-5/fjira/internal/users"
-	"regexp"
-	"strings"
 )
 
 type searchIssuesView struct {

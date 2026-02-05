@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
+
+	"github.com/atotto/clipboard"
 )
 
 func Test_httpJiraApi_GetIssueDetailed(t *testing.T) {
@@ -154,6 +156,24 @@ func Test_httpJiraApi_GetIssueDetailed(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetIssueDetailed() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCopyIssue(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{"should run CopyIssue func without error"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			issue := &Issue{Key: "ABC-123"}
+			issue.CopyId()
+			r, _ := clipboard.ReadAll()
+			if !reflect.DeepEqual(r, issue.Key) {
+				t.Errorf("TestCopyIssue() got = %v, want %v", r, issue.Key)
 			}
 		})
 	}

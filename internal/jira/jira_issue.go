@@ -3,6 +3,9 @@ package jira
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+
+	"github.com/atotto/clipboard"
 )
 
 type IssueType struct {
@@ -54,4 +57,11 @@ func (api *httpApi) GetIssueDetailed(id string) (*Issue, error) {
 		return nil, SearchDeserializeErr
 	}
 	return &jiraIssue, nil
+}
+
+func (issue *Issue) CopyId() {
+	err := clipboard.WriteAll(issue.Key)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

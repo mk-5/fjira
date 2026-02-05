@@ -237,6 +237,10 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 		b.cursorY = app.MinInt(1000, b.cursorY+1)
 		b.refreshHighlightedIssue()
 	}
+	if ev.Key() == tcell.KeyCtrlI {
+		b.highlightedIssue.CopyId()
+		app.Success(ui.MessageIssueIdCopiedToClipboard)
+	}
 }
 
 func (b *boardView) SetSprints(sprints []jira.SprintItem) {
