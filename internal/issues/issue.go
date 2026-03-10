@@ -2,13 +2,14 @@ package issues
 
 import (
 	"fmt"
+	"math"
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/comments"
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/ui"
-	"math"
-	"strings"
 )
 
 type issueView struct {
