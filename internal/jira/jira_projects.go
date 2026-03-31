@@ -30,7 +30,7 @@ type searchProjectsResponse struct {
 }
 
 var (
-	ProjectNotFoundError = errors.New("Project not found.")
+	ErrProjectNotFound = errors.New("project not found")
 )
 
 func (api *httpApi) FindProjects() ([]Project, error) {
@@ -58,7 +58,7 @@ func (api *httpApi) FindProject(projectKey string) (*Project, error) {
 		return nil, err
 	}
 	if project == nil {
-		return nil, ProjectNotFoundError
+		return nil, ErrProjectNotFound
 	}
 	return project, nil
 }

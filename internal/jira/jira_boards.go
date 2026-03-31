@@ -172,7 +172,7 @@ func (api *httpApi) GetBoardSprintIssues(boardId int, sprintId int, page int32, 
 	var sResponse boardsSearchResponse
 	if err := json.Unmarshal(body, &sResponse); err != nil {
 		app.Error(err.Error())
-		return nil, -1, pageSize, SearchDeserializeErr
+		return nil, -1, pageSize, ErrSearchDeserialize
 	}
 	return sResponse.Issues, sResponse.Total, sResponse.MaxResults, err
 }

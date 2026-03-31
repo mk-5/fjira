@@ -40,8 +40,8 @@ type App struct {
 }
 
 const (
-	FPS             = 30
-	FPSMilliseconds = time.Second / FPS
+	FPS      = 30
+	FPSSleep = time.Second / FPS // millis
 )
 
 var (
@@ -81,7 +81,7 @@ func initApp() {
 
 func initAppWithScreen(screen tcell.Screen) {
 	if os.Getenv("TERM") == "cygwin" {
-		os.Setenv("TERM", "")
+		_ = os.Setenv("TERM", "")
 	}
 	tcell.SetEncodingFallback(tcell.EncodingFallbackUTF8)
 	MustLoadColorScheme()
@@ -124,7 +124,7 @@ func (a *App) Start() {
 		}
 		a.Render()
 		if len(a.runOnAppRoutine) == 0 {
-			time.Sleep(FPSMilliseconds)
+			time.Sleep(FPSSleep)
 			continue
 		}
 		funcsToRun := len(a.runOnAppRoutine) - 1
@@ -145,7 +145,7 @@ func (a *App) Render() {
 		system.Update()
 	}
 	if !a.dirty && !a.loading {
-		time.Sleep(FPSMilliseconds)
+		time.Sleep(FPSSleep)
 		return
 	}
 	a.screen.Fill(' ', a.style)

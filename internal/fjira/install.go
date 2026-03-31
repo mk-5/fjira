@@ -4,15 +4,16 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/mk-5/fjira/internal/jira"
-	"github.com/mk-5/fjira/internal/ui"
-	"github.com/mk-5/fjira/internal/workspaces"
 	"io"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/fatih/color"
+	"github.com/mk-5/fjira/internal/jira"
+	"github.com/mk-5/fjira/internal/ui"
+	"github.com/mk-5/fjira/internal/workspaces"
 )
 
 const (
@@ -23,8 +24,8 @@ const (
 )
 
 var (
-	EnvironmentsMissingErr    = errors.New("cannot find " + JiraTokenEnv + " or " + JiraUsernameEnv + " or " + JiraRestUrlEnv + " environments. Please add them in order to use Jira REST API")
-	WorkspaceFormatInvalidErr = errors.New("workspace name needs to match pattern [a-z0-9]{2,50}")
+	ErrEnvironmentsMissing    = errors.New("cannot find " + JiraTokenEnv + " or " + JiraUsernameEnv + " or " + JiraRestUrlEnv + " environments. Please add them in order to use Jira REST API")
+	ErrWorkspaceFormatInvalid = errors.New("workspace name needs to match pattern [a-z0-9]{2,50}")
 	workspaceRegExp           = regexp.MustCompile("^[a-z0-9]{2,50}$")
 )
 
@@ -37,11 +38,11 @@ func Install(workspace string) (*workspaces.WorkspaceSettings, error) {
 	if err == nil {
 		return s, nil // envs found
 	}
-	if err != EnvironmentsMissingErr {
+	if err != ErrEnvironmentsMissing {
 		return nil, err
 	}
 	s2, err := readFromUserSettings(workspace)
-	if err == workspaces.WorkspaceNotFoundErr || errors.Unwrap(err) == workspaces.WorkspaceNotFoundErr {
+	if err == workspaces.ErrWorkspaceNotFound || errors.Unwrap(err) == workspaces.ErrWorkspaceNotFound {
 		return readFromUserInputAndStore(os.Stdin, workspace, nil)
 	}
 	if err != nil {
@@ -73,7 +74,7 @@ func readFromEnvironments() (*workspaces.WorkspaceSettings, error) {
 	var username = os.Getenv(JiraUsernameEnv)
 	var tokenTypeStr = os.Getenv(JiraTokenType)
 	if token == "" || restUrl == "" || username == "" {
-		return nil, EnvironmentsMissingErr
+		return nil, ErrEnvironmentsMissing
 	}
 	if tokenTypeStr == "" {
 		tokenTypeStr = string(jira.ApiToken)
@@ -208,7 +209,7 @@ func readFromUserInputAndStore(input io.Reader, workspace string, existingSettin
 
 func validateWorkspaceName(workspace string) error {
 	if workspace != workspaces.EmptyWorkspace && !workspaceRegExp.MatchString(workspace) {
-		return WorkspaceFormatInvalidErr
+		return ErrWorkspaceFormatInvalid
 	}
 	return nil
 }

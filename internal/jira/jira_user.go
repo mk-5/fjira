@@ -3,6 +3,7 @@ package jira
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/mk-5/fjira/internal/app"
 )
 
@@ -23,7 +24,7 @@ const (
 	FindUser = "/rest/api/2/user/assignable/search"
 )
 
-var UserSearchDeserializeErr = errors.New("Cannot deserialize jira user search response.")
+var ErrUserSearchDeserialize = errors.New("cannot deserialize jira user search response")
 
 type findUserQueryParams struct {
 	Project    string  `url:"project"`
@@ -54,7 +55,7 @@ func (api *httpApi) FindUsersWithQuery(project string, query string) ([]User, er
 	var users []User
 	if err := json.Unmarshal(response, &users); err != nil {
 		app.Error(err.Error())
-		return nil, UserSearchDeserializeErr
+		return nil, ErrUserSearchDeserialize
 	}
 	return users, nil
 }

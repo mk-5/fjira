@@ -46,7 +46,7 @@ func Test_userHomeSettingsStorage_read(t *testing.T) {
 		name string
 		args args
 	}{
-		{"should return WorkspaceNotFoundErr if workspace doesn't exit", args{workspace: "test2"}},
+		{"should return ErrWorkspaceNotFound if workspace doesn't exit", args{workspace: "test2"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -61,7 +61,7 @@ func Test_userHomeSettingsStorage_read(t *testing.T) {
 			_, err := s.Read(tt.args.workspace)
 
 			// then
-			assert.True(t, errors.Is(err, WorkspaceNotFoundErr))
+			assert.True(t, errors.Is(err, ErrWorkspaceNotFound))
 		})
 	}
 }

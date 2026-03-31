@@ -21,13 +21,13 @@ func GetWorkspaceCmd() *cobra.Command {
 				s, err = fjira.EditWorkspaceAndReadSettings(os.Stdin, edit)
 				if err != nil {
 					log.Println(err)
-					log.Fatalln(fjira.InstallFailedErr.Error())
+					log.Fatalln(fjira.ErrInstallFailed.Error())
 				}
 			} else if n != "" {
 				s, err = fjira.Install(n)
 				if err != nil {
 					log.Println(err)
-					log.Fatalln(fjira.InstallFailedErr.Error())
+					log.Fatalln(fjira.ErrInstallFailed.Error())
 				}
 			} else {
 				s = cmd.Context().Value(CtxWorkspaceSettings).(*workspaces.WorkspaceSettings)

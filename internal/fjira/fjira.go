@@ -2,6 +2,10 @@ package fjira
 
 import (
 	"errors"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/boards"
 	"github.com/mk-5/fjira/internal/filters"
@@ -13,9 +17,6 @@ import (
 	"github.com/mk-5/fjira/internal/ui"
 	"github.com/mk-5/fjira/internal/users"
 	"github.com/mk-5/fjira/internal/workspaces"
-	"strings"
-	"sync"
-	"time"
 )
 
 const (
@@ -30,7 +31,7 @@ The command line tool for Jira.
 `
 )
 
-var InstallFailedErr = errors.New("cannot use fjira. Please check error logs in order to install missing packages")
+var ErrInstallFailed = errors.New("cannot use fjira. Please check error logs in order to install missing packages")
 
 type Fjira struct {
 	app       *app.App

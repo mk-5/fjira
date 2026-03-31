@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	CannotPerformAssignmentErr = errors.New("invalid assignee data. Cannot perform do-assignment request")
+	ErrCannotPerformAssignment = errors.New("invalid assignee data. Cannot perform do-assignment request")
 )
 
 func (api *httpApi) DoAssignee(issueId string, user *User) error {
@@ -39,7 +39,7 @@ func (api *httpApi) DoAssignee(issueId string, user *User) error {
 		body = &onPremiseAssigneeRequestBody{}
 		(body.(*onPremiseAssigneeRequestBody)).Fields.Assignee.Name = user.Name
 	} else {
-		return CannotPerformAssignmentErr
+		return ErrCannotPerformAssignment
 	}
 	jsonBody, _ := json.Marshal(body)
 	_, err := api.jiraRequest("PUT", url, nil, strings.NewReader(string(jsonBody)))
