@@ -29,6 +29,7 @@ func RegisterGoTo() {
 			app.Error(err.Error())
 			return
 		}
+
 		var sprints []jira.SprintItem
 		if boardConfig.Type == "scrum" {
 			sprints, err = api.GetBoardSprints(boardConfig.Id)
@@ -38,6 +39,8 @@ func RegisterGoTo() {
 				return
 			}
 		}
+
+
 		app.GetApp().Loading(false)
 		boardView := NewBoardView(project, boardConfig, filter.JQL, api).(*boardView)
 		if sprints != nil {

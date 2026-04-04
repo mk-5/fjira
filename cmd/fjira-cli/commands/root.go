@@ -77,16 +77,19 @@ Say goodbye to manual searching and hello to increased productivity with fjira.`
 				return issueCmd.ExecuteContext(cmd.Context())
 			}
 			projectKey, _ := cmd.Flags().GetString("project")
+			boardId, _ := cmd.Flags().GetInt("board")
 			s := cmd.Context().Value(CtxWorkspaceSettings).(*workspaces.WorkspaceSettings)
 			f := fjira.CreateNewFjira(s)
 			defer f.Close()
 			f.Run(&fjira.CliArgs{
 				ProjectId: projectKey,
+				BoardId:   boardId,
 			})
 			return nil
 		},
 	}
 	cmd.AddCommand(&cobra.Command{Use: "", Short: "Open a fuzzy finder for projects as a default action"})
 	cmd.Flags().StringP("project", "p", "", "Open a project directly from CLI")
+	cmd.Flags().Int("board", 0, "Open a board directly from CLI (by board id)")
 	return cmd
 }

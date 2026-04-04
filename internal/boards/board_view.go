@@ -8,6 +8,7 @@ import (
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/ui"
+	"github.com/mk-5/fjira/internal/users"
 )
 
 const (
@@ -27,16 +28,20 @@ type boardView struct {
 	bottomBar              *app.ActionBar
 	selectedIssueBottomBar *app.ActionBar
 	topBar                 *app.ActionBar
+	fuzzyFind              *app.FuzzyFind
 	boardConfiguration     *jira.BoardConfiguration
 	filterJQL              string
 	activeSprint           *jira.SprintItem
 	project                *jira.Project
 	issues                 []jira.Issue
+	allIssues              []jira.Issue // stores all issues before filtering
+	assigneeFilter         *jira.User   // current assignee filter
 	statusesColumnsMap     map[string]int
 	columnStatusesMap      map[int][]string
 	columnsX               map[int]int
 	issuesRow              map[string]int
 	issuesColumn           map[string]int
+	issuesColumnRowCount   map[int]int
 	issuesSummaries        map[string]string
 	goBackFn               func()
 	columns                []string
@@ -58,6 +63,10 @@ type boardView struct {
 }
 
 func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfiguration, filterJQL string, api jira.Api) app.View {
+	if boardConfiguration != nil {
+		app.SetLastViewedBoardID(boardConfiguration.Id)
+	}
+
 	col := 0
 	statusesColumnsMap := map[string]int{}
 	columnStatusesMap := map[int][]string{}
@@ -79,6 +88,7 @@ func NewBoardView(project *jira.Project, boardConfiguration *jira.BoardConfigura
 	bottomBar := ui.CreateBottomLeftBar()
 	bottomBar.AddItem(ui.CreateArrowsNavigateItem())
 	bottomBar.AddItem(ui.CreateSelectItem())
+	bottomBar.AddItem(ui.NewAssigneeFilterBarItem())
 	bottomBar.AddItem(ui.NewOpenBarItem())
 	bottomBar.AddItem(ui.NewCancelBarItem())
 	selectedIssueBottomBar := ui.CreateBottomLeftBar()
@@ -128,6 +138,13 @@ func (b *boardView) Draw(screen tcell.Screen) {
 		b.topBar.Draw(screen)
 		return
 	}
+	if b.fuzzyFind != nil {
+		b.topBar.Draw(screen)
+		b.bottomBar.Draw(screen)
+		b.fuzzyFind.Draw(screen)
+		return
+	}
+
 	for _, issue := range b.issues {
 		column := b.statusesColumnsMap[issue.Fields.Status.Id]
 		x := b.columnsX[column]
@@ -164,12 +181,18 @@ func (b *boardView) Update() {
 	b.bottomBar.Update()
 	b.selectedIssueBottomBar.Update()
 	b.topBar.Update()
+	if b.fuzzyFind != nil {
+		b.fuzzyFind.Update()
+	}
 }
 
 func (b *boardView) Resize(screenX, screenY int) {
 	b.bottomBar.Resize(screenX, screenY)
 	b.selectedIssueBottomBar.Resize(screenX, screenY)
 	b.topBar.Resize(screenX, screenY)
+	if b.fuzzyFind != nil {
+		b.fuzzyFind.Resize(screenX, screenY)
+	}
 	b.screenY = screenY
 	b.screenX = screenX
 	for i := range b.columns {
@@ -183,11 +206,32 @@ func (b *boardView) Resize(screenX, screenY int) {
 
 func (b *boardView) Init() {
 	app.GetApp().Loading(true)
-	b.issues, _ = b.fetchIssues()
-	b.refreshIssuesSummaries()
-	b.refreshIssuesRows()
-	b.setInitialCursorX()
-	b.refreshHighlightedIssue()
+	b.allIssues = make([]jira.Issue, 0, maxIssuesNumber)
+	page := int32(0)
+
+	// Add current sprint filter to improve performance
+	currentSprintJQL := "sprint in openSprints()"
+
+	for len(b.allIssues) < maxIssuesNumber {
+		iss, total, _, err := b.api.GetBoardIssues(b.boardConfiguration.Id, page, issueFetchBatchSize, currentSprintJQL)
+		if err != nil {
+			app.GetApp().Loading(false)
+			app.Error(err.Error())
+			return
+		}
+		b.allIssues = append(b.allIssues, iss...)
+		if len(b.allIssues) >= int(total) {
+			break
+		}
+		page++
+	}
+
+	// Initialize issues: if a filter is active, reapply it
+	if b.assigneeFilter != nil {
+		b.applyAssigneeFilter(b.assigneeFilter)
+	} else {
+		b.clearAssigneeFilter()
+	}
 	app.GetApp().Loading(false)
 	go b.handleActions()
 }
@@ -217,11 +261,22 @@ func (b *boardView) HandleKeyEvent(ev *tcell.EventKey) {
 	if app.GetApp().IsLoading() {
 		return
 	}
+	if b.fuzzyFind != nil {
+		b.fuzzyFind.HandleKeyEvent(ev)
+		return
+	}
 	if !b.issueSelected {
 		b.bottomBar.HandleKeyEvent(ev)
 	} else {
 		b.selectedIssueBottomBar.HandleKeyEvent(ev)
 	}
+	// if ev.Key() == tcell.KeyEnter {
+	// 	// If not in edit/move mode, open issue detail view
+	// 	if !b.issueSelected && b.highlightedIssue != nil && b.highlightedIssue.Id != "" {
+	// 		app.GoTo("issue", b.highlightedIssue.Id, b.reopen, b.api)
+	// 		return
+	// 	}
+	// }
 	if ev.Key() == tcell.KeyRight || ev.Rune() == vimRight {
 		b.moveCursorRight()
 	}
@@ -299,39 +354,49 @@ func (b *boardView) drawColumnsHeaders(screen tcell.Screen) {
 }
 
 func (b *boardView) moveCursorRight() {
-	if b.cursorX+1 >= len(b.statusesColumnsMap) {
+	if b.cursorX+1 >= len(b.columns) {
 		return
 	}
-	b.cursorX = app.MinInt(len(b.columns), b.cursorX+1)
-	b.cursorY = 0
+
 	if b.issueSelected {
+		b.cursorX = app.MinInt(len(b.columns)-1, b.cursorX+1)
 		b.moveIssue(b.highlightedIssue, 1)
 		return
 	}
-	// no issues in a column
-	if f := b.refreshHighlightedIssue(); !f {
-		b.moveCursorRight()
-		return
+	// no issues in a column; jump to next available
+	for column := b.cursorX + 1; column < len(b.columns); column++ {
+		rowCount, ok := b.issuesColumnRowCount[column]
+		if ok && rowCount > 0 {
+			b.cursorX = column
+			// ensure Y within bounds of column
+			b.cursorY = app.MinInt(b.cursorY, rowCount-1)
+			b.refreshHighlightedIssue()
+			return
+		}
 	}
-	b.scrollY = 0
 }
 
 func (b *boardView) moveCursorLeft() {
 	if b.cursorX-1 < 0 {
 		return
 	}
-	b.cursorX = app.MaxInt(0, b.cursorX-1)
-	b.cursorY = 0
+
 	if b.issueSelected {
+		b.cursorX = app.MaxInt(0, b.cursorX-1)
 		b.moveIssue(b.highlightedIssue, -1)
 		return
 	}
-	// no issues in a column
-	if f := b.refreshHighlightedIssue(); !f {
-		b.moveCursorLeft()
-		return
+	// no issues in a column; jump to next available
+	for column := b.cursorX - 1; column >= 0; column-- {
+		rowCount, ok := b.issuesColumnRowCount[column]
+		if ok && rowCount > 0 {
+			b.cursorX = column
+			// ensure Y within bounds of column
+			b.cursorY = app.MinInt(b.cursorY, rowCount-1)
+			b.refreshHighlightedIssue()
+			return
+		}
 	}
-	b.scrollY = 0
 }
 
 func (b *boardView) handleActions() {
@@ -342,6 +407,9 @@ func (b *boardView) handleActions() {
 			switch action {
 			case ui.ActionSelect:
 				b.issueSelected = true
+			case ui.ActionSearchByAssignee:
+				b.runSelectAssigneeFilter()
+				return // Stop this action handler
 			case ui.ActionCancel:
 				if b.goBackFn != nil {
 					b.goBackFn()
@@ -398,12 +466,23 @@ func (b *boardView) pointCursorTo(issueId string) {
 
 func (b *boardView) refreshIssuesRows() {
 	rows := map[int]int{}
+	// reset maps as they may be stale after filter
+	b.issuesColumnRowCount = map[int]int{}
+	b.issuesRow = map[string]int{}
+	b.issuesColumn = map[string]int{}
+
 	for _, issue := range b.issues {
 		column := b.statusesColumnsMap[issue.Fields.Status.Id]
 		y := rows[column] + 1
 		b.issuesRow[issue.Id] = y
 		b.issuesColumn[issue.Id] = column
 		rows[column] = y
+
+		_, ok := b.issuesColumnRowCount[column]
+		if !ok {
+			b.issuesColumnRowCount[column] = 0
+		}
+		b.issuesColumnRowCount[column] = b.issuesColumnRowCount[column] + 1
 	}
 }
 
@@ -473,11 +552,15 @@ func (b *boardView) ensureHighlightInViewport() {
 	if b.highlightedIssue == nil {
 		return
 	}
-	if b.scrollX+(b.cursorX*b.columnSize)+b.columnSize > b.screenX { // highlighted issue out of screen
+	if b.scrollX > (b.cursorX * b.columnSize) {
+		b.scrollX = 0
+	} else if b.scrollX+(b.cursorX*b.columnSize)+b.columnSize > b.screenX { // highlighted issue out of screen
 		b.scrollX = app.MaxInt(0, (b.cursorX-2)*b.columnSize)
 	}
 	if b.scrollY+b.cursorY > b.scrollY { // highlighted issue out of screen
 		b.scrollY = app.MaxInt(0, b.cursorY-2)
+	} else if b.scrollY > b.cursorY {
+		b.scrollY = 0
 	}
 }
 
@@ -487,4 +570,93 @@ func centerString(str string, width int) string {
 	}
 	spaces := int(float64(width-len(str)) / 2)
 	return strings.Repeat(" ", spaces) + str + strings.Repeat(" ", width-(spaces+len(str)))
+}
+
+func (b *boardView) runSelectAssigneeFilter() {
+	app.GetApp().ClearNow()
+	app.GetApp().Loading(true)
+
+	// Get unique assignees from board issues
+	assignees := b.getBoardAssignees()
+	assignees = append(assignees, jira.User{DisplayName: ui.MessageAll})
+	assigneeStrings := users.FormatJiraUsers(assignees)
+
+	b.fuzzyFind = app.NewFuzzyFind(ui.MessageSelectUser, assigneeStrings)
+	b.fuzzyFind.MarginBottom = 1
+	app.GetApp().Loading(false)
+
+	// Block here and wait for completion (same pattern as issues view)
+	if user := <-b.fuzzyFind.Complete; true {
+		app.GetApp().ClearNow()
+		if user.Index >= 0 && len(assignees) > 0 {
+			selectedUser := &assignees[user.Index]
+			if selectedUser.DisplayName == ui.MessageAll {
+				b.clearAssigneeFilter()
+			} else {
+				b.applyAssigneeFilter(selectedUser)
+			}
+		}
+		// Return to board view and restart action handler
+		b.fuzzyFind = nil
+		b.reopen()
+		go b.handleActions()
+	}
+}
+
+func (b *boardView) getBoardAssignees() []jira.User {
+	assigneeNames := make(map[string]struct{})
+	hasUnassigned := false
+	for _, issue := range b.allIssues {
+		assignee := issue.Fields.Assignee
+		if assignee.DisplayName != "" {
+			assigneeNames[assignee.DisplayName] = struct{}{}
+		} else {
+			hasUnassigned = true
+		}
+	}
+	filtered := make([]jira.User, 0, len(assigneeNames)+1)
+	for name := range assigneeNames {
+		filtered = append(filtered, jira.User{
+			DisplayName: name,
+			Name:        name,
+			Key:         name,
+		})
+	}
+	if hasUnassigned {
+		filtered = append(filtered, jira.User{DisplayName: ui.MessageUnassigned})
+	}
+	return filtered
+}
+
+func (b *boardView) applyAssigneeFilter(user *jira.User) {
+	b.assigneeFilter = user
+	b.issues = make([]jira.Issue, 0)
+
+	for _, issue := range b.allIssues {
+		assignee := issue.Fields.Assignee
+		if user.DisplayName == ui.MessageUnassigned {
+			if assignee.DisplayName == "" {
+				b.issues = append(b.issues, issue)
+			}
+		} else if user.AccountId != "" && user.AccountId == assignee.AccountId {
+			b.issues = append(b.issues, issue)
+		} else if user.DisplayName == assignee.DisplayName {
+			b.issues = append(b.issues, issue)
+		}
+	}
+	b.refreshIssuesSummaries()
+	b.refreshIssuesRows()
+	b.setInitialCursorX()
+	b.refreshHighlightedIssue()
+}
+
+func (b *boardView) clearAssigneeFilter() {
+	b.assigneeFilter = nil
+	b.issues = make([]jira.Issue, len(b.allIssues))
+	copy(b.issues, b.allIssues)
+
+	b.refreshIssuesSummaries()
+	b.refreshIssuesRows()
+	b.setInitialCursorX()
+	b.refreshHighlightedIssue()
 }

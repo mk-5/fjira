@@ -210,6 +210,17 @@ func NewSaveBarItem() *app.ActionBarItem {
 	}
 }
 
+func NewAssigneeFilterBarItem() *app.ActionBarItem {
+	return &app.ActionBarItem{
+		Id:         int(ActionSearchByAssignee),
+		Text1:      MessageByAssignee,
+		Text2:      "[F2]",
+		Text1Style: bottomBarItemDefaultStyle(),
+		Text2Style: bottomBarActionBarKeyBold(),
+		TriggerKey: tcell.KeyF2,
+	}
+}
+
 func bottomBarItemDefaultStyle() tcell.Style {
 	return app.DefaultStyle().Background(app.Color("navigation.bottom.background")).Foreground(app.Color("navigation.bottom.foreground1"))
 }

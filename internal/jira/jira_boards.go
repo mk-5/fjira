@@ -86,6 +86,7 @@ const (
 	FindBoardConfigurationUrl = "/rest/agile/1.0/board/%d/configuration"
 	FindBoardSprintsUrl       = "/rest/agile/1.0/board/%d/sprint"
 	FindBoardSprintsIssuesUrl = "/rest/agile/1.0/board/%d/sprint/%d/issue"
+	GetBoardIssuesUrl         = "/rest/agile/1.0/board/%d/issue"
 )
 
 type findBoardsQueryParams struct {
@@ -104,6 +105,13 @@ type boardsSearchResponse struct {
 	MaxResults int32   `json:"maxResults"`
 	Issues     []Issue `json:"issues"`
 	IsLast     bool    `json:"isLast"`
+}
+
+type getBoardIssuesQueryParams struct {
+	StartAt    int32  `url:"startAt"`
+	MaxResults int32  `url:"maxResults"`
+	Fields     string `url:"fields"`
+	JQL        string `url:"jql,omitempty"`
 }
 
 func (api *httpApi) FindBoards(projectKeyOrId string) ([]BoardItem, error) {
@@ -175,4 +183,50 @@ func (api *httpApi) GetBoardSprintIssues(boardId int, sprintId int, page int32, 
 		return nil, -1, pageSize, ErrSearchDeserialize
 	}
 	return sResponse.Issues, sResponse.Total, sResponse.MaxResults, err
+}
+
+// GetBoardProjects fetches the projects associated with a board by its ID.
+func (api *httpApi) GetBoardProjects(boardId int) ([]Project, error) {
+	url := fmt.Sprintf("/rest/agile/1.0/board/%d/project", boardId)
+	resultBytes, err := api.jiraRequest("GET", url, &nilParams{}, nil)
+	if err != nil {
+		return nil, err
+	}
+	var resp struct {
+		Values []Project `json:"values"`
+	}
+	err = json.Unmarshal(resultBytes, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Values, nil
+}
+
+// GetBoardIssues fetches issues for a board using the Agile API with optional JQL filtering
+func (api *httpApi) GetBoardIssues(boardId int, page int32, pageSize int32, jql string) ([]Issue, int32, int32, error) {
+	params := &getBoardIssuesQueryParams{
+		StartAt:    page * pageSize,
+		MaxResults: pageSize,
+		Fields:     "id,key,summary,issuetype,project,reporter,status,assignee",
+		JQL:        jql,
+	}
+
+	resultBytes, err := api.jiraRequest("GET", fmt.Sprintf(GetBoardIssuesUrl, boardId), params, nil)
+	if err != nil {
+		return nil, -1, pageSize, err
+	}
+
+	var result struct {
+		Issues     []Issue `json:"issues"`
+		Total      int32   `json:"total"`
+		MaxResults int32   `json:"maxResults"`
+		StartAt    int32   `json:"startAt"`
+	}
+
+	err = json.Unmarshal(resultBytes, &result)
+	if err != nil {
+		return nil, -1, pageSize, err
+	}
+
+	return result.Issues, result.Total, result.MaxResults, nil
 }

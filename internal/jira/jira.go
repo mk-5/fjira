@@ -27,6 +27,8 @@ type Api interface {
 	GetBoardConfiguration(boardId int) (*BoardConfiguration, error)
 	GetBoardSprints(boardId int) ([]SprintItem, error)
 	GetBoardSprintIssues(boardId int, sprintId int, page int32, pageSize int32) ([]Issue, int32, int32, error)
+	GetBoardProjects(boardId int) ([]Project, error)
+	GetBoardIssues(boardId int, page int32, pageSize int32, jql string) ([]Issue, int32, int32, error)
 	GetFilter(filterId string) (*Filter, error)
 	GetMyFilters() ([]Filter, error)
 	Close()

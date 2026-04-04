@@ -43,6 +43,7 @@ type Fjira struct {
 // CliArgs TODO - drop it, and use cobra directly
 type CliArgs struct {
 	ProjectId       string
+	BoardId         int
 	IssueKey        string
 	Workspace       string
 	WorkspaceSwitch bool
@@ -107,6 +108,45 @@ func (f *Fjira) registerGoTos() {
 
 func (f *Fjira) bootstrap(args *CliArgs) {
 	defer f.app.PanicRecover()
+	if args.BoardId != 0 {
+		boardConfig, err := f.api.GetBoardConfiguration(args.BoardId)
+		if err == nil && boardConfig != nil {
+			projectKey := args.ProjectId
+			if projectKey == "" {
+				projectKey = boardConfig.Location.Key
+			}
+			if projectKey == "" {
+				projects, err := f.api.GetBoardProjects(args.BoardId)
+				if err == nil && len(projects) > 0 {
+					project := &projects[0]
+					boardItem := &jira.BoardItem{
+						Id:   boardConfig.Id,
+						Self: boardConfig.Self,
+						Name: boardConfig.Name,
+						Type: boardConfig.Type,
+					}
+					f.app.RunOnAppRoutine(func() {
+						app.GoTo("boards", project, boardItem, nil, f.api)
+					})
+					return
+				}
+			} else {
+				project, err := f.api.FindProject(projectKey)
+				if err == nil && project != nil {
+					boardItem := &jira.BoardItem{
+						Id:   boardConfig.Id,
+						Self: boardConfig.Self,
+						Name: boardConfig.Name,
+						Type: boardConfig.Type,
+					}
+					f.app.RunOnAppRoutine(func() {
+						app.GoTo("boards", project, boardItem, nil, f.api)
+					})
+					return
+				}
+			}
+		}
+	}
 	if args.WorkspaceSwitch {
 		app.GoTo("workspaces-switch")
 		return

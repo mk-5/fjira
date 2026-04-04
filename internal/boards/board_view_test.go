@@ -22,7 +22,7 @@ func TestNewBoardView(t *testing.T) {
 		name string
 		args args
 	}{
-		{"should create a new board view", args{boardConfiguration: &jira.BoardConfiguration{}, project: &jira.Project{}}},
+		{"should create a new board view", args{boardConfiguration: &jira.BoardConfiguration{Id: 1}, project: &jira.Project{}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -39,7 +39,7 @@ func Test_boardView_Destroy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := NewBoardView(&jira.Project{}, &jira.BoardConfiguration{}, "", nil)
+			b := NewBoardView(&jira.Project{}, &jira.BoardConfiguration{Id: 1}, "", nil)
 			b.Destroy()
 		})
 	}
@@ -231,7 +231,7 @@ func Test_boardView_HandleKeyEvent(t *testing.T) {
 `
 				w.Write([]byte(body)) //nolint:errcheck
 			})
-			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{}, "", api).(*boardView)
+			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{Id: 1}, "", api).(*boardView)
 			view.columnStatusesMap[0] = []string{"0"}
 			view.columnStatusesMap[1] = []string{"1"}
 			view.columnStatusesMap[2] = []string{"2"}
@@ -321,7 +321,7 @@ func Test_boardView_Init(t *testing.T) {
 `
 				_, _ = w.Write([]byte(body)) //nolint:errcheck
 			})
-			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{}, "", api).(*boardView)
+			view := NewBoardView(&jira.Project{Id: "1"}, &jira.BoardConfiguration{Id: 1}, "", api).(*boardView)
 
 			// when
 			view.Init()
@@ -406,4 +406,274 @@ func Test_boardView_fetchIssues_WithActiveSprint_UsesSprintIssues(t *testing.T) 
 	assert.Len(t, issues, 2)
 	assert.Equal(t, "S1", issues[0].Key)
 	assert.Equal(t, "S2", issues[1].Key)
+}
+
+func Test_boardView_assigneeFiltering(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	type args struct {
+		assigneeFilter string
+	}
+	tests := []struct {
+		name           string
+		args           args
+		expectedIssues int
+	}{
+		{"should filter by specific assignee", args{assigneeFilter: "John Doe"}, 2},
+		{"should show all issues when 'All' is selected", args{assigneeFilter: "All"}, 4},
+		{"should show unassigned issues", args{assigneeFilter: "Unassigned"}, 1},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app.InitTestApp(screen)
+			api := jira.NewJiraApiMock(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				body := `{
+    "expand": "schema,names",
+    "startAt": 0,
+    "maxResults": 100,
+    "total": 4,
+    "issues": [
+        {
+            "id": "1",
+            "key": "TEST-1",
+            "fields": {
+                "summary": "First issue",
+                "assignee": {
+                    "accountId": "john-doe",
+                    "displayName": "John Doe"
+                },
+                "status": {
+                    "id": "10000"
+                }
+            }
+        },
+        {
+            "id": "2", 
+            "key": "TEST-2",
+            "fields": {
+                "summary": "Second issue",
+                "assignee": {
+                    "accountId": "john-doe",
+                    "displayName": "John Doe"
+                },
+                "status": {
+                    "id": "10001"
+                }
+            }
+        },
+        {
+            "id": "3",
+            "key": "TEST-3", 
+            "fields": {
+                "summary": "Third issue",
+                "assignee": {
+                    "accountId": "jane-smith",
+                    "displayName": "Jane Smith"
+                },
+                "status": {
+                    "id": "10002"
+                }
+            }
+        },
+        {
+            "id": "4",
+            "key": "TEST-4",
+            "fields": {
+                "summary": "Fourth issue",
+                "assignee": {
+                    "accountId": "",
+                    "displayName": ""
+                },
+                "status": {
+                    "id": "10003"
+                }
+            }
+        }
+    ]
+}`
+				w.Write([]byte(body)) //nolint:errcheck
+			})
+
+			boardConfig := &jira.BoardConfiguration{
+				Id: 1,
+				ColumnConfig: struct {
+					Columns []struct {
+						Name     string `json:"name"`
+						Statuses []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						} `json:"statuses"`
+					} `json:"columns"`
+					ConstraintType string `json:"constraintType"`
+				}{
+					Columns: []struct {
+						Name     string `json:"name"`
+						Statuses []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						} `json:"statuses"`
+					}{
+						{Name: "Col1", Statuses: []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						}{{Id: "10000"}}},
+						{Name: "Col2", Statuses: []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						}{{Id: "10001"}}},
+						{Name: "Col3", Statuses: []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						}{{Id: "10002"}}},
+						{Name: "Col4", Statuses: []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						}{{Id: "10003"}}},
+					},
+				},
+			}
+
+			view := NewBoardView(&jira.Project{}, boardConfig, "", api).(*boardView)
+			view.Init()
+
+			// Simulate applying assignee filter
+			if tt.args.assigneeFilter == "John Doe" {
+				user := &jira.User{
+					AccountId:   "john-doe",
+					DisplayName: "John Doe",
+				}
+				view.applyAssigneeFilter(user)
+			} else if tt.args.assigneeFilter == "All" {
+				view.clearAssigneeFilter()
+			} else if tt.args.assigneeFilter == "Unassigned" {
+				user := &jira.User{
+					AccountId:   "",
+					DisplayName: "Unassigned",
+				}
+				view.applyAssigneeFilter(user)
+			}
+
+			// Verify the number of issues after filtering
+			assert.Equal(t, tt.expectedIssues, len(view.issues))
+		})
+	}
+}
+
+func Test_boardView_getBoardAssignees(t *testing.T) {
+	tests := []struct {
+		name              string
+		expectedAssignees int
+		hasUnassigned     bool
+	}{
+		{"should extract unique assignees including unassigned", 2, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			view := &boardView{
+				allIssues: []jira.Issue{
+					{
+						Fields: jira.IssueFields{
+							Assignee: struct {
+								AccountId   string `json:"accountId"`
+								DisplayName string `json:"displayName"`
+							}{
+								AccountId:   "john-doe",
+								DisplayName: "John Doe",
+							},
+						},
+					},
+					{
+						Fields: jira.IssueFields{
+							Assignee: struct {
+								AccountId   string `json:"accountId"`
+								DisplayName string `json:"displayName"`
+							}{
+								AccountId:   "jane-smith",
+								DisplayName: "Jane Smith",
+							},
+						},
+					},
+					{
+						Fields: jira.IssueFields{
+							Assignee: struct {
+								AccountId   string `json:"accountId"`
+								DisplayName string `json:"displayName"`
+							}{
+								AccountId:   "",
+								DisplayName: "",
+							},
+						},
+					},
+				},
+			}
+
+			assignees := view.getBoardAssignees()
+
+			// Should have unique assignees plus unassigned
+			assert.Equal(t, tt.expectedAssignees+1, len(assignees)) // +1 for Unassigned
+
+			// Check if unassigned option is included
+			foundUnassigned := false
+			for _, assignee := range assignees {
+				if assignee.DisplayName == "Unassigned" {
+					foundUnassigned = true
+					break
+				}
+			}
+			assert.Equal(t, tt.hasUnassigned, foundUnassigned)
+		})
+	}
+}
+
+func Test_boardView_actionBarAssigneeFilter(t *testing.T) {
+	screen := tcell.NewSimulationScreen("utf-8")
+	_ = screen.Init() //nolint:errcheck
+	defer screen.Fini()
+
+	tests := []struct {
+		name string
+	}{
+		{"should create board view with assignee filter functionality"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app.InitTestApp(screen)
+
+			boardConfig := &jira.BoardConfiguration{
+				ColumnConfig: struct {
+					Columns []struct {
+						Name     string `json:"name"`
+						Statuses []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						} `json:"statuses"`
+					} `json:"columns"`
+					ConstraintType string `json:"constraintType"`
+				}{
+					Columns: []struct {
+						Name     string `json:"name"`
+						Statuses []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						} `json:"statuses"`
+					}{
+						{Name: "Col1", Statuses: []struct {
+							Id   string `json:"id"`
+							Self string `json:"self"`
+						}{{Id: "10000"}}},
+					},
+				},
+			}
+
+			view := NewBoardView(&jira.Project{}, boardConfig, "", nil).(*boardView)
+
+			// The board view should be created successfully with assignee filter functionality
+			assert.NotNil(t, view)
+			assert.NotNil(t, view.bottomBar)
+			assert.Nil(t, view.assigneeFilter) // should be nil initially
+		})
+	}
 }
