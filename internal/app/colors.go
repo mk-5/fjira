@@ -6,24 +6,41 @@ import (
 	os2 "github.com/mk-5/fjira/internal/os"
 	"gopkg.in/yaml.v3"
 	"os"
+	"sync"
 )
 
 var (
+	colorsMu  sync.RWMutex
 	schemeMap map[string]interface{}
 	colorsMap = map[string]tcell.Color{}
 )
 
 func Color(c string) tcell.Color {
-	if len(colorsMap) == 0 {
-		MustLoadColorScheme()
-	}
-	if color, ok := colorsMap[c]; ok {
+	colorsMu.RLock()
+	color, ok := colorsMap[c]
+	colorsMu.RUnlock()
+	if ok {
 		return color
 	}
-	panic("unknown color " + c)
+	colorsMu.Lock()
+	if len(colorsMap) == 0 {
+		mustLoadColorSchemeLocked()
+		color, ok = colorsMap[c]
+	}
+	colorsMu.Unlock()
+	if !ok {
+		return tcell.ColorDefault
+	}
+	return color
 }
 
 func MustLoadColorScheme() map[string]interface{} {
+	colorsMu.Lock()
+	defer colorsMu.Unlock()
+	return mustLoadColorSchemeLocked()
+}
+
+func mustLoadColorSchemeLocked() map[string]interface{} {
 	d := os2.MustGetFjiraHomeDir()
 	p := fmt.Sprintf("%s/colors.yml", d)
 	b, err := os.ReadFile(p)
@@ -32,6 +49,7 @@ func MustLoadColorScheme() map[string]interface{} {
 	} else {
 		schemeMap = parseYMLStr(string(b))
 	}
+	colorsMap = map[string]tcell.Color{}
 	colorsMap = parseYamlToDotNotationMap("", schemeMap, colorsMap)
 	return schemeMap
 }
@@ -46,8 +64,7 @@ func parseYamlToDotNotationMap(prefix string, yml map[string]interface{}, target
 		}
 		if m, ok := v.(map[string]interface{}); ok {
 			targetMap = parseYamlToDotNotationMap(key, m, targetMap)
-		}
-		if h, ok := v.(string); ok {
+		} else if h, ok := v.(string); ok {
 			targetMap[key] = tcell.GetColor(h)
 		}
 	}
