@@ -299,15 +299,24 @@ func (b *boardView) drawColumnsHeaders(screen tcell.Screen) {
 }
 
 func (b *boardView) moveCursorRight() {
+	// In move-issue mode, allow stepping into any adjacent column (including
+	// empty ones); skipping empties only makes sense for cursor navigation,
+	// not for the user explicitly moving an issue to a column they can see.
+	if b.issueSelected {
+		if b.cursorX+1 >= len(b.columns) {
+			return
+		}
+		b.cursorX = app.MinInt(len(b.columns)-1, b.cursorX+1)
+		b.cursorY = 0
+		b.moveIssue(b.highlightedIssue, 1)
+		return
+	}
+
 	if b.cursorX+1 >= len(b.statusesColumnsMap) {
 		return
 	}
 	b.cursorX = app.MinInt(len(b.columns), b.cursorX+1)
 	b.cursorY = 0
-	if b.issueSelected {
-		b.moveIssue(b.highlightedIssue, 1)
-		return
-	}
 	// no issues in a column
 	if f := b.refreshHighlightedIssue(); !f {
 		b.moveCursorRight()
@@ -317,15 +326,20 @@ func (b *boardView) moveCursorRight() {
 }
 
 func (b *boardView) moveCursorLeft() {
+	if b.issueSelected {
+		if b.cursorX-1 < 0 {
+			return
+		}
+		b.cursorX = app.MaxInt(0, b.cursorX-1)
+		b.cursorY = 0
+		b.moveIssue(b.highlightedIssue, -1)
+		return
+	}
 	if b.cursorX-1 < 0 {
 		return
 	}
 	b.cursorX = app.MaxInt(0, b.cursorX-1)
 	b.cursorY = 0
-	if b.issueSelected {
-		b.moveIssue(b.highlightedIssue, -1)
-		return
-	}
 	// no issues in a column
 	if f := b.refreshHighlightedIssue(); !f {
 		b.moveCursorLeft()
