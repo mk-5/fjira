@@ -83,4 +83,5 @@ const (
 	MessageJqlAddSuccess             = "New JQL has been successfully added to your workspace."
 	MessageJqlRemoveSuccess          = "JQL has been successfully removed from your workspace."
 	MessageCustomJql                 = "Custom JQL"
+	MessageNoProjectsTokenHint       = "No projects visible. If you expected projects, your API token may be expired."
 )
