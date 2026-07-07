@@ -1,10 +1,11 @@
 package issues
 
 import (
+	"testing"
+
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/ui"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func Test_buildSearchIssuesJql(t *testing.T) {
@@ -33,6 +34,8 @@ func Test_buildSearchIssuesJql(t *testing.T) {
 		},
 		{"should create valid jql", args{project: &jira.Project{Id: "123"}, label: "test"}, "project=123 AND labels=test ORDER BY status"},
 		{"should create valid jql", args{project: &jira.Project{Id: "123"}, user: &jira.User{Name: "bob"}}, "project=123 AND assignee=bob ORDER BY status"},
+		{"should fall back to bounded predicate when no restrictions", args{project: &jira.Project{Id: ui.MessageAll, Key: ui.MessageAll}}, "created >= -30d ORDER BY status"},
+		{"should fall back to bounded predicate when project is nil", args{}, "created >= -30d ORDER BY status"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
