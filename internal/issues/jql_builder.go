@@ -2,10 +2,13 @@ package issues
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/mk-5/fjira/internal/jira"
 	"github.com/mk-5/fjira/internal/ui"
-	"strings"
 )
+
+const DefaultBoundedJql = "created >= -30d"
 
 func BuildSearchIssuesJql(project *jira.Project, query string, status *jira.IssueStatus, user *jira.User, label string) string {
 	jql := ""
@@ -34,5 +37,9 @@ func BuildSearchIssuesJql(project *jira.Project, query string, status *jira.Issu
 	if query != "" && issueRegExp.MatchString(query) {
 		jql = jql + fmt.Sprintf(" OR issuekey=\"%s\"", query)
 	}
-	return fmt.Sprintf("%s %s", strings.TrimLeft(jql, " AND"), orderBy)
+	jql = strings.TrimLeft(jql, " AND")
+	if jql == "" {
+		jql = DefaultBoundedJql
+	}
+	return fmt.Sprintf("%s %s", jql, orderBy)
 }
