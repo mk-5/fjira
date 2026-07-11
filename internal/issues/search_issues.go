@@ -2,6 +2,9 @@ package issues
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/mk-5/fjira/internal/app"
 	"github.com/mk-5/fjira/internal/boards"
@@ -9,8 +12,6 @@ import (
 	"github.com/mk-5/fjira/internal/statuses"
 	"github.com/mk-5/fjira/internal/ui"
 	"github.com/mk-5/fjira/internal/users"
-	"regexp"
-	"strings"
 )
 
 type searchIssuesView struct {
@@ -37,11 +38,12 @@ const (
 )
 
 var (
-	issueRegExp     = regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
-	searchForStatus *jira.IssueStatus // global in order to keep status&user between views
-	searchForUser   *jira.User
-	searchForLabel  string
-	searchNavItems  = []ui.NavItemConfig{
+	issueRegExp            = regexp.MustCompile("^[A-Za-z0-9]{2,10}-[0-9]+$")
+	issueRegExpOnlyNumeric = regexp.MustCompile("^[0-9]+$")
+	searchForStatus        *jira.IssueStatus // global in order to keep status&user between views
+	searchForUser          *jira.User
+	searchForLabel         string
+	searchNavItems         = []ui.NavItemConfig{
 		ui.NavItemConfig{Action: ui.ActionSearchByStatus, Text1: ui.MessageByStatus, Text2: "[F1]", Key: tcell.KeyF1},
 		ui.NavItemConfig{Action: ui.ActionSearchByAssignee, Text1: ui.MessageByAssignee, Text2: "[F2]", Key: tcell.KeyF2},
 		ui.NavItemConfig{Action: ui.ActionSearchByLabel, Text1: ui.MessageByLabel, Text2: "[F3]", Key: tcell.KeyF3},
@@ -287,6 +289,9 @@ func (view *searchIssuesView) reopen() {
 
 func (view *searchIssuesView) searchForIssues(query string) []jira.Issue {
 	q := strings.TrimSpace(query)
+	if view.queryHasOnlyNumeric() && view.project != nil && view.project.Key != "" {
+		q = fmt.Sprintf("%s-%s", view.project.Key, q)
+	}
 	jql := BuildSearchIssuesJql(view.project, q, searchForStatus, searchForUser, searchForLabel)
 	// when custom JQL - use it instead of fuzzy query
 	if view.customJql != "" {
@@ -333,6 +338,10 @@ func (view *searchIssuesView) findBoards() []jira.BoardItem {
 
 func (view *searchIssuesView) queryHasIssueFormat() bool {
 	return issueRegExp.MatchString(view.currentQuery)
+}
+
+func (view *searchIssuesView) queryHasOnlyNumeric() bool {
+	return issueRegExpOnlyNumeric.MatchString(view.currentQuery)
 }
 
 func (view *searchIssuesView) goBack() {
